@@ -19,25 +19,39 @@
 
 using namespace std;
 
-int max_vid = 0;
 typedef int vid_type;
-typedef pair<int, int> eid_type;
+typedef pair<vid_type, vid_type> eid_type;
 typedef vid_type inode_id_type;
-
 struct inode{
     inode_id_type parent;
     size_t size;
     int k;
     
-    inode(inode_id_type parent = -1, int size = -1, int k = -1): 
+    inode(inode_id_type parent = -1, size_t size = -1, int k = -1): 
         parent(parent), size(size), k(k) { }
 };
-
 typedef unordered_map<eid_type, int, boost::hash<eid_type> > eint_map;
-typedef unordered_map<eid_type, inode_id_type, boost::hash<eid_type> > eiid_map;
+typedef unordered_map<eid_type, inode_id_type, boost::hash<eid_type> > 
+eiid_map;
 typedef unordered_map<inode_id_type, inode> iidinode_map;
 
-bool support_sort(const pair<eid_type, int> &a, const pair<eid_type, int> &b) {
+/*
+ * we have to use hash table as a brute-force scheme 
+ * such as A * max + B soon reaches the limit of int.
+ * But all we need is a int number for each edge, 
+ * Note boost hash or std hash will hash to size_t values,
+ * which may lead to collision when cast to int.
+ * To avoid handle this by ourself, we simpley use two tables.
+ * TODO: Add a singleton class for this
+ */
+//vid_type max_vid = 0;
+unordered_map<eid_type, vid_type, boost::hash<eid_type> > encode_table;
+unordered_map<vid_type, eid_type> decode_table;
+int vid_cnt = 0;
+
+
+bool support_sort(const pair<eid_type, int> &a, 
+        const pair<eid_type, int> &b) {
     return a.second < b.second;
 }
 
@@ -48,23 +62,24 @@ inline eid_type edge_composer(const vid_type &u, const vid_type &v) {
         return make_pair(v, u);
 }
 
-// assume continuous id now
-inline int mst_vid_composer(const vid_type &u, const vid_type &v) {
-    if (u < v)
-        return u * max_vid + v;
-    else
-        return v * max_vid + u;
+inline vid_type mst_vid_composer(
+        const vid_type &u, const vid_type &v) {
+    eid_type e = edge_composer(u, v);
+    if (encode_table.find(e) == encode_table.end()) {
+        encode_table.insert(make_pair(e, vid_cnt));
+        decode_table.insert(make_pair(vid_cnt, e));
+        vid_cnt ++;
+    }
+    return encode_table[e];
 }
 
 inline eid_type edge_extractor(const vid_type &x) {
-    vid_type u = x / max_vid;
-    vid_type v = x % max_vid;
-
-    return make_pair(u, v);
+    return decode_table[x];
 }
 
 /*
-inline mst_eid_type edge_composer(const mst_vid_type &u, const mst_vid_type &v) {
+inline mst_eid_type edge_composer(const mst_vid_type &u, 
+const mst_vid_type &v) {
     if (u < v)
         return make_pair(u, v);
     else
@@ -160,17 +175,17 @@ void construct_mst(const PUNGraph &net,
      * vertex weight is edge trussness
      * edge weight is triangle trussness
      */
-    unordered_map<vid_type, int> cc;
+    unordered_map<vid_type, vid_type> cc;
     unordered_map<vid_type, int> rank;
     set< pair<int, eid_type> > sorted_triangle_trussness;
 
     /*
-    for (TUNGraph::TNodeI NI = mst->BegNI(); NI < mst->EndNI(); NI++) {
+    // calc max vid
+    for (TUNGraph::TNodeI NI = net->BegNI(); NI < net->EndNI(); NI++) {
         if (NI.GetId() > max_vid)
             max_vid = NI.GetId();
     }
     */
-    max_vid = 10000;
 
     // create set for each mst vertex and sort mst edges by weight
     for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) {
@@ -179,24 +194,27 @@ void construct_mst(const PUNGraph &net,
         vid_type dst = EI.GetDstNId();
         get_low_high_deg_vertices(net, src, dst, u, v);
         int u_deg = net->GetNI(u).GetDeg();
+
+        // if not connected with any triangle
+        vid_type v1 = mst_vid_composer(u,v);
+        if (cc.find(v1) == cc.end()) {
+            cc.insert(make_pair(v1, v1));
+            rank.insert(make_pair(v1, 0));
+            mst->AddNode(v1);
+        }
         for (int i = 0; i < u_deg; i++) {
             vid_type w = net->GetNI(u).GetNbrNId(i);
-            // to ensure each triangle only inserted once.
             int uvw_trussness = 0;
+            // ensure each triangle only inserted once.
             if (w < u && w < v && net->IsEdge(w, v)) {
-                uvw_trussness = std::min(edge_trussness[edge_composer(u,v)],
+                uvw_trussness = std::min(
+                        edge_trussness[edge_composer(u,v)],
                         edge_trussness[edge_composer(u,w)]);
                 uvw_trussness = std::min(uvw_trussness, 
                         edge_trussness[edge_composer(v,w)]);
                 // create set for each vertex for later mst algorithm
-                vid_type v1 = mst_vid_composer(u,v);
                 vid_type v2 = mst_vid_composer(u,w);
                 vid_type v3 = mst_vid_composer(w,v);
-                if (cc.find(v1) == cc.end()) {
-                    cc.insert(make_pair(v1, v1));
-                    rank.insert(make_pair(v1, 0));
-                    mst->AddNode(v1);
-                }
                 if (cc.find(v2) == cc.end()) {
                     cc.insert(make_pair(v2, v2));
                     rank.insert(make_pair(v2, 0));
@@ -214,12 +232,17 @@ void construct_mst(const PUNGraph &net,
                 triangle_trussness[e1] = uvw_trussness;
                 triangle_trussness[e2] = uvw_trussness;
                 triangle_trussness[e3] = uvw_trussness;
-                sorted_triangle_trussness.insert(make_pair(uvw_trussness, e1));
-                sorted_triangle_trussness.insert(make_pair(uvw_trussness, e2));
-                sorted_triangle_trussness.insert(make_pair(uvw_trussness, e3));
+                sorted_triangle_trussness.insert(
+                        make_pair(uvw_trussness, e1));
+                sorted_triangle_trussness.insert(
+                        make_pair(uvw_trussness, e2));
+                sorted_triangle_trussness.insert(
+                        make_pair(uvw_trussness, e3));
             }
         }
     }
+
+    cout << "---" << cc.size() << endl;
 
     // Kruskal's algorithm
     for (typename set< pair<int, eid_type> >::reverse_iterator
@@ -410,7 +433,8 @@ void construct_index_tree(const PUNGraph &mst,
     }
 }
 
-vector< set<eid_type> > truss_raw_query(int query_k, vid_type query_vid, 
+vector< set<eid_type> > truss_raw_query(
+        int query_k, vid_type query_vid, 
         const PUNGraph &net, 
         eint_map &edge_trussness) {
     vector< set<eid_type> > truss_communities;
@@ -604,8 +628,10 @@ int main(int argc, char** argv){
 
     cout << "4. Build MST from generated graph" << endl;
     construct_mst(net, edge_trussness, triangle_trussness, mst);
-    if (mst->GetNodes() != net->GetEdges() || mst->GetEdges() != mst->GetNodes() - 1) 
+    if (mst->GetNodes() != net->GetEdges() || mst->GetEdges() != mst->GetNodes() - 1) { 
         cout << "Incorrect mst constructed." << endl;
+        cout << mst->GetNodes() << "-" << net->GetEdges() << " " << mst->GetEdges() << "-" << mst->GetNodes() - 1 << endl;
+    }
     cout << "elapsed time: " << double(clock() - start_time) / CLOCKS_PER_SEC << endl;
     start_time = clock();
 
