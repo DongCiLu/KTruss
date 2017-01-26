@@ -19,7 +19,7 @@ ln -s /local/KTruss/ktruss.cpp /local/Snap/examples/ktruss/ktruss.cpp
 ln -s /local/KTruss/Makefile /local/Snap/examples/ktruss/Makefile
 ln -s /local/KTruss/Makefile.ex /local/Snap/examples/ktruss/Makefile.ex
 ln -s /local/KTruss/simple.sh /local/Snap/examples/ktruss/simple.sh
-cd /local/Snap/examples/ds_cent
+cd /local/Snap/examples/ktruss
 make
 
 echo "You are all set."
