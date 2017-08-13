@@ -1,21 +1,22 @@
 \section{Preliminaries}
 \label{preliminary}
 
-In our problem, we consider a graph $G = (V,E)$, with $n = |V|$ vertices and $m = |E|
-$ edges. We denote the set of neighbors of a vertex $v$ by $N(v)$, i.e., $N(v)= {u \in V :(v, u) \in E}$, and the degree of $v$ by $d(v)= |N(v)|$. A triangle in G is a cycle of length 3. Let $u, v, w \in V$ be the three vertices on the cycle, and we denote this triangle by $\triangle uvw$.
+In our problem, we consider an undirected, unweighted graph $G = (V,E)$. We define the set of neighbors of a vertex $v$ in $G$ as $N(v)= {u \in V :(v, u) \in E}$, and the degree of $v$ as $d(v)= |N(v)|$. We define a triangle in $G$ as a cycle of length 3. Let $u, v, w \in V$ be the three vertices on the cycle, and we denote this triangle by $\triangle uvw$.
 
-The support of an edge $e(u, v) \in E$ in G, denoted by $sup(e,G)$, is defined as $|{\triangle uvw : w \in V}|$. When the context is obvious, we replace sup(e,G) by sup(e).
+\textbf{Edge support.} The support of an edge $e(u, v) \in E$ is defined as $s(e,G) = |{\triangle uvw : w \in V}|$. When the context is obvious, we replace $s(e,G)$ by $s(e)$.
 
-Given two triangles ${\triangle}_{1}$, ${\triangle}_{2}$ in G, they are adjacent if they share a common edge, denoted by ${\triangle}_{1} \cap {\triangle}_{2} \neq \emptyset$. Two triangles are triangle connected if there exist a series of triangles ${\triangle}_{1}$, ..., ${\triangle}_{n}$ in G such that for $1 \le i < n, {\triangle}_{i} \cap {\triangle}_{i+1} \neq \emptyset$.
+\textbf{K-truss.} Given a graph $G$ and $k \ge 2$, $H \subseteq G$ is a k-truss if $\forall e \in E(H), s(e,H) ≥ (k − 2)$. 
 
-The trussness of a subgraph $H \in G$ is the minimum support of an edge in H, denoted by $\tau(H) = min{sup(e,H): e \in E(H)}$.  The trussness of an edge $e \in E(G)$ is defined as $\tau(e)=max_{H \in G}{τ(H): e \in E(H)}$. %The trussness of a triangle is defined as $τ(\triangle) = min{τ(e,H): e \in E(\triangle)}$
+\textbf{Maximal k-truss} $H$ is a maximal k-truss if it is not a subgraph of another k-truss in $G$.
 
-Given a graph G and an integer $k \ge 2$, G' is a k-truss community, if G' satisfies the following three conditions: 
+\textbf{Trussness.} The trussness of a subgraph $H \in G$ is the minimum support of edges in $H$, denoted by $\tau(H) = min{s(e,H): e \in E(H)}$.  The trussness of an edge $e \in E(G)$ is defined as $\tau(e)=max_{H \in G}{\tau(H): e \in E(H)}$. 
 
-(1) K-Truss. G' is a subgraph of G, denoted as $G' \subseteq G$, such that $\forall e \in E(G'), sup(e,G') ≥ (k − 2)$;
+We use the same triangle adjacency and triangle connectivity definition as in~\cite{huang2014querying}.
 
-(2) Edge Connectivity. $\forall e1,e2 \in E(G'), \exists {\triangle}_{1}, {\triangle}_{2}$ in G' such that $e1 \in {\triangle}_{1}, e2 \in {\triangle}_{2}$, then either ${\triangle}_{1} = {\triangle}_{2}$, or ${\triangle}_{1}$ is triangle connected with ${\triangle}_{2}$ in G';
+\textbf{Triangle adjacency:} ${\triangle}_{1}$, ${\triangle}_{2}$ are adjacent if they share a common edge, denoted by ${\triangle}_{1} \cap {\triangle}_{2} \neq \emptyset$. 
 
-(3) Maximal Subgraph. G' is a maximal subgraph satisfying conditions (1) and (2). That is, $G'' \in G$, such that $G' \in G''$, and G'' satisfies conditions (1) and (2).
+\textbf{Triangle connectivity:} ${\triangle}_{1}$, ${\triangle}_{2}$ are triangle connected if they can reach each other through a series of adjacent triangles, \ie for $1 \le i < n, {\triangle}_{i} \cap {\triangle}_{i+1} \neq \emptyset$.
 
-Problem Definition. The problem of studied in this paper is defined as follows. Given a graph $G(V,E)$, a set of query vertices $Q \in V$, find all truss communities containing $Q$ with maximum $k$, a specific $k$ or any possible $k$. 
+\textbf{K-truss community} $H$ is a k-truss community if $H$ is a maximal k-truss and $\forall e1,e2 \in E(H), \exists {\triangle}_{1}, {\triangle}_{2}$ in $H$ such that $e1 \in {\triangle}_{1}, e2 \in {\triangle}_{2}$, then either ${\triangle}_{1} = {\triangle}_{2}$, or ${\triangle}_{1}$ is triangle connected with ${\triangle}_{2}$ in $H$;
+
+\textbf{Problem Definition.} The problem of studied in this paper is defined as follows. Given a graph $G(V,E)$, a set of query vertices $Q \in V$, find all truss communities containing $Q$ with maximum $k$, a specific $k$ or any possible $k$. 

@@ -2,10 +2,50 @@
 
 \usepackage{booktabs} % For formal tables
 \usepackage{amsmath}
-\usepackage{algorithm}
+%\usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \usepackage[flushleft]{threeparttable}
 \usepackage{subfigure}
+
+
+\usepackage{comment}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{multirow}
+\usepackage{subfigure}
+
+\usepackage{amsmath}
+%\usepackage{algorithm}
+%\usepackage[noend]{algpseudocode}
+\usepackage[lined,linesnumbered,ruled]{algorithm2e}
+\usepackage[flushleft]{threeparttable}
+
+\def\sectionautorefname{Section}
+\def\figureautorefname{Figure}
+\def\subfigureautorefname{Figure}
+\def\tableautorefname{Table}
+\def\equationautorefname{Eqn.}
+
+\newtheorem{Def}{Definition}[section]
+%\def\definitionautorefname{Definition}
+\newcommand{\Defautorefname}{Definition}
+
+\def\on{{on}}
+\def\off{{o\!f\!f}}
+\def\dist{\mathrm{dist}}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\proj}{proj}
+
+%\renewcommand{\arraystretch}{1.5}
+
+\newcommand{\ie}{i.e., }
+\newcommand{\eg}{e.g., }
+\newcommand{\note}[1]{\textbf{\color{red}[***** #1 *****]}}
+%\renewcommand{\note}[1]{}
+
+\newtheorem{case}{Use Case}
 
 % Copyright
 %\setcopyright{none}
