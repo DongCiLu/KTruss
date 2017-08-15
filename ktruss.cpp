@@ -138,22 +138,24 @@ int compute_trussness(const PUNGraph &net,
             get_low_high_deg_vertices(net, e.first, e.second, u, v);
             for (int i = 0; i < net->GetNI(u).GetDeg(); i++) {
                 vid_type w = net->GetNI(u).GetNbrNId(i);
-                if (edge_support.find(edge_composer(u, w)) != edge_support.end() &&
-                        edge_support.find(edge_composer(w, v)) != edge_support.end()) {
+                if (edge_support.find(edge_composer(u, w)) != 
+                        edge_support.end() &&
+                        edge_support.find(edge_composer(w, v)) != 
+                        edge_support.end()) {
                     int uw_support = edge_support[edge_composer(u, w)];
-                    sorted_edge_support.erase(
-                            make_pair(uw_support, edge_composer(u, w)));
+                    sorted_edge_support.erase(make_pair(
+                                uw_support, edge_composer(u, w)));
                     edge_support[edge_composer(u, w)] -= 1;
                     uw_support -= 1;
-                    sorted_edge_support.insert(
-                            make_pair(uw_support, edge_composer(u, w)));
+                    sorted_edge_support.insert(make_pair(
+                                uw_support, edge_composer(u, w)));
                     int vw_support = edge_support[edge_composer(v, w)];
-                    sorted_edge_support.erase(
-                            make_pair(vw_support, edge_composer(v, w)));
+                    sorted_edge_support.erase(make_pair(
+                                vw_support, edge_composer(v, w)));
                     edge_support[edge_composer(v, w)] -= 1;
                     vw_support -= 1;
-                    sorted_edge_support.insert(
-                            make_pair(vw_support, edge_composer(v, w)));
+                    sorted_edge_support.insert(make_pair(
+                                vw_support, edge_composer(v, w)));
                 }
             }
             edge_trussness[e] = k;
@@ -165,7 +167,7 @@ int compute_trussness(const PUNGraph &net,
     return k - 1;
 }
 
-void construct_mst(const PUNGraph &net,
+int construct_mst(const PUNGraph &net,
         eint_map &edge_trussness,
         eint_map &triangle_trussness,
         PUNGraph &mst) {
@@ -205,8 +207,9 @@ void construct_mst(const PUNGraph &net,
         for (int i = 0; i < u_deg; i++) {
             vid_type w = net->GetNI(u).GetNbrNId(i);
             int uvw_trussness = 0;
-            // ensure each triangle only inserted once.
-            if (w < u && w < v && net->IsEdge(w, v)) {
+            // ensure each triangle only inserted once. i
+            // only add when u is the smallest vid in uvw
+            if (w < u && w < v && net->IsEdge(w, v)) { 
                 uvw_trussness = std::min(
                         edge_trussness[edge_composer(u,v)],
                         edge_trussness[edge_composer(u,w)]);
@@ -242,8 +245,6 @@ void construct_mst(const PUNGraph &net,
         }
     }
 
-    cout << "---" << cc.size() << endl;
-
     // Kruskal's algorithm
     for (typename set< pair<int, eid_type> >::reverse_iterator
             riter = sorted_triangle_trussness.rbegin();
@@ -270,14 +271,28 @@ void construct_mst(const PUNGraph &net,
             if (rank[px] == rank[py])
                 rank[py] ++;
         }
-        px += trussness;
+        px += trussness; // i forgot what is this for.
     }
+
+    // count how many connected components are there
+    set<int> cc_heads;
+    for (unordered_map<vid_type, vid_type>::iterator iter = cc.begin();
+            iter != cc.end();
+            ++ iter) {
+        vid_type u = iter->second;
+        while (u != cc[u])
+            u = cc[u];
+        cc_heads.insert(u);
+    }
+
+    return cc_heads.size();
 }
 
 void construct_index_tree(const PUNGraph &mst, 
         eint_map &triangle_trussness,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
+    vector<int> case_cnt = {0,0,0,0};
     unordered_set<vid_type> unvisited_vertices;
     for (TUNGraph::TNodeI NI = mst->BegNI(); NI < mst->EndNI(); NI++) {
         unvisited_vertices.insert(NI.GetId());
@@ -299,9 +314,12 @@ void construct_index_tree(const PUNGraph &mst,
             for (int i = 0; i < u_deg; i++) {
                 vid_type v = mst->GetNI(u).GetNbrNId(i);
                 eid_type e = edge_composer(u,v);
+                // the k for each vertex is the highest k it connects
+                // we can read it from edge trussness of orig graph?
                 if (triangle_trussness[e] > node_k)
                     node_k = triangle_trussness[e];
-                if (unvisited_vertices.find(v) == unvisited_vertices.end())
+                if (unvisited_vertices.find(v) == 
+                        unvisited_vertices.end())
                     continue;
                 fifo.push(v);
                 unvisited_vertices.erase(v);
@@ -333,16 +351,19 @@ void construct_index_tree(const PUNGraph &mst,
             while (!processed) {
                 if (v_k < edge_k) {
                     if (edge_k == node_k) {
+                        case_cnt[0] ++;
                         // create inode based on u
                         inode in(v_inode_id, 0, node_k);
                         in.parent = v_inode_id;
                         int lower_size = 1;
                         if (lower_inode_id != -1)
-                            lower_size += index_tree[lower_inode_id].size;
+                            lower_size += 
+                                index_tree[lower_inode_id].size;
                         in.size = lower_size;
-                        // add inode to the index tree and update hashtable
+                        // add to the index tree and update hashtable
                         index_tree.insert(make_pair(u, in));
-                        index_hash.insert(make_pair(edge_extractor(u), u));
+                        index_hash.insert(
+                                make_pair(edge_extractor(u), u));
                         // link lower id with this cluster
                         if (lower_inode_id != -1)
                             index_tree[lower_inode_id].parent = u;
@@ -356,28 +377,33 @@ void construct_index_tree(const PUNGraph &mst,
                         processed = true;
                     }
                     else if (edge_k < node_k) {
+                        case_cnt[1] ++;
                         // create inode based on e
                         inode in(v_inode_id, 0, edge_k);
                         int lower_size = 1;
                         if (lower_inode_id != -1)
-                            lower_size += index_tree[lower_inode_id].size;
+                            lower_size += 
+                                index_tree[lower_inode_id].size;
                         in.size = lower_size;
-                        // only add inode as there is no vertex related to this inode
+                        // only add inode as there is no 
+                        // vertex related to this inode
                         // temporary solution for edge_cluster
                         int e_inode_id = u * 10000;
                         index_tree.insert(make_pair(e_inode_id, in));
                         // link lower id with this edge cluster
                         if (lower_inode_id != -1)
-                            index_tree[lower_inode_id].parent = e_inode_id;
+                            index_tree[lower_inode_id].parent = 
+                                e_inode_id;
 
                         // create inode based on u
                         // reuse the "in" here
                         in.parent = e_inode_id;
                         in.size = 1;
                         in.k = node_k;
-                        // add inode to the index tree and update hashtable
+                        // add to the index tree and update hashtable
                         index_tree.insert(make_pair(u, in));
-                        index_hash.insert(make_pair(edge_extractor(u), u));
+                        index_hash.insert(
+                                make_pair(edge_extractor(u), u));
 
                         // update parent size
                         do {
@@ -392,8 +418,10 @@ void construct_index_tree(const PUNGraph &mst,
                 }
                 else if (v_k == edge_k) {
                     if (edge_k == node_k) {
+                        case_cnt[2] ++;
                         // update hash table
-                        index_hash.insert(make_pair(edge_extractor(u), v_inode_id));
+                        index_hash.insert(make_pair(
+                                    edge_extractor(u), v_inode_id));
                         // update parent size
                         do {
                             index_tree[v_inode_id].size ++; 
@@ -403,11 +431,13 @@ void construct_index_tree(const PUNGraph &mst,
                         processed = true;
                     }
                     else if (edge_k < node_k) { 
+                        case_cnt[3] ++;
                         // create inode based on u
                         inode in(v_inode_id, 1, node_k);
-                        // add inode to the index tree and update hashtable
+                        // add to the index tree and update hashtable
                         index_tree.insert(make_pair(u, in));
-                        index_hash.insert(make_pair(edge_extractor(u), u));
+                        index_hash.insert(
+                                make_pair(edge_extractor(u), u));
                         // update parent size
                         do {
                             index_tree[v_inode_id].size ++; 
@@ -430,6 +460,9 @@ void construct_index_tree(const PUNGraph &mst,
                 }
             }
         }
+    }
+    for (int i = 0; i < 4; i ++) {
+        cout << "case count " << i << ": " << case_cnt[i] << endl;
     }
 }
 
@@ -632,13 +665,17 @@ int main(int argc, char** argv){
     start_time = clock();
 
     cout << "4. Build MST from generated graph" << endl;
-    construct_mst(net, edge_trussness, triangle_trussness, mst);
-    /*
-    if (mst->GetNodes() != net->GetEdges() || mst->GetEdges() != mst->GetNodes() - 1) { 
+    int num_cc = 
+        construct_mst(net, edge_trussness, triangle_trussness, mst);
+    if (mst->GetNodes() != net->GetEdges() || mst->GetEdges() != mst->GetNodes() - num_cc) { 
         cout << "Incorrect mst constructed." << endl;
-        cout << mst->GetNodes() << "-" << net->GetEdges() << " " << mst->GetEdges() << "-" << mst->GetNodes() - 1 << endl;
+        cout << mst->GetNodes() << "-" << net->GetEdges() << " " << mst->GetEdges() << "-" << mst->GetNodes() - num_cc << endl;
     }
-    */
+    else {
+        cout << "MST has " << mst->GetNodes() << " nodes, "
+            << mst->GetEdges() << " edges and "
+            << num_cc << " connected components." << endl;
+    }
     cout << "elapsed time: " << 
         double(clock() - start_time) / CLOCKS_PER_SEC << endl;
     start_time = clock();
