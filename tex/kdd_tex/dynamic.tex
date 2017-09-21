@@ -1,0 +1,50 @@
+\section{Dynamic updates}
+\label{dynamic}
+
+This section describes update procedures of both \inducedgraph{} and \treeindex{} in dynamic graphs. We focus on edge insertion/deletion as vertex insert/deletion can be represented by inserting/deleting an isolated vertex and several following edge insertions/deletions.
+
+The scope of affected edges when a new edge is inserted/deleted has been well studied in~\cite{huang2014querying}. When an edge $e_0$ has been added/removed from $G_o$, the affected edges, \ie with trussness changes, are either directly forming new triangles of weight $\ge \tau_{e_0}$ or are triangle connected to the new edge $e_0$ with all triangles of weight $\ge \tau_{e_0}$. With this rule, the authors of~\cite{huang2014querying} also developed an efficient algorithm to calculate edge trussness updates. 
+
+We can then proceed to update the \inducedgraph{} $G_m$ once edge trussness in $G_o$ have been updated. For the insertion of an edge $e_0$, a new vertex $x_0$ is added to $G_{m}^{prime}$ with several new adjacent edges and updated weight of some vertices and edges. All we need to do is maintain the maximum spanning tree $G_m$ with these changes in $G_{m}^{prime}$. As maintaining Minimum spanning tree is a well studied area with highly efficient algorithms~\cite{cattaneo2002maintaining}, we omit the details here.
+
+\note{are there problems if we dont update vertex and edges in order?}
+Once we have updated $G_m$, we can proceed to update the \treeindex{} $G_t$. There are two types of changes for the update of $G_m$. One is vertex based that includes adding the new vertex $x_0$ and updating weights of other affected vertices. For a vertex $x$ that have updated weight, according to \autoref{thm:\inducedgraph{}_vertex_trussness}, the algorithm needs to create a new child vertex of current vertex $h[x]$ in $G_t$ based on the new weight. Note that this update is incomplete in the sense that we haven't taken into account the weight changes of the adjacent edges.  
+
+\begin{algorithm}
+	\KwData{$G_{o}(V,E)$}
+	\KwResult{edge trussness $\{\tau_{e}, e \in E\}$}
+	\BlankLine
+	compute $s_e$ for each edge $e$ and sort in ascending order\;
+	$k \gets 2$\;
+	\While{$\exists e \in E$}{
+		\While{$\exists e$ such that $s_e \le k - 2$}{
+			$e \gets$ lowest support edge $(u, v)$\;
+			$u \gets$ lower degree end of $e$\;
+			\For{$w \in N_u$}{
+				\If{$(v,w) \in E$}{
+					$s_{(u,w)} \gets s_{(u,w)} + 1$\;
+					$s_{(v,w)} \gets s_{(v,w)} + 1$\;
+					reorder the sorted list of edges\;
+				}
+			}
+			$\tau_e \gets k$\;
+			remove $e$ from $E$\;
+		}
+		$k \gets k + 1$\;
+	}
+	\Return{$\{\tau_{e}, e \in E\}$}
+	\caption{Truss Decomposition}\label{alg:truss_decomposition}
+\end{algorithm}
+
+Another type of change is that a new edge is added to $G_m$ or an edge has updated weight. For a new edge $(x,y)$ in $G_m$, if $x$ and $y$ belongs to different connected components in $G_m$, then we need to combine the two branches of trees to which $h[x]$ and $h[y]$ belongs. We call this procedure zipper as it will combine nodes in two branches and stop at a ancestor that has weight of k. 
+
+
+%Note that this update is imcomplete in the sense that a new k-truss community or expanding of an existing k-truss community in $G_o$ involves several adjacent edges, and we create a separate vertex in $G_t$ for each of them. We will update  
+
+Based on the update of the \inducedgraph{} $G_m$, we can update the \treeindex{} $G_t$. 
+\begin{itemize}
+	\item \textbf{Add a new edge in $G_o$} Add a new vertex in $G_m$. So only need to add a new vertex and create its own k-truss community in $G_t$ as it is not connected to any component in $G_m$ now.
+	\item \textbf{Form a new triangle in $G_o$} Add a new edge in $G_{m}^{prime}$. If such an edge is updated into the MST $G_m$, there might be another edge that has been deleted from $G_m$. However, in such a case, the connected components are still the same. But no matter the new edge connect two formerly disconnected components or not, the algorithm runs the same way. The algorithm can now combine two branch of the tree (or tree in case it connects two disconnected components) together. How? \note{define a procedure here} First find the LCA, and then check from the LCA, add each node with the lowest k from both side. If there are two nodes that has same k, combine them and add the combined node to the tree.
+	\item \textbf{a triangle has trussness update in $G_o$} An edge has weight update in $G_{m}^{prime}$. If such an edge does not belongs to $G_m$ previously, and now becomes an edge in $G_m$, same as adding a new edge. Otherwise, As from \autoref{thm:\inducedgraph{}_vertex_trussness}
+	
+\end{itemize}

@@ -21,16 +21,35 @@
 %\usepackage[noend]{algpseudocode}
 \usepackage[lined,linesnumbered,ruled]{algorithm2e}
 \usepackage[flushleft]{threeparttable}
+\usepackage{mfirstuc}
 
 \def\sectionautorefname{Section}
 \def\figureautorefname{Figure}
 \def\subfigureautorefname{Figure}
 \def\tableautorefname{Table}
-\def\equationautorefname{Eqn.}
+\def\equationautorefname{Equation}
 
-\newtheorem{Def}{Definition}[section]
+\makeatletter
+\def\th@plain{%
+  \thm@notefont{}% same as heading font
+  \itshape % body font
+}
+\def\th@definition{%
+  \thm@notefont{}% same as heading font
+  % \normalfont % body font
+	\itshape
+}
+\makeatother
+
+\newtheorem{Def}{Definition}%[section]
 %\def\definitionautorefname{Definition}
 \newcommand{\Defautorefname}{Definition}
+
+\newtheorem{Thm}{Theorem}%[section]
+%\def\definitionautorefname{Definition}
+\newcommand{\Thmautorefname}{Theorem}
+
+%\newcommand{\Equautorefname}{Equation}
 
 \def\on{{on}}
 \def\off{{o\!f\!f}}
@@ -42,8 +61,20 @@
 
 \newcommand{\ie}{i.e., }
 \newcommand{\eg}{e.g., }
-\newcommand{\note}[1]{\textbf{\color{red}[***** #1 *****]}}
+\newcommand{\note}[1]{\textbf{\color{blue}[***** #1 *****]\\}}
 %\renewcommand{\note}[1]{}
+
+% Problem specific macros
+\newcommand{\probdef}{k-truss community search}
+\newcommand{\Probdef}{K-truss community search}
+\newcommand{\ProbDef}{\expandafter\capitalisewords\expandafter{\probdef}}
+\newcommand{\inducedgraph}{induced MST graph}
+\newcommand{\Inducedgraph}{Induced MST graph}
+\newcommand{\InducedGraph}{\expandafter\capitalisewords\expandafter{\inducedgraph}}
+\newcommand{\treeindex}{tree-structured community graph}
+\newcommand{\Treeindex}{Tree-structured community graph}
+\newcommand{\TreeIndex}{\expandafter\capitalisewords\expandafter{\treeindex}}
+
 
 \newtheorem{case}{Use Case}
 
@@ -155,8 +186,8 @@ nodes $Q$, we study community query using the k-truss based community model. We 
 \input{introduction}
 \input{relatedwork}
 \input{preliminary}
-\input{induced_graph}
 \input{index}
+\input{dynamic}
 \input{evaluation}
 \input{conclusion}
 
