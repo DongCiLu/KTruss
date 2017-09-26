@@ -285,7 +285,7 @@ Given a vertex $C_{0} \in G_t$ and an integer $k$, the backtrack branch search r
 		$B \gets \emptyset$\;
 		\While{$C \neq \emptyset$ \textbf{and} $\tau_{C} \ge k$}{
 			$B \gets B \bigcup {C}$\;
-			$C \gets$ parent of $C$ in $G_t$\;
+			$C \gets C.parent$\;
 		}
 		\Return{$B$}
 	}
@@ -293,7 +293,7 @@ Given a vertex $C_{0} \in G_t$ and an integer $k$, the backtrack branch search r
 	\Fn{query\_k ($q$, $G_o$, $G_t$, $k$)}{
 		$R \gets \emptyset$\;
 		\For{$e \in N_q$}{
-			$B$ = branch\_search ($h[x_e]$, $G_t$, $k$)\;
+			$B \gets$ branch\_search ($h[x_e]$, $G_t$, $k$)\;
 			\If{$\tau_{B[-1]} = k$}{
 				$R \gets R \bigcup B[-1]$; \Comment{$B[-1]$ is the last element in $B$}
 			}
@@ -304,7 +304,7 @@ Given a vertex $C_{0} \in G_t$ and an integer $k$, the backtrack branch search r
 	\Fn{query\_anyk ($q$, $G_o$, $G_t$)}{
 		$R \gets \emptyset$\;
 		\For{$e \in N_q$}{
-			$B$ = branch\_search ($h[x_e]$, $G_t$)\;
+			$B \gets$ branch\_search ($h[x_e]$, $G_t$)\;
 			$R \gets R \bigcup B$\;
 		}
 		\Return{$R$}
