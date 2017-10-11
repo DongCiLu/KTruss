@@ -41,7 +41,14 @@ Once we have updated $G_m$, we can proceed to update the \treeindex{} $G_t$. The
 	\caption{Zipper (Combine two branches)}\label{alg:zipper}
 \end{algorithm}
 
-Another type of change is that a new edge is added to $G_m$ or an edge has updated weight. This happens when a new triangle is formed in $G_o$ or the lowest trussness of edges in a triangle has changed. For a new edge $(x,y)$ in $G_m$, if $x$ and $y$ belongs to different connected components in $G_m$, then we need to combine the two branches of trees to which $h[x]$ and $h[y]$ belongs. We call this procedure zipper as shown in \autoref{alg:zipper}. In this way, K-Truss communities with trussness lower than the weight of the edge are combined together and the rest of high trussness communities become two separate children branch. 
+Another type of change is that a new edge is added to $G_m$ or an edge has updated weight. This happens when a new triangle is formed in $G_o$ or the lowest trussness of edges in a triangle has changed. For a new edge $(x,y)$ in $G_m$, if $x$ and $y$ belongs to different connected components in $G_m$, then we need to combine the two branches of trees to which $h[x]$ and $h[y]$ belongs. We call this procedure zipper as shown in \autoref{alg:zipper}. In this way, K-Truss communities with trussness lower than the weight of the edge are combined together and the rest of high trussness communities become two separate children branch. An example is shown in \autoref{fig:dynamic_update}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{./figures/dynamic_update.pdf}
+    \caption{An example or zipper operation when adding a new edge.}
+    \label{fig:dynamic_update}
+\end{figure}
 
 \note{add a theorem here?} 
 However, if a new edge is inserted in $G_m$ without join two disconnected parts, another edge with lower weight in $G_m$ must have been deleted to maintain the minimum spanning tree. In this case, if the two ends of the new edge $h[x]$ and $h[y]$ is different, we can still use zipper procedure to combine these two branches. The only difference is that we need to apply the zipper procedure from the least common ancestor of $h[x]$ and $h[y]$. Same goes for an edge with updated weight, as it can be viewed as deleting the edge with old weight and inserting a new edge with updated weight.

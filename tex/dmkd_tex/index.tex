@@ -85,7 +85,7 @@ The truss decomposition algorithm \cite{wang2012truss} is used to compute trussn
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\linewidth]{./figures/inducedgraph.pdf}
+    \includegraphics[width=\linewidth]{./figures/induced_graph.pdf}
     \caption{An example \inducedgraph{} of the example graph in \autoref{fig:example}}
     \label{fig:\inducedgraph{}}
 \end{figure}
@@ -210,12 +210,21 @@ First, according to \autoref{thm:truss_hierarchy}, there is only one ancestor fo
 Second, $G_t$ can be disconnected as not all k-truss communities are triangle connected with each other. 
 \end{proof}
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{./figures/tree_index.pdf}
+    \caption{An example \treeindex{} of the \inducedgraph{} in \autoref{fig:\inducedgraph{}}}
+    \label{fig:\treeindex{}}
+\end{figure}
+
 \autoref{alg:\treeindex{}_construction} shows the procedure to build the \treeindex{} $G_t$. The algorithm uses BFS to traverse the \inducedgraph $G_m$. For each vertex $x$, if it does not have a parent vertex in the BFS traversal, then the algorithm uses it as a seed vertex to create a new index tree. Otherwise it is combined to the same index tree $T \in G_t$ as its parent vertex $y$. According to \autoref{thm:\inducedgraph{}_vertex_trussness}, we have the following equation.
 
 \begin{equation}
 w_{x} \ge w_{(x,y)}, w_{y} \ge w_{(x,y)}
 \label{equ:lowest_edge_weight}
 \end{equation}
+
+An example is shown in \autoref{fig:\treeindex{}}
 
 \begin{Thm}
 For a vertex $x$ and its neighbor vertex $y$ in \inducedgraph{} $G_m$, if their representing edges in $G_o$ are contained in the same k-truss community with trussness of $k$, then $k \le w_{(x,y)}$. 
