@@ -1,3 +1,3 @@
 # KTruss
 
-A K-Truss index structure
+Two layer index for truss community queries on large-scale graphs
