@@ -38,7 +38,7 @@ typedef unordered_map<eid_type, int, boost::hash<eid_type> > eint_map;
 typedef unordered_map<eid_type, inode_id_type, boost::hash<eid_type> > 
 eiid_map;
 typedef unordered_map<inode_id_type, inode> iidinode_map;
-typedef set<eid_type> community_type;
+typedef unordered_set<eid_type, boost::hash<eid_type> > community_type;
 
 int max_net_k = 0;
 

@@ -4,6 +4,7 @@
 #include "decomposer.hpp"
 #include "induced_graph.hpp"
 #include "tree_index.hpp"
+#include "query.hpp"
 
 // TODO: design a new example
  
@@ -154,9 +155,6 @@ TEST(MSTConstructionTest, ConstructionTest) {
     }
 }
 
-TEST(MSTConstructionTest, QueryTest) {
-}
-
 TEST(TreeIndexConstructionTest, ConstructionTest) {
     construct_index_tree(mst, edge_trussness, triangle_trussness, 
             index_tree, index_hash);
@@ -183,7 +181,26 @@ TEST(TreeIndexConstructionTest, ConstructionTest) {
     ASSERT_EQ(-1, index_tree[virtual_root_id].parent);
 }
 
-TEST(TreeIndexConstructionTest, QueryTest) {
+TEST(QueryTest, RawTrussQueryTest) {
+    community_type truss_community;
+    unordered_set<eid_type, boost::hash<eid_type> > visited_edges;
+    vector< pair<eid_type, int> > queries;
+    vector<int> exp_results;
+    queries.push_back(make_pair(edge_composer(3, 7), 5));
+    exp_results.push_back(10);
+    queries.push_back(make_pair(edge_composer(4, 9), 4));
+    exp_results.push_back(6);
+    queries.push_back(make_pair(edge_composer(2, 4), 3));
+    exp_results.push_back(21);
+
+    for (size_t i = 0; i < queries.size(); i ++) {
+        truss_community.clear();
+        visited_edges.clear();
+        truss_raw_edge_query(truss_community, 
+                queries[i].second, queries[i].first, 
+                net, edge_trussness, visited_edges);
+        ASSERT_EQ(exp_results[i], truss_community.size());
+    }
 }
 
 int main(int argc, char **argv) {

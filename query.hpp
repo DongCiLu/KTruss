@@ -22,44 +22,57 @@ struct QR_hash {
     }
 };
 
-vector<community_type> truss_raw_query(
-        int query_k, vid_type query_vid, 
-        const PUNGraph &net, 
-        eint_map &edge_trussness) {
-    // this is the k-truss query based on the edge trussness index
-    vector< set<eid_type> > truss_communities;
-    set<eid_type> visited_edges;
-    for (int i = 0; i < net->GetNI(query_vid).GetDeg(); i++) {
-        vid_type u = net->GetNI(query_vid).GetNbrNId(i);
-        if (edge_trussness[edge_composer(u, query_vid)] >= query_k &&
-                visited_edges.find(edge_composer(u, query_vid)) == visited_edges.end()) {
-            set<eid_type> truss_community;
-            queue<eid_type> fifo;
-            fifo.push(edge_composer(u, query_vid));
-            visited_edges.insert(edge_composer(u, query_vid));
-            while (!fifo.empty()) {
-                eid_type e = fifo.front();
-                fifo.pop();
-                truss_community.insert(e);
-                for (int j = 0; j < net->GetNI(e.first).GetDeg(); j++) {
-                    vid_type w = net->GetNI(e.first).GetNbrNId(j);
-                    if (net->IsEdge(e.second, w)) {
-                        if (edge_trussness[edge_composer(e.first, w)] >= query_k &&
-                                edge_trussness[edge_composer(e.second, w)] >= query_k) {
-                            if (visited_edges.find(edge_composer(e.first, w)) ==
-                                    visited_edges.end()) {
-                                fifo.push(edge_composer(e.first, w));
-                                visited_edges.insert(edge_composer(e.first, w));
-                            }
-                            if (visited_edges.find(edge_composer(e.second, w)) ==
-                                    visited_edges.end()) {
-                                fifo.push(edge_composer(e.second, w));
-                                visited_edges.insert(edge_composer(e.second, w));
-                            }
-                        }
+void truss_raw_edge_query(
+        community_type &truss_community,
+        int query_k, eid_type query_e,
+        PUNGraph &net,
+        eint_map &edge_trussness,
+        unordered_set<eid_type, boost::hash<eid_type> > &visited_edges) {
+    // truss discovery for a single edge
+    queue<eid_type> fifo;
+    fifo.push(query_e);
+    visited_edges.insert(query_e);
+    while (!fifo.empty()) {
+        eid_type e = fifo.front();
+        fifo.pop();
+        truss_community.insert(e);
+        for (int j = 0; j < net->GetNI(e.first).GetDeg(); j++) {
+            vid_type w = net->GetNI(e.first).GetNbrNId(j);
+            // test if it is a triangle
+            if (net->IsEdge(e.second, w)) {
+                eid_type adj_e1 = edge_composer(e.first, w);
+                eid_type adj_e2 = edge_composer(e.second, w);
+                if (edge_trussness[adj_e1] >= query_k &&
+                        edge_trussness[adj_e2] >= query_k) {
+                    if (visited_edges.find(adj_e1) == visited_edges.end()) {
+                        fifo.push(adj_e1);
+                        visited_edges.insert(adj_e1);
+                    }
+                    if (visited_edges.find(adj_e2) == visited_edges.end()) {
+                        fifo.push(adj_e2);
+                        visited_edges.insert(adj_e2);
                     }
                 }
             }
+        }
+    }
+}
+
+vector<community_type> truss_raw_query(
+        int query_k, vid_type query_vid, 
+        PUNGraph &net, 
+        eint_map &edge_trussness) {
+    // this is the k-truss query based on the edge trussness index
+    vector<community_type> truss_communities;
+    unordered_set<eid_type, boost::hash<eid_type> > visited_edges;
+    for (int i = 0; i < net->GetNI(query_vid).GetDeg(); i++) {
+        vid_type u = net->GetNI(query_vid).GetNbrNId(i);
+        eid_type e = edge_composer(u, query_vid);
+        if (edge_trussness[e] >= query_k &&
+                visited_edges.find(e) == visited_edges.end()) {
+            community_type truss_community;
+            truss_raw_edge_query(
+                    truss_community, query_k, e, net, edge_trussness, visited_edges);
             truss_communities.push_back(truss_community);
         }
     }
