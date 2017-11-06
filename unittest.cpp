@@ -181,7 +181,7 @@ TEST(TreeIndexConstructionTest, ConstructionTest) {
     ASSERT_EQ(-1, index_tree[virtual_root_id].parent);
 }
 
-TEST(QueryTest, RawTrussQueryTest) {
+TEST(QueryTest, RawTrussSESKQueryTest) {
     community_type truss_community;
     unordered_set<eid_type, boost::hash<eid_type> > visited_edges;
     vector< pair<eid_type, int> > queries;
@@ -197,9 +197,104 @@ TEST(QueryTest, RawTrussQueryTest) {
         truss_community.clear();
         visited_edges.clear();
         truss_raw_edge_query(truss_community, 
-                queries[i].second, queries[i].first, 
+                queries[i].first, queries[i].second, 
                 net, edge_trussness, visited_edges);
         ASSERT_EQ(exp_results[i], truss_community.size());
+    }
+}
+
+TEST(QueryTest, RawTrussSVSKQueryTest) {
+    exact_qr_set_type truss_communities;
+    vector< pair<vid_type, int> > queries;
+    vector<qr_set_type> exp_community_infos;
+    qr_set_type qr_set;
+    qr_type qr;
+    queries.push_back(make_pair(4, 4));
+    qr_set.clear();
+    qr.set(20, 6, 4);
+    qr_set.insert(qr);
+    qr.set(4, 10, 5);
+    qr_set.insert(qr);
+    exp_community_infos.push_back(qr_set);
+    queries.push_back(make_pair(4, 3));
+    qr_set.clear();
+    qr.set(8, 21, 3);
+    qr_set.insert(qr);
+    exp_community_infos.push_back(qr_set);
+    queries.push_back(make_pair(1, 3));
+    qr_set.clear();
+    qr.set(8, 21, 3);
+    qr_set.insert(qr);
+    exp_community_infos.push_back(qr_set);
+    queries.push_back(make_pair(6, 5));
+    qr_set.clear();
+    exp_community_infos.push_back(qr_set);
+    queries.push_back(make_pair(7, 2));
+    qr_set.clear();
+    qr.set(8, 21, 3);
+    qr_set.insert(qr);
+    exp_community_infos.push_back(qr_set);
+
+    for (size_t i = 0; i < queries.size(); i ++) {
+        truss_communities.clear();
+        truss_raw_query(truss_communities, 
+                queries[i].first, queries[i].second, 
+                net, edge_trussness);
+        ASSERT_EQ(exp_community_infos[i].size(), truss_communities.size());
+        for (size_t j = 0; j < truss_communities.size(); j ++) {
+            bool found = false;
+            for (qr_set_type::iterator 
+                    iter = exp_community_infos[i].begin();
+                    iter != exp_community_infos[i].end();
+                    ++ iter) {
+                if (truss_communities[j].find(edge_extractor(iter->iid)) != 
+                        truss_communities[j].end()) {
+                    found = true;
+                    ASSERT_EQ(iter->size, truss_communities[j].size());
+                    break;
+                }
+            }
+            ASSERT_EQ(true, found);
+        } 
+    }
+}
+
+TEST(QueryTest, TrussSVSKQueryTest) {
+    exact_qr_set_type truss_communities;
+    qr_set_type truss_community_info;
+    vector< pair<vid_type, int> > queries;
+    queries.push_back(make_pair(4, 4));
+    queries.push_back(make_pair(4, 3));
+    queries.push_back(make_pair(1, 3));
+    queries.push_back(make_pair(6, 5));
+    queries.push_back(make_pair(7, 2));
+
+    for (size_t i = 0; i < queries.size(); i ++) {
+        truss_communities.clear();
+        truss_community_info.clear();
+        vector<vid_type> query_vids; 
+        query_vids.push_back(queries[i].first);
+        truss_k_query(truss_community_info, query_vids, queries[i].second,
+                net, index_tree, index_hash);
+        truss_raw_query(truss_communities, 
+                queries[i].first, queries[i].second, 
+                net, edge_trussness);
+        ASSERT_EQ(truss_community_info.size(), truss_communities.size());
+        for (size_t j = 0; j < truss_communities.size(); j ++) {
+            bool found = false;
+            for (qr_set_type::iterator 
+                    iter = truss_community_info.begin();
+                    iter != truss_community_info.end();
+                    ++ iter) {
+                if (truss_communities[j].find(edge_extractor(iter->iid)) != 
+                        truss_communities[j].end()) {
+                    found = true;
+                    ASSERT_EQ(iter->size, truss_communities[j].size());
+                    break;
+                }
+            }
+            ASSERT_EQ(true, found);
+        } 
     }
 }
 

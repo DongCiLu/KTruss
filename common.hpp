@@ -38,7 +38,6 @@ typedef unordered_map<eid_type, int, boost::hash<eid_type> > eint_map;
 typedef unordered_map<eid_type, inode_id_type, boost::hash<eid_type> > 
 eiid_map;
 typedef unordered_map<inode_id_type, inode> iidinode_map;
-typedef unordered_set<eid_type, boost::hash<eid_type> > community_type;
 
 int max_net_k = 0;
 
@@ -90,5 +89,35 @@ inline eid_type edge_extractor(const vid_type &x) {
 
 // virtual node id starts at -2 as 0 and -1 is reserved
 inode_id_type reserve_interval = -2; 
+
+struct QR{
+    inode_id_type iid;
+    int size;
+    int k;
+
+    QR(inode_id_type iid = -1, int size = -1, int k = -1): 
+        iid(iid), size(size), k(k) { }
+
+    bool operator==(const QR& rhs) const {
+        return this->iid == rhs.iid;
+    }
+
+    void set(inode_id_type iid, int size, int k) {
+        this->iid = iid;
+        this->size = size;
+        this->k = k;
+    }
+};
+
+struct qr_hash {
+    size_t operator()(const QR& _qr) const {
+        return std::hash<inode_id_type>()(_qr.iid);
+    }
+};
+
+typedef unordered_set<eid_type, boost::hash<eid_type> > community_type;
+typedef QR qr_type;
+typedef unordered_set<qr_type, qr_hash> qr_set_type;
+typedef vector<community_type> exact_qr_set_type;
 
 #endif
