@@ -22,7 +22,7 @@ struct QR_hash {
     }
 };
 
-vector< set<eid_type> > truss_raw_query(
+vector<community_type> truss_raw_query(
         int query_k, vid_type query_vid, 
         const PUNGraph &net, 
         eint_map &edge_trussness) {

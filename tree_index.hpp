@@ -3,65 +3,83 @@
 #ifndef TREE_INDEX_HPP
 #define TREE_INDEX_HPP
 
-/*
- * We have to use hash table as a brute-force scheme 
- * because A * max + B soon reaches the limit of int.
- * But all we need is a int number for each edge, 
- * note boost hash or std hash will hash to size_t values,
- * which may lead to collision when cast to int.
- * To avoid handle this by ourself, we simpley use two tables.
- */
-unordered_map<eid_type, vid_type, boost::hash<eid_type> > encode_table;
-unordered_map<vid_type, eid_type> decode_table;
-
-int vid_cnt = 0;
-
-inline vid_type mst_vid_composer(
-        const vid_type &u, const vid_type &v) {
-    eid_type e = edge_composer(u, v);
-    if (encode_table.find(e) == encode_table.end()) {
-        encode_table.insert(make_pair(e, vid_cnt));
-        decode_table.insert(make_pair(vid_cnt, e));
-        vid_cnt ++;
-    }
-    return encode_table[e];
+void update_inode_size(inode_id_type in_id, iidinode_map &index_tree) {
+    while(in_id != -1) {
+        index_tree[in_id].size ++; 
+        in_id = index_tree[in_id].parent;
+    } 
 }
 
-inline eid_type edge_extractor(const vid_type &x) {
-    return decode_table[x];
+void update_inode_parent(inode_id_type lower_in_id, 
+        inode_id_type in_id, iidinode_map &index_tree) {
+    if (lower_in_id != -1) {
+        cout << "update " << lower_in_id
+            << "'s parent from " 
+            << index_tree[lower_in_id].parent
+            << " to " << in_id << endl;
+        index_tree[lower_in_id].parent = in_id;
+    }
+}
+
+void add_new_inode(inode_id_type id,
+        inode_id_type parent,
+        size_t size,
+        int k,
+        iidinode_map &index_tree,
+        eiid_map &index_hash, 
+        bool virtual_inode = false) {
+    // create inode based on id, here the id is the vertex or edge used to create inode
+    inode in(parent, size, k);
+    // add inode to the index tree and update hashtable, negative id means virtual vertices
+    index_tree.insert(make_pair(id, in));
+    if (!virtual_inode) {
+        index_hash.insert(make_pair(edge_extractor(id), id));
+        update_inode_size(parent, index_tree);
+    }
+    cout << "created a new inode with id " << id 
+        << " and parent " << parent
+        << " and weight " << k << endl;
+    cout << "index tree size: " << index_tree.size() << endl;
 }
 
 // TODO: return some value
 void construct_index_tree(const PUNGraph &mst, 
+        eint_map &edge_trussness,
         eint_map &triangle_trussness,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
     // we have a virtual root which is the parent of all the roots 
     // TODO: store the total size in it, or not
-    vector<int> case_cnt = {0,0,0,0};
+    vector<int> case_cnt = {0, 0, 0, 0};
+    // create a container to store unvisited vertices, O(V_mst) = O(E)
     unordered_set<vid_type> unvisited_vertices;
     for (TUNGraph::TNodeI NI = mst->BegNI(); NI < mst->EndNI(); NI++) {
         unvisited_vertices.insert(NI.GetId());
     }
-
-    queue<vid_type> fifo;
-    unordered_map<vid_type, vid_type> parents;
+    // add the virtual node first
+    add_new_inode(-1, -1, 0, -1, index_tree, index_hash, true);
+    // perform the BFS to construct tree index, O(E_mst) < O(V_mst) = O(E)
+    queue<vid_type> fifo; // fifo for BFS
+    unordered_map<vid_type, vid_type> parents; // parent for each vertex
     while(!unvisited_vertices.empty()) {
+        // this loop is for the forest, as there might be multiple connected components
         vid_type next_root = *(unvisited_vertices.begin());
         fifo.push(next_root);
         unvisited_vertices.erase(next_root);
         while(!fifo.empty()) {
+            // this loop is for the tree, a single connected component
             vid_type u = fifo.front();
+            eid_type e_u = edge_extractor(u);
             fifo.pop();
             int u_deg = mst->GetNI(u).GetDeg();
             int node_k = -1;
-
             // add children to fifo
             for (int i = 0; i < u_deg; i++) {
                 vid_type v = mst->GetNI(u).GetNbrNId(i);
                 eid_type e = edge_composer(u,v);
                 // the k for each vertex is the highest k it connects
                 // we can read it from edge trussness of orig graph?
+                // I add the test of it below
                 if (triangle_trussness[e] > node_k)
                     node_k = triangle_trussness[e];
                 if (unvisited_vertices.find(v) == 
@@ -71,143 +89,94 @@ void construct_index_tree(const PUNGraph &mst,
                 unvisited_vertices.erase(v);
                 parents.insert(make_pair(v, u));
             }
-
+            //test it here.
+            if (node_k != edge_trussness[e_u]) {
+                cerr << "Failed assumption: node weight is "
+                    << "not higher than adjacent edge weight" << endl;
+                cerr << u << "(" << e_u.first << " " << e_u.second << "): "
+                    << node_k << " != " << edge_trussness[e_u] << endl;
+            }
+            // add itself to the tree index, assume its parent during BFS is v
             bool processed = false;
             int edge_k = -1;
             vid_type v = -1;
-            inode_id_type v_inode_id = -1;
+            inode_id_type v_in_id = -1;
             int v_k = -1;
-            inode_id_type lower_inode_id = -1;
-            if (parents.find(u) !=  parents.end()) {
+            inode_id_type lower_in_id = -1;
+            size_t lower_size = 0;
+            // if there is no parent of u, create an inode for u, with u as inode id 
+            if (parents.find(u) ==  parents.end()) {
+                add_new_inode(u, -1, 1, node_k, index_tree, index_hash);
+                processed = true;
+            } 
+            // if there is a parent v, find its status
+            else {
                 v = parents[u];
                 eid_type e = edge_composer(u,v);
                 edge_k = triangle_trussness[e];
-                v_inode_id = index_hash[edge_extractor(v)];
-                v_k = index_tree[v_inode_id].k;
+                v_in_id = index_hash[edge_extractor(v)];
+                v_k = index_tree[v_in_id].k;
             }
-            else {
-                // create inode based on u
-                inode in(-1, 1, node_k);
-                // add inode to the index tree and update hashtable
-                index_tree.insert(make_pair(u, in));
-                index_hash.insert(make_pair(edge_extractor(u), u));
-                processed = true;
-            } 
-
             while (!processed) {
-                if (v_k < edge_k) {
+                if (v_k > edge_k) { // first go up the existing tree to find insert point
+                    // not a valid insert point, moving to parent node on index tree
+                    lower_in_id = v_in_id;
+                    lower_size = index_tree[lower_in_id].size;
+                    v_in_id = index_tree[v_in_id].parent;
+                    v_k = index_tree[v_in_id].k;
+                } 
+                // insert depends on the trussness of itself, the insert point and the edge
+                else if (v_k < edge_k) {
                     if (edge_k == node_k) {
                         case_cnt[0] ++;
                         // create inode based on u
-                        inode in(v_inode_id, 0, node_k);
-                        in.parent = v_inode_id;
-                        int lower_size = 1;
-                        if (lower_inode_id != -1)
-                            lower_size += 
-                                index_tree[lower_inode_id].size;
-                        in.size = lower_size;
-                        // add to the index tree and update hashtable
-                        index_tree.insert(make_pair(u, in));
-                        index_hash.insert(
-                                make_pair(edge_extractor(u), u));
+                        add_new_inode(u, v_in_id, lower_size + 1, 
+                                node_k, index_tree, index_hash);
                         // link lower id with this cluster
-                        if (lower_inode_id != -1)
-                            index_tree[lower_inode_id].parent = u;
-
-                        // update parent size
-                        do {
-                            index_tree[v_inode_id].size ++; 
-                            v_inode_id = index_tree[v_inode_id].parent;
-                        } while (v_inode_id != -1);
+                        update_inode_parent(lower_in_id, u, index_tree);
                         // mark as processed
                         processed = true;
                     }
                     else if (edge_k < node_k) {
                         case_cnt[1] ++;
-                        // create inode based on e
-                        inode in(v_inode_id, 0, edge_k);
-                        int lower_size = 1;
-                        if (lower_inode_id != -1)
-                            lower_size += 
-                                index_tree[lower_inode_id].size;
-                        in.size = lower_size;
-                        // only add inode as there is no 
-                        // vertex related to this inode
-                        // temporary solution for edge_cluster
-                        int e_inode_id = u * 10000;
-                        index_tree.insert(make_pair(e_inode_id, in));
+                        // create inode based on e as u does not belong to this inode
+                        inode_id_type e_in_id = -u + reserve_interval;
+                        add_new_inode(e_in_id, v_in_id, lower_size, 
+                                edge_k, index_tree, index_hash, true);
                         // link lower id with this edge cluster
-                        if (lower_inode_id != -1)
-                            index_tree[lower_inode_id].parent = 
-                                e_inode_id;
-
+                        update_inode_parent(lower_in_id, e_in_id, index_tree);
                         // create inode based on u
-                        // reuse the "in" here
-                        in.parent = e_inode_id;
-                        in.size = 1;
-                        in.k = node_k;
-                        // add to the index tree and update hashtable
-                        index_tree.insert(make_pair(u, in));
-                        index_hash.insert(
-                                make_pair(edge_extractor(u), u));
-
-                        // update parent size
-                        do {
-                            index_tree[v_inode_id].size ++; 
-                            v_inode_id = index_tree[v_inode_id].parent;
-                        } while (v_inode_id != -1);
+                        add_new_inode(u, e_in_id, 1, node_k, index_tree, index_hash);
                         // mark as processed
                         processed = true;
                     }
                     else {
-                        cout << "wrong case 1" << endl;
+                        cerr << "wrong case 1" << endl;
                         processed = true;
                     }
                 }
-                else if (v_k == edge_k) {
+                else { // v_k == edge_k
                     if (edge_k == node_k) {
                         case_cnt[2] ++;
                         // update hash table
                         index_hash.insert(make_pair(
-                                    edge_extractor(u), v_inode_id));
-                        // update parent size
-                        do {
-                            index_tree[v_inode_id].size ++; 
-                            v_inode_id = index_tree[v_inode_id].parent;
-                        } while (v_inode_id != -1);
+                                    edge_extractor(u), v_in_id));
+                        update_inode_size(v_in_id, index_tree);
                         // mark as processed
                         processed = true;
                     }
                     else if (edge_k < node_k) { 
                         case_cnt[3] ++;
                         // create inode based on u
-                        inode in(v_inode_id, 1, node_k);
-                        // add to the index tree and update hashtable
-                        index_tree.insert(make_pair(u, in));
-                        index_hash.insert(
-                                make_pair(edge_extractor(u), u));
-                        // update parent size
-                        do {
-                            index_tree[v_inode_id].size ++; 
-                            v_inode_id = index_tree[v_inode_id].parent;
-                        } while (v_inode_id != -1);
+                        add_new_inode(u, v_in_id, 1, node_k, index_tree, index_hash);
                         // mark as processed
                         processed = true;
                     }
                     else{
-                        cout << "wrong case 2" << endl;
+                        cerr << "wrong case 2" << endl;
                         processed = true;
                     }
                 }
-                else {
-                    // moving to parent node on index tree
-                    lower_inode_id = v_inode_id;
-                    v_inode_id = index_tree[v_inode_id].parent;
-                    if (v_inode_id == -1)
-                        v_k = -1;
-                    else
-                        v_k = index_tree[v_inode_id].k;
-                } //TODO: what if there is no parent?
             }
         }
     }

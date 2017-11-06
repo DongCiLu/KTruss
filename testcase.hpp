@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sstream>
-#include <assert.h>
 
 #include "common.hpp"
 
@@ -11,7 +10,11 @@ int load_testcases(string filename,
                 vector<vid_type> &testcases,
                 unsigned int n_test, 
                 string mode = "single_q"){
-    assert (mode == "single_q" || mode == "multi_q");
+    if (mode != "single_q" && mode != "multi_q") {
+        cerr << "Not supported query type!" << endl;
+        return -1;
+    }
+        
     set<vid_type> visited_vertices;
     ifstream in(filename.c_str());
     while(testcases.size() < n_test) {

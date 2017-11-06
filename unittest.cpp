@@ -39,6 +39,9 @@ TEST(TestcasesLoadingTest, MultipleQueryVertices) {
     // test multiple query vertex case
     testcases.clear();
     num_testcases = 5;
+    ASSERT_EQ(-1, load_testcases(testcase_fn, testcases, num_testcases, "random_q"));
+    testcases.clear();
+    num_testcases = 5;
     ASSERT_EQ(-1, load_testcases(testcase_fn, testcases, num_testcases, "multi_q"));
 }
 
@@ -155,7 +158,7 @@ TEST(MSTConstructionTest, QueryTest) {
 }
 
 TEST(TreeIndexConstructionTest, ConstructionTest) {
-    construct_index_tree(mst, triangle_trussness, 
+    construct_index_tree(mst, edge_trussness, triangle_trussness, 
             index_tree, index_hash);
     ASSERT_EQ(21, index_hash.size());
     ASSERT_EQ(4, index_tree.size());

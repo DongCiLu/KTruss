@@ -4,27 +4,19 @@
 #ifndef INDUCED_GRAPH_HPP
 #define INDUCED_GRAPH_HPP
 
+/* 
+ * In this new graph, edges become vertex.
+ * triangles become edges,
+ * vertex weight is edge trussness
+ * edge weight is triangle trussness
+ */
 int construct_mst(const PUNGraph &net,
         eint_map &edge_trussness,
         eint_map &triangle_trussness,
         PUNGraph &mst) {
-    /* 
-     * In this new graph, edges become vertex.
-     * triangles become edges,
-     * vertex weight is edge trussness
-     * edge weight is triangle trussness
-     */
     unordered_map<vid_type, vid_type> cc;
     unordered_map<vid_type, int> rank;
     set< pair<int, eid_type> > sorted_triangle_trussness;
-
-    /*
-    // calc max vid
-    for (TUNGraph::TNodeI NI = net->BegNI(); NI < net->EndNI(); NI++) {
-        if (NI.GetId() > max_vid)
-            max_vid = NI.GetId();
-    }
-    */
 
     // create set for each mst vertex and sort mst edges by weight
     for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) {

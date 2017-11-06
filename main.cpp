@@ -79,7 +79,7 @@ int main(int argc, char** argv){
     start_time = clock();
 
     cout << "5. Construct heirachical index" << endl;
-    construct_index_tree(mst, triangle_trussness, 
+    construct_index_tree(mst, edge_trussness, triangle_trussness, 
             index_tree, index_hash);
     cout << index_tree.size() << " " << index_hash.size() << endl;
     cout << "elapsed time: " << 
