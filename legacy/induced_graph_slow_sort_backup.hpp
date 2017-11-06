@@ -9,18 +9,16 @@
  * triangles become edges,
  * vertex weight is edge trussness
  * edge weight is triangle trussness
- * ASSUME MAX_NET_K << NUMBER OF TRIANGLES IN THE GRAPH
- * We use counting sort
  */
 
-void discover_and_sort_triangles(const PUNGraph &net,
+int construct_mst(const PUNGraph &net,
         eint_map &edge_trussness,
         eint_map &triangle_trussness,
-        PUNGraph &mst,
-        int max_net_k, 
-        unordered_map<vid_type, vid_type> &cc,
-        unordered_map<vid_type, int> &rank,
-        vector< vector<eid_type> > &sorted_triangle_trussness) {
+        PUNGraph &mst) {
+    unordered_map<vid_type, vid_type> cc;
+    unordered_map<vid_type, int> rank;
+    set< pair<int, eid_type> > sorted_triangle_trussness;
+
     // create set for each mst vertex and sort mst edges by weight
     for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) {
         vid_type u = -1, v = -1;
@@ -67,59 +65,47 @@ void discover_and_sort_triangles(const PUNGraph &net,
                 triangle_trussness[e1] = uvw_trussness;
                 triangle_trussness[e2] = uvw_trussness;
                 triangle_trussness[e3] = uvw_trussness;
-
-                sorted_triangle_trussness[uvw_trussness].push_back(e1);
-                sorted_triangle_trussness[uvw_trussness].push_back(e2);
-                sorted_triangle_trussness[uvw_trussness].push_back(e3);
-
-                /*
                 sorted_triangle_trussness.insert(
                         make_pair(uvw_trussness, e1));
                 sorted_triangle_trussness.insert(
                         make_pair(uvw_trussness, e2));
                 sorted_triangle_trussness.insert(
                         make_pair(uvw_trussness, e3));
-                        */
             }
         }
     }
-}
 
-void generate_mst_kruskal(PUNGraph &mst,
-        unordered_map<vid_type, vid_type> &cc,
-        unordered_map<vid_type, int> &rank,
-        vector< vector<eid_type> > &sorted_triangle_trussness) {
-    for (int edge_weight = sorted_triangle_trussness.size() - 1; 
-            edge_weight >= 0; edge_weight --) {
-        for (size_t i = 0; i < sorted_triangle_trussness[edge_weight].size(); i ++) {
-            eid_type e = sorted_triangle_trussness[edge_weight][i];
-            vid_type u = e.first;
-            vid_type v = e.second;
-            vid_type pu = cc[u];
-            vid_type pv = cc[v];
+    // Kruskal's algorithm
+    for (typename set< pair<int, eid_type> >::reverse_iterator
+            riter = sorted_triangle_trussness.rbegin();
+            riter != sorted_triangle_trussness.rend();
+            ++ riter) {
+        vid_type x = riter->second.first;
+        vid_type y = riter->second.second;
+        vid_type px = cc[x];
+        vid_type py = cc[y];
+        int trussness = riter->first;
 
-            while (pu != cc[pu]) 
-                pu = cc[pu];
-            while (pv != cc[pv]) 
-                pv = cc[pv];
+        while (px != cc[px]) 
+            px = cc[px];
+        while (py != cc[py]) 
+            py = cc[py];
 
-            if (pu != pv) {
-                mst->AddEdge(u, v);
-                if (rank[pu] > rank[pv])
-                    cc[pv] = pu;
-                else
-                    cc[pu] = pv;
+        if (px != py) {
+            mst->AddEdge(riter->second.first, riter->second.second);
+            if (rank[px] > rank[py])
+                cc[py] = px;
+            else
+                cc[px] = py;
 
-                if (rank[pu] == rank[pv])
-                    rank[pv] ++;
-            }
-            pu += edge_weight; // I forgot what is this for.
+            if (rank[px] == rank[py])
+                rank[py] ++;
         }
+        px += trussness; // i forgot what is this for.
     }
-}
 
-size_t count_cc(unordered_map<vid_type, vid_type> &cc) {
-    unordered_set<int> cc_heads;
+    // count how many connected components are there
+    set<int> cc_heads;
     for (unordered_map<vid_type, vid_type>::iterator iter = cc.begin();
             iter != cc.end();
             ++ iter) {
@@ -130,24 +116,6 @@ size_t count_cc(unordered_map<vid_type, vid_type> &cc) {
     }
 
     return cc_heads.size();
-}
-
-size_t construct_mst(const PUNGraph &net,
-        eint_map &edge_trussness,
-        eint_map &triangle_trussness,
-        PUNGraph &mst,
-        int max_net_k) {
-    unordered_map<vid_type, vid_type> cc;
-    unordered_map<vid_type, int> rank;
-    vector< vector<eid_type> > sorted_triangle_trussness(
-            max_net_k + 1, vector<eid_type>());
-
-    discover_and_sort_triangles(net, edge_trussness, triangle_trussness,
-            mst, max_net_k, cc, rank, sorted_triangle_trussness);
-
-    generate_mst_kruskal(mst, cc, rank, sorted_triangle_trussness);
-
-    return count_cc(cc);
 }
 
 #endif

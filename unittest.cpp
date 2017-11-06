@@ -132,7 +132,7 @@ TEST(DecomposerTest, EdgeTrussnessTest) {
 TEST(MSTConstructionTest, ConstructionTest) {
     mst = TUNGraph::New();
     int num_cc = construct_mst(
-            net, edge_trussness, triangle_trussness, mst);
+            net, edge_trussness, triangle_trussness, mst, max_net_k);
     ASSERT_EQ(mst->GetNodes(), net->GetEdges());
     ASSERT_EQ(mst->GetEdges(), mst->GetNodes() - num_cc);
     ASSERT_EQ(1, num_cc);
