@@ -298,6 +298,62 @@ TEST(QueryTest, TrussSVSKQueryTest) {
     }
 }
 
+TEST(QueryTest, TrussSVMKQueryTest) {
+    vector< vector<vid_type> > queries;
+    // we dont have multiple community with same k in this graph.
+    vector<vid_type> query;
+    qr_set_type truss_community_info;
+    vector<inode_id_type> exp_results;
+    query.clear();
+    query.push_back(9);
+    queries.push_back(query);
+    exp_results.push_back(20);
+    query.clear();
+    query.push_back(2);
+    queries.push_back(query);
+    exp_results.push_back(8);
+    query.clear();
+    query.push_back(4);
+    queries.push_back(query);
+    exp_results.push_back(4);
+    query.clear();
+    query.push_back(9);
+    query.push_back(7);
+    queries.push_back(query);
+    exp_results.push_back(8);
+    query.clear();
+    query.push_back(0);
+    query.push_back(5);
+    queries.push_back(query);
+    exp_results.push_back(8);
+    query.clear();
+    query.push_back(6);
+    query.push_back(2);
+    query.push_back(4);
+    queries.push_back(query);
+    exp_results.push_back(8);
+    query.clear();
+    query.push_back(3);
+    query.push_back(7);
+    query.push_back(4);
+    queries.push_back(query);
+    exp_results.push_back(4);
+    query.clear();
+    query.push_back(4);
+    query.push_back(5);
+    query.push_back(9);
+    queries.push_back(query);
+    exp_results.push_back(20);
+
+    for (size_t i = 0; i < queries.size(); i ++) {
+        truss_community_info.clear();
+        truss_maxk_query(truss_community_info, queries[i], 
+                net, index_tree, index_hash);
+        ASSERT_EQ(1, truss_community_info.size());
+        ASSERT_EQ(exp_results[i], truss_community_info.begin()->iid);
+    }
+}
+
 int main(int argc, char **argv) {
     net = TSnap::LoadEdgeList<PUNGraph>(graph_fn.c_str(), 0, 1);
     ::testing::InitGoogleTest(&argc, argv);

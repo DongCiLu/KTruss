@@ -1,5 +1,4 @@
 #include "common.hpp"
-#include <algorithm>
 
 #ifndef QUERY_HPP
 #define QUERY_HPP
@@ -110,20 +109,68 @@ void truss_k_query(qr_set_type &res,
     }
 }
 
-void truss_forest_single_v (set<inode_id_type> &single_forest,
+void truss_maxk_query_single_v (qr_set_type &single_res,
         vid_type query_vid,
         PUNGraph &net,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
-    // find all the iids of the single vertex
+    // first find the highest k in a single vertex
+    int max_k = -1;
     for (int i = 0; i < net->GetNI(query_vid).GetDeg(); i++) {
-        vid_type v = net->GetNI(query_vid).GetNbrNId(i);
+        vid_type v = net->GetNI(u).GetNbrNId(i);
         eid_type e = edge_composer(query_vid, v);
         inode_id_type iid = index_hash[e];
-        vector<inode_id_type> branch_nodes;
-        branch_search(branch_nodes, iid, index_tree);
-        single_forest.insert(branch_nodes.begin(), branch_nodes.end());
+        if (index_tree[iid].k > max_k){
+            max_k = index_tree[iid].k;
+        }
     }
+    // then find communities of the highest k
+    truss_k_query_single_v(single_res, query_vid, 
+            max_k, net, index_tree, index_hash);
+}
+
+qr_set_type truss_least_common_ancestor (qr_set_type &res1,
+        qr_set_type &res2,
+        PUNGraph &net,
+        iidinode_map &index_tree,
+        eiid_map &index_hash) {
+    qr_set_type res;
+    int max_k = -1;
+    for (typename qr_set_type::iterator iter1 = res1.begin();
+            iter1 != res1.end();
+            ++ iter1) {
+        for (typename qr_set_type::iterator iter2 = res2.begin();
+                iter2 != res2.end();
+                ++ iter2) {
+            inode_id_type iid1 = iter1->iid;
+            inode_id_type iid2 = iter2->iid;
+            vector<inode_id_type> branch_nodes1, branch_nodes2;
+            branch_search(branch_nodes1, iid1, index_tree); 
+            branch_search(branch_nodes2, iid2, index_tree); 
+            int lca_iid = -1;
+            size_t max_len = std::max(branch_nodes1.size(), branch_nodes2.size());
+            // find lca of iid1 and iid2
+            for(size_t i = 0; i < max_len; i ++) {
+                if (branch_nodes1[i] != branch_nodes2[i])
+                    break;
+                lca_iid = branch_nodes1[i];
+            }
+            // update result based on the resulting iid
+            if (index_tree[lca_iid].k > max_k) {
+                max_k = index_tree[lca_iid].k;
+                res.clear();
+                qr_type res_node(lca_iid, 
+                        index_tree[lca_iid].size, index_tree[lca_iid].k);
+                res.insert(res_node);
+            }
+            else if (index_tree[lca_iid].k == max_k) {
+                qr_type res_node(lca_iid, 
+                        index_tree[lca_iid].size, index_tree[lca_iid].k);
+                res.insert(res_node);
+            }
+        }
+    }
+    return res;
 }
 
 void truss_maxk_query(qr_set_type &res,
@@ -131,54 +178,34 @@ void truss_maxk_query(qr_set_type &res,
         PUNGraph &net,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
-    set<inode_id_type> intersection_forest;
-    bool init = false;
+    // TODO: this is the wrong way.
     for (vector<vid_type>::const_iterator 
             citer = query_vids.begin();
             citer != query_vids.end();
             ++ citer) {
-        set<inode_id_type> single_forest;
+        qr_set_type single_res;
         vid_type query_vid = *citer;
         // find maxk community of a single vertex
-        truss_forest_single_v(single_forest, query_vid,
+        truss_maxk_query_single_v(single_res, query_vid,
                 net, index_tree, index_hash);
-        // store intersection of both forest
-        if (init) {
-            set<inode_id_type> new_intersection_forest;
-            std::set_intersection(single_forest.begin(), single_forest.end(),
-                    intersection_forest.begin(), intersection_forest.end(),
-                    std::inserter(new_intersection_forest, 
-                        new_intersection_forest.begin()));
-            intersection_forest = new_intersection_forest;
+        if (res.empty()) {
+            res = single_res;
         }
-        else {
-            intersection_forest = single_forest;
-            init = true;
-        }
-    }
-    // find truss communtiy with max k in the remaining forest
-    int max_k = -1;
-    for (set<inode_id_type>::iterator iter = intersection_forest.begin();
-            iter != intersection_forest.end();
-            ++ iter) {
-        if (index_tree[*iter].k > max_k) {
-            max_k = index_tree[*iter].k;
-            res.clear();
-            qr_type res_node(*iter, index_tree[*iter].size, max_k);
-            res.insert(res_node);
-        }
-        else if (index_tree[*iter].k == max_k) {
-            qr_type res_node(*iter, index_tree[*iter].size, max_k);
-            res.insert(res_node);
+        else { 
+            qr_set_type cum_res = res;
+            // find the least common ancestor of cumulative max the current max 
+            res = truss_least_common_ancestor(cum_res, single_res,
+                    net, index_tree, index_hash);
         }
     }
 }
 
-void truss_anyk_query(qr_set_type &res,
-        vector<vid_type>& query_vids, 
+/*
+qr_set_type truss_anyk_query(vector<vid_type>& query_vids, 
         PUNGraph &net,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
+    qr_set_type res;
     for (vector<vid_type>::const_iterator 
             citer = query_vids.begin();
             citer != query_vids.end();
@@ -196,6 +223,8 @@ void truss_anyk_query(qr_set_type &res,
             }
         }
     }
+    return res;
 }
+*/
 
 #endif
