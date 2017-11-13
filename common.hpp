@@ -90,9 +90,19 @@ inline eid_type edge_extractor(const vid_type &x) {
 // virtual node id starts at -2 as 0 and -1 is reserved
 inode_id_type reserve_interval = -2; 
 
-struct QR{
+// definitions for tcp index
+struct TCPIndex {
+    PUNGraph ego_graph;
+    eint_map ego_triangle_trussness;
+};
+
+typedef TCPIndex tcp_index_type;
+typedef unordered_map<vid_type, tcp_index_type> tcp_index_table_type;
+
+// definitions for queries
+struct QR {
     inode_id_type iid;
-    int size;
+    size_t size;
     int k;
 
     QR(inode_id_type iid = -1, int size = -1, int k = -1): 

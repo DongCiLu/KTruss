@@ -1,5 +1,4 @@
 #include "common.hpp"
-#include "tree_index.hpp"
 
 #ifndef INDUCED_GRAPH_HPP
 #define INDUCED_GRAPH_HPP

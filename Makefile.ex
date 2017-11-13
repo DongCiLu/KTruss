@@ -5,6 +5,7 @@ LDFLAGS += -Lgtest/lib64
 LIBS += -lgtest -lpthread
 
 ## Main application file
+# MAIN = main
 MAIN = unittest
 DEPH = 
 DEPCPP = 

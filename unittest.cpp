@@ -4,6 +4,7 @@
 #include "decomposer.hpp"
 #include "induced_graph.hpp"
 #include "tree_index.hpp"
+#include "tcp_index.hpp"
 #include "query.hpp"
 
 // TODO: design a new example
@@ -24,6 +25,8 @@ eint_map triangle_trussness;
 
 iidinode_map index_tree;
 eiid_map index_hash;
+
+tcp_index_table_type tcp_index;
 
 TEST(TestcasesLoadingTest, SingleQueryVertex) {
     // when required number of testcases is available in the provided file
@@ -181,6 +184,10 @@ TEST(TreeIndexConstructionTest, ConstructionTest) {
     ASSERT_EQ(-1, index_tree[virtual_root_id].parent);
 }
 
+TEST(TCPIndexConstructionTest, ConstructionTest) {
+    construct_tcp_index(net, edge_trussness, tcp_index);
+}
+
 TEST(QueryTest, RawTrussSESKQueryTest) {
     community_type truss_community;
     unordered_set<eid_type, boost::hash<eid_type> > visited_edges;
@@ -298,7 +305,7 @@ TEST(QueryTest, TrussSVSKQueryTest) {
     }
 }
 
-TEST(QueryTest, TrussSVMKQueryTest) {
+TEST(QueryTest, TrussMVMKQueryTest) {
     vector< vector<vid_type> > queries;
     // we dont have multiple community with same k in this graph.
     vector<vid_type> query;

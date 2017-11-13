@@ -62,51 +62,12 @@ void truss_raw_query(exact_qr_set_type &truss_communities,
     }
 }
 
-void branch_search(vector<inode_id_type> &branch_nodes,
+void branch_search(set<inode_id_type> &branch_nodes,
         inode_id_type iid, 
-        iidinode_map &index_tree,
-        int query_k = -1) {
-    // use vector because in some query the order matters
-    while(iid != -1 && index_tree[iid].k >= query_k) {
-        branch_nodes.push_back(iid);
+        iidinode_map &index_tree) {
+    while(iid != -1) {
+        branch_nodes.insert(iid);
         iid = index_tree[iid].parent;
-    }
-}
-
-void truss_k_query_single_v(qr_set_type &res,
-        vid_type query_vid,
-        int query_k,
-        PUNGraph &net,
-        iidinode_map &index_tree,
-        eiid_map &index_hash) {
-    for (int i = 0; i < net->GetNI(query_vid).GetDeg(); i++) {
-        vid_type v = net->GetNI(query_vid).GetNbrNId(i);
-        inode_id_type iid = index_hash[edge_composer(query_vid, v)];
-        vector<inode_id_type> branch_nodes;
-        branch_search(branch_nodes, iid, index_tree, query_k); 
-        inode_id_type last_iid = -1;
-        if (!branch_nodes.empty())
-            last_iid = branch_nodes[branch_nodes.size() - 1];
-        // if there is not a truss with exact k, use the one with higher k
-        if (last_iid != -1 && index_tree[last_iid].k >= query_k) {
-            qr_type res_node(last_iid, index_tree[last_iid].size, index_tree[last_iid].k);
-            res.insert(res_node);
-        }
-    }
-}
-
-void truss_k_query(qr_set_type &res,
-        vector<vid_type>& query_vids, 
-        int query_k,
-        PUNGraph &net,
-        iidinode_map &index_tree,
-        eiid_map &index_hash) {
-    for (vector<vid_type>::const_iterator 
-            citer = query_vids.begin();
-            citer != query_vids.end();
-            ++ citer) {
-        vid_type query_vid = *citer;
-        truss_k_query_single_v(res, query_vid, query_k, net, index_tree, index_hash);
     }
 }
 
@@ -120,18 +81,17 @@ void truss_forest_single_v (set<inode_id_type> &single_forest,
         vid_type v = net->GetNI(query_vid).GetNbrNId(i);
         eid_type e = edge_composer(query_vid, v);
         inode_id_type iid = index_hash[e];
-        vector<inode_id_type> branch_nodes;
+        set<inode_id_type> branch_nodes;
         branch_search(branch_nodes, iid, index_tree);
         single_forest.insert(branch_nodes.begin(), branch_nodes.end());
     }
 }
 
-void truss_maxk_query(qr_set_type &res,
+void truss_intersection_forest(set<inode_id_type> &intersection_forest,
         vector<vid_type>& query_vids, 
         PUNGraph &net,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
-    set<inode_id_type> intersection_forest;
     bool init = false;
     for (vector<vid_type>::const_iterator 
             citer = query_vids.begin();
@@ -156,7 +116,64 @@ void truss_maxk_query(qr_set_type &res,
             init = true;
         }
     }
-    // find truss communtiy with max k in the remaining forest
+}
+        
+void truss_anyk_query(qr_set_type &res,
+        vector<vid_type>& query_vids, 
+        PUNGraph &net,
+        iidinode_map &index_tree,
+        eiid_map &index_hash) {
+    // find intersection forest
+    set<inode_id_type> intersection_forest;
+    truss_intersection_forest(intersection_forest,
+        query_vids, net, index_tree, index_hash);
+    // output the intersection forest in required format
+    for (set<inode_id_type>::iterator iter = intersection_forest.begin();
+            iter != intersection_forest.end();
+            ++ iter) {
+        qr_type res_node(*iter, index_tree[*iter].size, index_tree[*iter].k);
+        res.insert(res_node);
+    }
+}
+
+void truss_k_query(qr_set_type &res,
+        vector<vid_type>& query_vids, 
+        int query_k,
+        PUNGraph &net,
+        iidinode_map &index_tree,
+        eiid_map &index_hash) {
+    // find intersection forest
+    set<inode_id_type> intersection_forest;
+    truss_intersection_forest(intersection_forest,
+        query_vids, net, index_tree, index_hash);
+    // output the intersection forest in required format
+    for (set<inode_id_type>::iterator iter = intersection_forest.begin();
+            iter != intersection_forest.end();
+            ++ iter) {
+        if (index_tree[*iter].k >= query_k) {
+            inode_id_type piid = index_tree[*iter].parent;
+            if (index_tree[piid].k >= query_k && 
+                    intersection_forest.find(piid) != intersection_forest.end()) {
+                continue;
+            }
+            else {
+                qr_type res_node(*iter, index_tree[*iter].size, index_tree[*iter].k);
+                res.insert(res_node);
+            }
+        }
+    }
+}
+
+void truss_maxk_query(qr_set_type &res,
+        vector<vid_type>& query_vids, 
+        PUNGraph &net,
+        iidinode_map &index_tree,
+        eiid_map &index_hash) {
+    // find intersection forest
+    set<inode_id_type> intersection_forest;
+    truss_intersection_forest(intersection_forest,
+        query_vids, net, index_tree, index_hash);
+    // find truss communtiy with max k in the intersection forest
     int max_k = -1;
     for (set<inode_id_type>::iterator iter = intersection_forest.begin();
             iter != intersection_forest.end();
@@ -170,30 +187,6 @@ void truss_maxk_query(qr_set_type &res,
         else if (index_tree[*iter].k == max_k) {
             qr_type res_node(*iter, index_tree[*iter].size, max_k);
             res.insert(res_node);
-        }
-    }
-}
-
-void truss_anyk_query(qr_set_type &res,
-        vector<vid_type>& query_vids, 
-        PUNGraph &net,
-        iidinode_map &index_tree,
-        eiid_map &index_hash) {
-    for (vector<vid_type>::const_iterator 
-            citer = query_vids.begin();
-            citer != query_vids.end();
-            ++ citer) {
-        vid_type u = *citer;
-        int u_deg = net->GetNI(u).GetDeg();
-        for (int i = 0; i < u_deg; i++) {
-            vid_type v = net->GetNI(u).GetNbrNId(i);
-            inode_id_type iid = index_hash[edge_composer(u, v)];
-            vector<inode_id_type> branch_nodes = branch_search(iid, index_tree); 
-            for (size_t j = 0; j < branch_nodes.size(); j ++) {
-                inode_id_type jiid = branch_nodes[j];
-                qr_type res_node(jiid, index_tree[jiid].size, index_tree[jiid].k);
-                res.insert(res_node);
-            }
         }
     }
 }

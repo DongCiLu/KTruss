@@ -31,7 +31,9 @@ int main(int argc, char** argv){
     // min(testcase file length, max_nmumber_of_tests)
     string testcase_file = argv[2];
     // TODO: set these two variables as input parameter with default value
+    // TODO: read query k with test case file
     int max_number_of_tests = 100;
+    int number_of_tests = 0;
     int query_k = -1;
     if (argc > 3) {
         stringstream(argv[3]) >> query_k;
@@ -39,7 +41,8 @@ int main(int argc, char** argv){
 
     cout << "1. Loading graph and test cases" << endl;
     PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(argv[1], 0, 1);
-    load_testcases(testcase_file, testcases, max_number_of_tests);
+    number_of_tests = 
+        load_testcases(testcase_file, testcases, max_number_of_tests);
     cout << "Graph size: " << net->GetNodes() << 
         " " << net->GetEdges() << endl;
     cout << "elapsed time: " << 
@@ -56,13 +59,14 @@ int main(int argc, char** argv){
     cout << "3. Truss Decomposition (Index Construction)" << endl;
     max_net_k = 
         compute_trussness(net, edge_support, sorted_edge_support, edge_trussness);
+    cout << "the maximum k of the graph is: " << max_net_k << endl;
     cout << "elapsed time: " << 
         double(clock() - start_time) / CLOCKS_PER_SEC << endl;
     start_time = clock();
 
     cout << "4. Build MST from generated graph" << endl;
     int num_cc = 
-        construct_mst(net, edge_trussness, triangle_trussness, mst);
+        construct_mst(net, edge_trussness, triangle_trussness, mst, max_net_k);
     if (mst->GetNodes() != net->GetEdges() || 
             mst->GetEdges() != mst->GetNodes() - num_cc) { 
         cout << "Incorrect mst constructed." << endl;
@@ -81,7 +85,17 @@ int main(int argc, char** argv){
     cout << "5. Construct heirachical index" << endl;
     construct_index_tree(mst, edge_trussness, triangle_trussness, 
             index_tree, index_hash);
-    cout << index_tree.size() << " " << index_hash.size() << endl;
+    size_t inode_ignore_cnt = 0;
+    for (eiid_map::const_iterator citer = index_hash.begin();
+            citer != index_hash.end(); 
+            ++ citer) {
+        if (citer->second == -1)
+            inode_ignore_cnt ++;
+    }
+    cout << "Index tree has " << index_tree.size() 
+        << " nodes with " << inode_ignore_cnt 
+        << " ignored nodes." << endl;
+    cout << "Index hash table size is " << index_hash.size() << endl;
     cout << "elapsed time: " << 
         double(clock() - start_time) / CLOCKS_PER_SEC << endl;
     start_time = clock();
@@ -89,35 +103,77 @@ int main(int argc, char** argv){
     cout << "6. K-Truss Query Processing" << endl;
     if (query_k > 0) {
         cout << query_k << "-Truss query" << endl;
-        int cnt = 0;
-        vector< set<eid_type> > truss_communities;
-        QR res;
-        for (int i = 0; i < number_of_tests; i++) {
-            if (cnt ++ % 10 == 9)
-                cout << "." << flush;
-                truss_communities = truss_raw_query(
-                        query_k, testcases[i], net, edge_trussness);
-                vector<vid_type> vids;
-                vids.push_back(testcases[i]);
-                //res = truss_k_query(
-                        //query_k, vids, net, index_tree, index_hash);
+        vector<exact_qr_set_type> truss_communities;
+        vector<qr_set_type> truss_community_infos;
+
+        for (size_t i = 0; i < testcases.size(); i ++) {
+            exact_qr_set_type truss_community;
+            truss_raw_query(truss_community, 
+                    testcases[i], query_k,
+                    net, edge_trussness);
+            truss_communities.push_back(truss_community);
         }
-        cout << endl;
-        cout << "elapsed time (average): " << 
+        cout << "elapsed time for raw query(average): " << 
             double(clock() - start_time) / CLOCKS_PER_SEC / 
             number_of_tests << endl;
         start_time = clock();
-        cout << "noc: " << truss_communities.size() << endl;
-        for (size_t i = 0; i < truss_communities.size(); i++)
-            cout << truss_communities[i].size() << " ";
-        cout << endl;
-        cout << "res: " << res.size << endl;
+
+        for (size_t i = 0; i < testcases.size(); i ++) {
+            qr_set_type truss_community_info;
+            vector<vid_type> query_vids; 
+            query_vids.push_back(testcases[i]);
+            truss_k_query(truss_community_info, query_vids, query_k,
+                    net, index_tree, index_hash);
+            truss_community_infos.push_back(truss_community_info);
+        }
+        cout << "elapsed time for info query(average): " << 
+            double(clock() - start_time) / CLOCKS_PER_SEC / 
+            number_of_tests << endl;
+        start_time = clock();
+
+        cout << "verifying results..." << endl;
+        for (size_t i = 0; i < testcases.size(); i ++) {
+            if (truss_community_infos[i].size() != truss_communities[i].size()) {
+                cout << "ERROR: wrong number of communities for test case: "
+                    << i << " with query vertex " << testcases[i] 
+                    << " and query k = " << query_k << endl;
+            }
+            for (size_t j = 0; j < truss_communities[i].size(); j ++) {
+                bool found = false;
+                for (qr_set_type::iterator 
+                        iter = truss_community_infos[i].begin();
+                        iter != truss_community_infos[i].end();
+                        ++ iter) {
+                    if (truss_communities[i][j].find(edge_extractor(iter->iid)) != 
+                            truss_communities[i][j].end()) {
+                        found = true;
+                        if (iter->size !=  truss_communities[i][j].size()) {
+                            cout << "ERROR: wrong size of communities for test case: "
+                                << i << " with query vertex " << testcases[i] 
+                                << " and query k = " << query_k << endl;
+                        }
+                        break;
+                    }
+                }
+                if (!found) {
+                    cout << "ERROR: cannot find communities for test case: "
+                        << i << " with query vertex " << testcases[i] 
+                        << " and query k = " << query_k << endl;
+                }
+
+            } 
+        }
     }
-    else if (query_k == 0){
+    /*
+    else if (query_k == -1){
         cout << "Any-K-truss query" << endl;
     }
     else {
         cout << "Max-K-Truss query" << endl;
+    }
+    */
+    else {
+        cout << "Unsupported query type." << endl;
     }
 
     return 0;
