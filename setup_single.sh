@@ -9,17 +9,16 @@ scp -r lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/testcases /
 sudo apt-get update
 sudo apt-get -y install vim ssh gcc g++ build-essential 
 
-cd /local
 git clone https://github.com/snap-stanford/snap.git
 
-mv /local/snap /local/Snap
-mkdir /local/Snap/examples/ktruss
-ln -s /mydata /local/Snap/examples/ktruss/datasets
-ln -s /local/KTruss/ktruss.cpp /local/Snap/examples/ktruss/ktruss.cpp
-ln -s /local/KTruss/Makefile /local/Snap/examples/ktruss/Makefile
-ln -s /local/KTruss/Makefile.ex /local/Snap/examples/ktruss/Makefile.ex
-ln -s /local/KTruss/simple.sh /local/Snap/examples/ktruss/simple.sh
-cd /local/Snap/examples/ktruss
+mv snap Snap
+mkdir Snap/examples/ktruss
+ln -s /mydata Snap/examples/ktruss/datasets
+ln -s KTruss/ktruss.cpp Snap/examples/ktruss/ktruss.cpp
+ln -s KTruss/Makefile Snap/examples/ktruss/Makefile
+ln -s KTruss/Makefile.ex Snap/examples/ktruss/Makefile.ex
+ln -s KTruss/simple.sh Snap/examples/ktruss/simple.sh
+cd Snap/examples/ktruss
 make
 
 echo "You are all set."

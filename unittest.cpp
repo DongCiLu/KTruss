@@ -179,7 +179,7 @@ TEST(TreeIndexConstructionTest, ConstructionTest) {
             index_tree[index_hash[edge_composer(5, 9)]].parent);
 
     inode_id_type virtual_root_id = index_tree[index_hash[edge_composer(2, 1)]].parent;
-    ASSERT_EQ(-1, index_tree[virtual_root_id].k);
+    ASSERT_EQ(2, index_tree[virtual_root_id].k);
     ASSERT_EQ(0, index_tree[virtual_root_id].size);
     ASSERT_EQ(-1, index_tree[virtual_root_id].parent);
 }
