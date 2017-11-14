@@ -186,6 +186,12 @@ TEST(TreeIndexConstructionTest, ConstructionTest) {
 
 TEST(TCPIndexConstructionTest, ConstructionTest) {
     construct_tcp_index(net, edge_trussness, tcp_index);
+    ASSERT_EQ(10, tcp_index.size());
+
+    ASSERT_EQ(2, tcp_index[0].ego_graph->GetNodes());
+    ASSERT_EQ(8, tcp_index[4].ego_graph->GetNodes());
+    ASSERT_EQ(3, tcp_index[9].ego_graph->GetNodes());
+    ASSERT_EQ(4, tcp_index[3].ego_graph->GetNodes());
 }
 
 TEST(QueryTest, RawTrussSESKQueryTest) {
