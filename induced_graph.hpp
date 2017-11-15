@@ -14,7 +14,6 @@
 
 void discover_and_sort_triangles(const PUNGraph &net,
         eint_map &edge_trussness,
-        eint_map &triangle_trussness,
         PUNGraph &mst,
         int max_net_k, 
         unordered_map<vid_type, vid_type> &cc,
@@ -63,9 +62,11 @@ void discover_and_sort_triangles(const PUNGraph &net,
                 eid_type e1 = edge_composer(v1, v2);
                 eid_type e2 = edge_composer(v2, v3);
                 eid_type e3 = edge_composer(v1, v3);
+                /*
                 triangle_trussness[e1] = uvw_trussness;
                 triangle_trussness[e2] = uvw_trussness;
                 triangle_trussness[e3] = uvw_trussness;
+                */
 
                 sorted_triangle_trussness[uvw_trussness].push_back(e1);
                 sorted_triangle_trussness[uvw_trussness].push_back(e2);
@@ -87,6 +88,7 @@ void discover_and_sort_triangles(const PUNGraph &net,
 void generate_mst_kruskal(PUNGraph &mst,
         unordered_map<vid_type, vid_type> &cc,
         unordered_map<vid_type, int> &rank,
+        eint_map &triangle_trussness,
         vector< vector<eid_type> > &sorted_triangle_trussness) {
     for (int edge_weight = sorted_triangle_trussness.size() - 1; 
             edge_weight >= 0; edge_weight --) {
@@ -104,6 +106,7 @@ void generate_mst_kruskal(PUNGraph &mst,
 
             if (pu != pv) {
                 mst->AddEdge(u, v);
+                triangle_trussness[e] = edge_weight;
                 if (rank[pu] > rank[pv])
                     cc[pv] = pu;
                 else
@@ -141,10 +144,11 @@ size_t construct_mst(const PUNGraph &net,
     vector< vector<eid_type> > sorted_triangle_trussness(
             max_net_k + 1, vector<eid_type>());
 
-    discover_and_sort_triangles(net, edge_trussness, triangle_trussness,
+    discover_and_sort_triangles(net, edge_trussness, 
             mst, max_net_k, cc, rank, sorted_triangle_trussness);
 
-    generate_mst_kruskal(mst, cc, rank, sorted_triangle_trussness);
+    generate_mst_kruskal(mst, cc, rank, 
+            triangle_trussness, sorted_triangle_trussness);
 
     return count_cc(cc);
 }

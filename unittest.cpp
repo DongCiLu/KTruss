@@ -141,7 +141,7 @@ TEST(MSTConstructionTest, ConstructionTest) {
     ASSERT_EQ(mst->GetEdges(), mst->GetNodes() - num_cc);
     ASSERT_EQ(1, num_cc);
     ASSERT_EQ(21, mst->GetNodes());
-    ASSERT_EQ(51, triangle_trussness.size());
+    ASSERT_EQ(20, triangle_trussness.size());
 
     for (TUNGraph::TEdgeI EI = mst->BegEI(); EI < mst->EndEI(); EI++) {
         vid_type u1 = EI.GetSrcNId();
@@ -186,12 +186,21 @@ TEST(TreeIndexConstructionTest, ConstructionTest) {
 
 TEST(TCPIndexConstructionTest, ConstructionTest) {
     construct_tcp_index(net, edge_trussness, tcp_index);
+    int exp_k[] = {3, 21, 9, 15, 29, 11, 8, 15, 15, 8};
     ASSERT_EQ(10, tcp_index.size());
 
-    ASSERT_EQ(2, tcp_index[0].ego_graph->GetNodes());
-    ASSERT_EQ(8, tcp_index[4].ego_graph->GetNodes());
-    ASSERT_EQ(3, tcp_index[9].ego_graph->GetNodes());
-    ASSERT_EQ(4, tcp_index[3].ego_graph->GetNodes());
+    for (size_t i = 0; i < tcp_index.size(); i ++) {
+        ASSERT_EQ(net->GetNI(i).GetDeg(), tcp_index[i].ego_graph->GetNodes());
+        ASSERT_EQ(net->GetNI(i).GetDeg() - 1, tcp_index[i].ego_graph->GetEdges());
+        ASSERT_EQ(net->GetNI(i).GetDeg() - 1, tcp_index[i].ego_triangle_trussness.size());
+        int k = 0;
+        for (eint_map::iterator iter = tcp_index[i].ego_triangle_trussness.begin();
+            iter != tcp_index[i].ego_triangle_trussness.end();
+            ++ iter) {
+            k += iter->second;
+        }
+        ASSERT_EQ(exp_k[i], k);
+    }
 }
 
 TEST(QueryTest, RawTrussSESKQueryTest) {
