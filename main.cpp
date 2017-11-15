@@ -179,6 +179,9 @@ void generate_indices(const string &graph_filename) {
     //save_indices(support_filename, edge_support);
     print_n_update_timer();
 
+    cout << "edge support size: " << edge_support.size() << " * " << 3 * 4 << endl;
+    cout << "sorted edge support size: " << sorted_edge_support.size() << " * " << 3 * 4 << endl;
+
     cout << "3. Truss Decomposition (Index Construction)" << endl;
     max_net_k = compute_trussness(
             net, edge_support, sorted_edge_support, edge_trussness);
@@ -203,6 +206,13 @@ void generate_indices(const string &graph_filename) {
     cout << "TCP index has " << tcp_index.size() << " nodes." << endl;
     print_n_update_timer();
     */
+
+    cout << "edge trussness size: " << edge_trussness.size() << " * " <<  3 * 4 << endl;
+    cout << "triangle trussness size: " << triangle_trussness.size() << " * " << 3 * 4 << endl;
+    cout << "encode table size: " << encode_table.size() << " * " <<  3 * 4 << endl;
+    cout << "decode table size: " << decode_table.size() << " * " <<  3 * 4 << endl;
+    cout << "index tree size: " << index_tree.size() << " * " <<  4 * 4 << endl;
+    cout << "index hash size: " << index_hash.size() << " * " <<  3 * 4 << endl;
 }
 
 int main(int argc, char** argv){

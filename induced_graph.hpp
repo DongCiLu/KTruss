@@ -83,6 +83,13 @@ void discover_and_sort_triangles(const PUNGraph &net,
             }
         }
     }
+    cout << "cc size: " << cc.size() << " * " <<  2 * 4 << endl;
+    cout << "rank size: " << cc.size() << " * " <<  2 * 4 << endl;
+    size_t sorted_triangle_size = 0;
+    for (size_t i = 0; i < sorted_triangle_trussness.size(); i ++) {
+        sorted_triangle_size += sorted_triangle_trussness[i].size();
+    }
+    cout << "sorted triangle size: " << sorted_triangle_size << " * " <<  2 * 4 << endl;
 }
 
 void generate_mst_kruskal(PUNGraph &mst,
