@@ -3,7 +3,6 @@
 CXXFLAGS += -std=c++11 -g -Og -Igtest/include 
 # LDFLAGS += -Lgtest/lib64 
 # LIBS += -lgtest -lpthread
-LIBS += -lboost_serialization
 
 ## Main application file
 MAIN = main

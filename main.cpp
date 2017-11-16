@@ -173,7 +173,7 @@ void generate_indices(const string &graph_filename) {
     print_n_update_timer();
 
     cout << "2. Compute support" << endl;
-    set< pair<int, eid_type> > sorted_edge_support; // value-key
+    slow_sorted_type sorted_edge_support; 
     compute_support(net, edge_support, sorted_edge_support);
     string support_filename = graph_filename + "esupport";
     //save_indices(support_filename, edge_support);
@@ -183,14 +183,16 @@ void generate_indices(const string &graph_filename) {
     cout << "sorted edge support size: " << sorted_edge_support.size() << " * " << 3 * 4 << endl;
 
     cout << "3. Truss Decomposition (Index Construction)" << endl;
+    counting_sorted_type sorted_edge_trussness;
     max_net_k = compute_trussness(
-            net, edge_support, sorted_edge_support, edge_trussness);
+            net, edge_support, sorted_edge_support, 
+            edge_trussness, sorted_edge_trussness);
     cout << "the maximum k of the graph is: " << max_net_k << endl;
     print_n_update_timer();
 
     cout << "4. Build MST from generated graph" << endl;
     int num_cc = construct_mst(
-            net, edge_trussness, triangle_trussness, mst, max_net_k);
+            net, edge_trussness, sorted_edge_trussness, mst, triangle_trussness);
     check_mst(mst, net, num_cc);
     print_n_update_timer();
 

@@ -17,8 +17,9 @@ size_t num_testcases = 0;
 PUNGraph net;
 
 eint_map edge_support;
-set< pair<int, eid_type> > sorted_edge_support; 
+slow_sorted_type sorted_edge_support; 
 eint_map edge_trussness;
+counting_sorted_type sorted_edge_trussness;
 
 PUNGraph mst;
 eint_map triangle_trussness;
@@ -52,58 +53,36 @@ TEST(TestcasesLoadingTest, MultipleQueryVertices) {
 TEST(DecomposerTest, EdgeSupportTest) {
     compute_support(net, edge_support, sorted_edge_support);
     eint_map exp_edge_support;
-    set< pair<int, eid_type> > exp_sorted_edge_support; 
 
     exp_edge_support.insert(make_pair(edge_composer(0, 1), 1));
-    exp_sorted_edge_support.insert(make_pair(1, edge_composer(0, 1)));
     exp_edge_support.insert(make_pair(edge_composer(0, 2), 1));
-    exp_sorted_edge_support.insert(make_pair(1, edge_composer(0, 2)));
     exp_edge_support.insert(make_pair(edge_composer(1, 2), 2));
-    exp_sorted_edge_support.insert(make_pair(2, edge_composer(1, 2)));
     exp_edge_support.insert(make_pair(edge_composer(1, 4), 4));
-    exp_sorted_edge_support.insert(make_pair(4, edge_composer(1, 4)));
     exp_edge_support.insert(make_pair(edge_composer(1, 3), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(1, 3)));
     exp_edge_support.insert(make_pair(edge_composer(3, 4), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(3, 4)));
     exp_edge_support.insert(make_pair(edge_composer(1, 8), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(1, 8)));
     exp_edge_support.insert(make_pair(edge_composer(3, 8), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(3, 8)));
     exp_edge_support.insert(make_pair(edge_composer(4, 8), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(4, 8)));
     exp_edge_support.insert(make_pair(edge_composer(1, 7), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(1, 7)));
     exp_edge_support.insert(make_pair(edge_composer(3, 7), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(3, 7)));
     exp_edge_support.insert(make_pair(edge_composer(7, 8), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(7, 8)));
     exp_edge_support.insert(make_pair(edge_composer(4, 7), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(4, 7)));
     exp_edge_support.insert(make_pair(edge_composer(2, 4), 2));
-    exp_sorted_edge_support.insert(make_pair(2, edge_composer(2, 4)));
     exp_edge_support.insert(make_pair(edge_composer(2, 5), 1));
-    exp_sorted_edge_support.insert(make_pair(1, edge_composer(2, 5)));
     exp_edge_support.insert(make_pair(edge_composer(4, 5), 3));
-    exp_sorted_edge_support.insert(make_pair(3, edge_composer(4, 5)));
     exp_edge_support.insert(make_pair(edge_composer(4, 6), 2));
-    exp_sorted_edge_support.insert(make_pair(2, edge_composer(4, 6)));
     exp_edge_support.insert(make_pair(edge_composer(5, 6), 2));
-    exp_sorted_edge_support.insert(make_pair(2, edge_composer(5, 6)));
     exp_edge_support.insert(make_pair(edge_composer(9, 6), 2));
-    exp_sorted_edge_support.insert(make_pair(2, edge_composer(9, 6)));
     exp_edge_support.insert(make_pair(edge_composer(4, 9), 2));
-    exp_sorted_edge_support.insert(make_pair(2, edge_composer(4, 9)));
     exp_edge_support.insert(make_pair(edge_composer(5, 9), 2));
-    exp_sorted_edge_support.insert(make_pair(2, edge_composer(5, 9)));
 
     ASSERT_EQ(exp_edge_support, edge_support);
-    ASSERT_EQ(exp_sorted_edge_support, sorted_edge_support);
 }
 
 TEST(DecomposerTest, EdgeTrussnessTest) {
     max_net_k = compute_trussness(
-            net, edge_support, sorted_edge_support, edge_trussness);
+            net, edge_support, sorted_edge_support, 
+            edge_trussness, sorted_edge_trussness);
     eint_map exp_edge_trussness;
 
     exp_edge_trussness[edge_composer(0, 1)] = 3;
@@ -131,12 +110,18 @@ TEST(DecomposerTest, EdgeTrussnessTest) {
     exp_edge_trussness[edge_composer(4, 7)] = 5;
 
     ASSERT_EQ(exp_edge_trussness, edge_trussness);
+    ASSERT_EQ(6, sorted_edge_trussness.size());
+    size_t sorted_cnt = 0;
+    for (size_t i = 0; i < sorted_edge_trussness.size(); i ++) {
+        sorted_cnt += sorted_edge_trussness[i].size();
+    }
+    ASSERT_EQ(21, sorted_cnt);
 }
 
 TEST(MSTConstructionTest, ConstructionTest) {
     mst = TUNGraph::New();
     int num_cc = construct_mst(
-            net, edge_trussness, triangle_trussness, mst, max_net_k);
+            net, edge_trussness, sorted_edge_trussness, mst, triangle_trussness);
     ASSERT_EQ(mst->GetNodes(), net->GetEdges());
     ASSERT_EQ(mst->GetEdges(), mst->GetNodes() - num_cc);
     ASSERT_EQ(1, num_cc);
@@ -326,46 +311,49 @@ TEST(QueryTest, TrussMVMKQueryTest) {
     vector<vid_type> query;
     qr_set_type truss_community_info;
     vector<inode_id_type> exp_results;
+    inode_id_type id1 = index_hash[edge_composer(2, 0)];
+    inode_id_type id2 = index_hash[edge_composer(5, 9)];
+    inode_id_type id3 = index_hash[edge_composer(7, 8)];
     query.clear();
     query.push_back(9);
     queries.push_back(query);
-    exp_results.push_back(20);
+    exp_results.push_back(id2);
     query.clear();
     query.push_back(2);
     queries.push_back(query);
-    exp_results.push_back(8);
+    exp_results.push_back(id1);
     query.clear();
     query.push_back(4);
     queries.push_back(query);
-    exp_results.push_back(4);
+    exp_results.push_back(id3);
     query.clear();
     query.push_back(9);
     query.push_back(7);
     queries.push_back(query);
-    exp_results.push_back(8);
+    exp_results.push_back(id1);
     query.clear();
     query.push_back(0);
     query.push_back(5);
     queries.push_back(query);
-    exp_results.push_back(8);
+    exp_results.push_back(id1);
     query.clear();
     query.push_back(6);
     query.push_back(2);
     query.push_back(4);
     queries.push_back(query);
-    exp_results.push_back(8);
+    exp_results.push_back(id1);
     query.clear();
     query.push_back(3);
     query.push_back(7);
     query.push_back(4);
     queries.push_back(query);
-    exp_results.push_back(4);
+    exp_results.push_back(id3);
     query.clear();
     query.push_back(4);
     query.push_back(5);
     query.push_back(9);
     queries.push_back(query);
-    exp_results.push_back(20);
+    exp_results.push_back(id2);
 
     for (size_t i = 0; i < queries.size(); i ++) {
         truss_community_info.clear();

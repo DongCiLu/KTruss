@@ -35,6 +35,8 @@ struct inode{
         parent(parent), size(size), k(k) { }
 };
 typedef unordered_map<eid_type, int, boost::hash<eid_type> > eint_map;
+typedef set< pair<int, eid_type> > slow_sorted_type;
+typedef vector< list<eid_type> > counting_sorted_type;
 typedef unordered_map<eid_type, inode_id_type, boost::hash<eid_type> > 
 eiid_map;
 typedef unordered_map<inode_id_type, inode> iidinode_map;

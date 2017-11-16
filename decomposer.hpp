@@ -11,7 +11,7 @@ bool support_sort(const pair<eid_type, int> &a,
 // TODO: return max support value 
 void compute_support(const PUNGraph &net, 
         eint_map &edge_support,
-        set< pair<int, eid_type> > &sorted_edge_support) {
+        slow_sorted_type &sorted_edge_support) {
     for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) {
         int support = 0; 
         vid_type u = -1, v = -1;
@@ -26,17 +26,16 @@ void compute_support(const PUNGraph &net,
                 support += 1;
         }
 
-        edge_support.insert(make_pair(edge_composer(
-                        EI.GetSrcNId(), EI.GetDstNId()), support));
-        sorted_edge_support.insert(make_pair(support, edge_composer(
-                        EI.GetSrcNId(), EI.GetDstNId())));
+        edge_support.insert(make_pair(edge_composer(u, v), support));
+        sorted_edge_support.insert(make_pair(support, edge_composer(u, v)));
     }
 }
 
 int compute_trussness(const PUNGraph &net,
         eint_map &edge_support,
-        set< pair<int, eid_type> > &sorted_edge_support, 
-        eint_map &edge_trussness) {
+        slow_sorted_type &sorted_edge_support, 
+        eint_map &edge_trussness,
+        counting_sorted_type &sorted_edge_trussness) {
     int k = 2;
     while (!sorted_edge_support.empty()) {
         while (!sorted_edge_support.empty() && 
@@ -68,6 +67,11 @@ int compute_trussness(const PUNGraph &net,
                 }
             }
             edge_trussness[e] = k;
+            // safe to cast, k is always positive
+            size_t size_k = static_cast<size_t>(k); 
+            if (size_k >= sorted_edge_trussness.size()) 
+                sorted_edge_trussness.resize(k + 1, list<eid_type>());
+            sorted_edge_trussness[k].push_back(e);
             edge_support.erase(e);
             sorted_edge_support.erase(make_pair(support, e));
         }
