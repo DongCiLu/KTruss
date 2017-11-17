@@ -33,12 +33,17 @@ struct inode{
     
     inode(inode_id_type parent = -1, size_t size = -1, int k = -1): 
         parent(parent), size(size), k(k) { }
+
+    bool operator==(const inode& rhs) const {
+        return this->parent == rhs.parent && 
+            this->size == rhs.size &&
+            this->k == rhs.k;
+    }
 };
 typedef unordered_map<eid_type, int, boost::hash<eid_type> > eint_map;
 typedef set< pair<int, eid_type> > slow_sorted_type;
 typedef vector< list<eid_type> > counting_sorted_type;
-typedef unordered_map<eid_type, inode_id_type, boost::hash<eid_type> > 
-eiid_map;
+typedef unordered_map<eid_type, inode_id_type, boost::hash<eid_type> > eiid_map;
 typedef unordered_map<inode_id_type, inode> iidinode_map;
 
 int max_net_k = 0;

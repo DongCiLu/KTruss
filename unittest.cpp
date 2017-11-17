@@ -6,6 +6,8 @@
 #include "tree_index.hpp"
 #include "tcp_index.hpp"
 #include "query.hpp"
+#include "archiver.hpp"
+
 
 // TODO: design a new example
  
@@ -362,6 +364,54 @@ TEST(QueryTest, TrussMVMKQueryTest) {
         ASSERT_EQ(1, truss_community_info.size());
         ASSERT_EQ(exp_results[i], truss_community_info.begin()->iid);
     }
+}
+
+TEST(ArchiverTest, EdgeTrussnessSLTest) {
+    eint_map stored_edge_trussness;
+    counting_sorted_type stored_sorted_edge_trussness; 
+
+    save_edge_trussness(edge_trussness, sorted_edge_trussness, graph_fn);
+    load_edge_trussness(stored_edge_trussness, stored_sorted_edge_trussness, graph_fn);
+    
+    ASSERT_EQ(stored_edge_trussness, edge_trussness);
+    ASSERT_EQ(6, stored_sorted_edge_trussness.size());
+    size_t sorted_cnt = 0;
+    for (size_t i = 0; i < stored_sorted_edge_trussness.size(); i ++) {
+        sorted_cnt += stored_sorted_edge_trussness[i].size();
+    }
+    ASSERT_EQ(21, sorted_cnt);
+}
+
+TEST(ArchiverTest, MSTSLTest) {
+    PUNGraph stored_mst;
+    eint_map stored_triangle_trussness;
+    unordered_map<eid_type, vid_type, boost::hash<eid_type> > stored_encode_table;
+    unordered_map<vid_type, eid_type> stored_decode_table;
+
+    save_mst(mst, triangle_trussness,
+            encode_table, decode_table, graph_fn);
+    load_mst(stored_mst, stored_triangle_trussness,
+            stored_encode_table, stored_decode_table, graph_fn);
+
+    ASSERT_EQ(mst->GetNodes(), stored_mst->GetNodes());
+    ASSERT_EQ(mst->GetEdges(), stored_mst->GetEdges());
+    ASSERT_EQ(triangle_trussness, stored_triangle_trussness);
+    ASSERT_EQ(encode_table, stored_encode_table);
+    ASSERT_EQ(decode_table, stored_decode_table);
+    ASSERT_EQ(20, stored_triangle_trussness.size());
+    ASSERT_EQ(21, stored_encode_table.size());
+    ASSERT_EQ(21, stored_decode_table.size());
+}
+
+TEST(ArchiverTest, ITSLTest) {
+    iidinode_map stored_index_tree;
+    eiid_map stored_index_hash;
+
+    save_index_tree(index_tree, index_hash, graph_fn);
+    load_index_tree(stored_index_tree, stored_index_hash, graph_fn);
+
+    ASSERT_EQ(index_tree, stored_index_tree);
+    ASSERT_EQ(index_hash, stored_index_hash);
 }
 
 int main(int argc, char **argv) {
