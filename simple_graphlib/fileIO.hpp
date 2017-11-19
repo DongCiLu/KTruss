@@ -8,7 +8,7 @@
 #ifndef CS594_FILEIO_H
 #define CS594_FILEIO_H
 
-//#define FILEIO_H_DEBUG
+// #define FILEIO_H_DEBUG
 
 #include <vector>
 #include <utility>
@@ -48,11 +48,23 @@ class file_IO {
             in.close();
         }
 
-        void store(storage<id_type> *out, storage<id_type> *in) {
+        inline std::pair<id_type, id_type> edge_composer_tmp(
+                const id_type &u, const id_type &v) {
+            if (u < v) 
+                return std::make_pair(u, v);
+            else
+                return std::make_pair(v, u);
+        }
+
+        void store(storage<id_type> *out, storage<id_type> *in,
+                std::unordered_set< std::pair<id_type, id_type> ,
+                boost::hash<std::pair<id_type, id_type> > > &elist) {
             out->init(buffer);
             for(size_t i = 0; i < buffer.size(); ++i) 
                 swap_pair(buffer[i]);
             in->init(buffer);
+            for(size_t i = 0; i < buffer.size(); ++i) 
+                elist.insert(edge_composer_tmp(buffer[i].first, buffer[i].second));
         }
 
     private:

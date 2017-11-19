@@ -17,6 +17,9 @@
 #include <cassert>
 
 #include "Snap.h"
+#include "simple_graphlib/fileIO.hpp"
+#include "simple_graphlib/storage.hpp"
+#include "simple_graphlib/graph.hpp"
 
 #ifndef COMMON_HPP
 #define COMMON_HPP
@@ -48,6 +51,13 @@ typedef unordered_map<inode_id_type, inode> iidinode_map;
 
 int max_net_k = 0;
 
+void load_graph(graph<vid_type> *net, string graph_filename) {
+    net->init();
+    file_IO<vid_type> f;
+    f.line_parser(graph_filename);
+    f.store(net->out, net->in, net->elist);
+}
+
 inline eid_type edge_composer(const vid_type &u, const vid_type &v) {
     if (u < v) 
         return make_pair(u, v);
@@ -55,10 +65,10 @@ inline eid_type edge_composer(const vid_type &u, const vid_type &v) {
         return make_pair(v, u);
 }
 
-void get_low_high_deg_vertices(const PUNGraph &net, 
+void get_low_high_deg_vertices(graph<vid_type> *net, 
         vid_type src, vid_type dst, 
         vid_type &low, vid_type &high) {
-    if (net->GetNI(src).GetDeg() > net->GetNI(dst).GetDeg()) {
+    if (net->get_deg(src) > net->get_deg(dst)) {
         low = dst;
         high = src;
     }

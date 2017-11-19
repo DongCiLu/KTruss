@@ -8,7 +8,7 @@
 #ifndef CS594_STORAGE_H
 #define CS594_STORAGE_H
 
-//#define STORAGE_H_DEBUG
+// #define STORAGE_H_DEBUG
 
 #include <vector>
 #include <utility>
@@ -113,7 +113,7 @@ class csr_storage : public storage<id_type> {
         }
 #endif
 
-    private:
+    //private:
         std::vector<size_t> indices; // store the start position of each key
         std::vector<id_type> values; // store values for all keys
 };

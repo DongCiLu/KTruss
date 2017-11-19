@@ -53,7 +53,7 @@ size_t count_cc(unordered_map<vid_type, vid_type> &cc) {
     return cc_heads.size();
 }
 
-size_t construct_mst(const PUNGraph &net,
+size_t construct_mst(graph<vid_type> *net,
         eint_map &edge_trussness,
         counting_sorted_type &sorted_edge_trussness,
         PUNGraph &mst,

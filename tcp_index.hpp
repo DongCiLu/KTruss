@@ -37,7 +37,7 @@ void generate_ego_mst_kruskal(tcp_index_type &tcpi,
     }
 }
 
-int get_max_ego_net_k(const PUNGraph &net,
+int get_max_ego_net_k(graph<vid_type> *net,
         eint_map &edge_trussness,
         vid_type u) {
     int max_ego_net_k = 0;
@@ -49,7 +49,7 @@ int get_max_ego_net_k(const PUNGraph &net,
     return max_ego_net_k;
 }
 
-void construct_tcp_index_single(const PUNGraph &net,
+void construct_tcp_index_single(graph<vid_type> *net,
         eint_map &edge_trussness,
         vid_type u,
         int max_ego_net_k, 
@@ -81,7 +81,7 @@ void construct_tcp_index_single(const PUNGraph &net,
     generate_ego_mst_kruskal(tcpi, cc, rank, sorted_ego_triangle_trussness);
 }
 
-void construct_tcp_index(const PUNGraph &net,
+void construct_tcp_index(graph<vid_type> *net,
         eint_map &edge_trussness,
         tcp_index_table_type &tcp_index) {
     // initialize index with empty (no edge) ego graph for each vertex

@@ -3,12 +3,14 @@
 
 #include "common.hpp"
 #include "decomposer.hpp"
+/*
 #include "induced_graph.hpp"
 #include "tree_index.hpp"
 #include "query.hpp"
 #include "update.hpp"
 #include "testcase.hpp"
 #include "tcp_index.hpp"
+*/
 
 void print_n_update_timer(bool init = false) {
     static clock_t last_time;
@@ -153,7 +155,7 @@ void save_indices(string &filename, eint_map &edge_support) {
 }
 */
 
-void generate_indices(const string &graph_filename) {
+void generate_indices(string graph_filename) {
     eint_map edge_support;
     eint_map edge_trussness;
 
@@ -166,10 +168,14 @@ void generate_indices(const string &graph_filename) {
     tcp_index_table_type tcp_index;
 
     cout << "1. Loading graph ...." << endl;
-    PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
-            graph_filename.c_str(), 0, 1);
-    cout << "Graph size: " << net->GetNodes() << 
-        " " << net->GetEdges() << endl;
+    // PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
+            // graph_filename.c_str(), 0, 1);
+    graph<vid_type> *net = new graph<vid_type>();
+    load_graph(net, graph_filename);
+    cout << "Graph size: " << net->num_vertices() << 
+        " " << net->num_edges() << endl;
+    cout << "Storage size: " << net->out->_sizeof() << 
+        " " << net->in->_sizeof() << endl;
     print_n_update_timer();
 
     cout << "2. Compute support" << endl;
@@ -179,6 +185,7 @@ void generate_indices(const string &graph_filename) {
     //save_indices(support_filename, edge_support);
     print_n_update_timer();
 
+    /*
     cout << "edge support size: " << edge_support.size() << " * " << 3 * 4 << endl;
     cout << "sorted edge support size: " << sorted_edge_support.size() << " * " << 3 * 4 << endl;
 
@@ -201,6 +208,7 @@ void generate_indices(const string &graph_filename) {
             index_tree, index_hash);
     check_index_tree(index_tree, index_hash);
     print_n_update_timer();
+    */
 
     /*
     cout << "6. Construct tcp index" << endl;
@@ -209,12 +217,14 @@ void generate_indices(const string &graph_filename) {
     print_n_update_timer();
     */
 
+    /*
     cout << "edge trussness size: " << edge_trussness.size() << " * " <<  3 * 4 << endl;
     cout << "triangle trussness size: " << triangle_trussness.size() << " * " << 3 * 4 << endl;
     cout << "encode table size: " << encode_table.size() << " * " <<  3 * 4 << endl;
     cout << "decode table size: " << decode_table.size() << " * " <<  3 * 4 << endl;
     cout << "index tree size: " << index_tree.size() << " * " <<  4 * 4 << endl;
     cout << "index hash size: " << index_hash.size() << " * " <<  3 * 4 << endl;
+    */
 }
 
 int main(int argc, char** argv){

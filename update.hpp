@@ -3,7 +3,7 @@
 #ifndef UPDATE_HPP
 #define UPDATE_HPP
 
-pair<int, int> calculate_trussness_bounds(const PUNGraph &net,
+pair<int, int> calculate_trussness_bounds(graph<vid_type> *net,
         eint_map &edge_trussness,
         eid_type e) {
     vid_type u;
@@ -31,7 +31,7 @@ pair<int, int> calculate_trussness_bounds(const PUNGraph &net,
     return make_pair(k1, k2);
 }
 
-size_t update_edge_trussness(const PUNGraph &net,
+size_t update_edge_trussness(graph<vid_type> *net,
         eint_map &edge_trussness,
         unordered_set< eid_type, boost::hash<eid_type> > &updated_edge,
         eid_type new_e) {
@@ -152,7 +152,7 @@ size_t update_edge_trussness(const PUNGraph &net,
     return updated_edge_cnt;
 }
 
-size_t update_edge_mst(const PUNGraph &net,
+size_t update_edge_mst(graph<vid_type> *net,
         PUNGraph &mst,
         eint_map &edge_trussness,
         eint_map &triangle_trussness,

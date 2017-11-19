@@ -14,21 +14,30 @@
 #include <iterator>
 
 #include "storage.hpp"
+#include "fileIO.hpp"
 
 template<typename id_type, typename v_data_type = int, typename e_data_type = int>
 class graph {
+    friend class fileIO;
     public:
         typedef id_type vertex_id_type;
         typedef v_data_type vertex_data_type;
         typedef e_data_type edge_data_type;
 
-        graph(storage<vertex_id_type> *out, 
-                storage<vertex_id_type> *in, 
+        graph(storage<vertex_id_type> *out = NULL, 
+                storage<vertex_id_type> *in = NULL, 
                 std::map<vertex_id_type, vertex_data_type> *vdata = NULL,
                 std::map<std::pair<vertex_id_type, vertex_id_type>, 
                 edge_data_type> *edata = NULL,
                 bool directed = false) : 
             out(out), in(in), vdata(vdata), edata(edata), directed(directed) { }
+
+        void init(){
+            if (out == NULL)
+                out = new csr_storage<id_type>;
+            if (in == NULL)
+                in = new csr_storage<id_type>;
+        }
         
         inline size_t num_vertices() {
             return std::max(out->num_ids(), in->num_ids());
@@ -97,9 +106,11 @@ class graph {
             return edge_list;
         }
 
-    private:
+    //private:
         storage<vertex_id_type> *out; // for fast access out edges
         storage<vertex_id_type> *in; // tranverse of r, for in edges
+        std::unordered_set< std::pair<vertex_id_type, vertex_id_type>, 
+            boost::hash<std::pair<vertex_id_type, vertex_id_type> > > elist;
         std::map<vertex_id_type, vertex_data_type> *vdata; // vertex data
         std::map<std::pair<vertex_id_type, vertex_id_type>, 
             edge_data_type> *edata; // edge data

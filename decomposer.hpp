@@ -9,29 +9,34 @@ bool support_sort(const pair<eid_type, int> &a,
 }
 
 // TODO: return max support value 
-void compute_support(const PUNGraph &net, 
+void compute_support(graph<vid_type> *net, 
         eint_map &edge_support,
         slow_sorted_type &sorted_edge_support) {
-    for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) {
-        int support = 0; 
-        vid_type u = -1, v = -1;
+    size_t edge_cnt = 0;
+    for (size_t i = 0; i < net->num_vertices(); i++) {
+        for (size_t j = 0; j < net->out->num_vals_id(i); j ++) {
+            edge_cnt ++;
+            int support = 0; 
+            vid_type u = -1, v = -1;
+            vid_type src = i;
+            vid_type dst = *(net->out->begin(i) + j);
+            get_low_high_deg_vertices(net, src, dst, u, v);
 
-        vid_type src = EI.GetSrcNId();
-        vid_type dst = EI.GetDstNId();
-        get_low_high_deg_vertices(net, src, dst, u, v);
+            for (size_t k = 0; k < net->get_deg(u); k++) {
+                vid_type w = net->get_nbr(u, k);
+                if (net->elist.find(edge_composer(w, v)) != net->elist.end())
+                    support += 1;
+            }
 
-        for (int i = 0; i < net->GetNI(u).GetDeg(); i++) {
-            vid_type w = net->GetNI(u).GetNbrNId(i);
-            if (net->IsEdge(w, v))
-                support += 1;
+            edge_support.insert(make_pair(edge_composer(u, v), support));
+            sorted_edge_support.insert(make_pair(support, edge_composer(u, v)));
         }
-
-        edge_support.insert(make_pair(edge_composer(u, v), support));
-        sorted_edge_support.insert(make_pair(support, edge_composer(u, v)));
     }
+    cout << "edge count: " << edge_cnt << endl;
 }
 
-int compute_trussness(const PUNGraph &net,
+/*
+int compute_trussness(graph<vid_type> *net,
         eint_map &edge_support,
         slow_sorted_type &sorted_edge_support, 
         eint_map &edge_trussness,
@@ -79,5 +84,6 @@ int compute_trussness(const PUNGraph &net,
     }
     return k - 1;
 }
+*/
 
 #endif
