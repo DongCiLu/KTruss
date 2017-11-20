@@ -5,10 +5,12 @@
 #include "decomposer.hpp"
 #include "induced_graph.hpp"
 #include "tree_index.hpp"
+/*
 #include "query.hpp"
 #include "update.hpp"
 #include "testcase.hpp"
 #include "tcp_index.hpp"
+*/
 
 void print_n_update_timer(bool init = false) {
     static clock_t last_time;
@@ -154,6 +156,7 @@ void save_indices(string &filename, eint_map &edge_support) {
 */
 
 void generate_indices(const string &graph_filename) {
+    unordered_set<eid_type> elist;
     eint_map edge_support;
     eint_map edge_trussness;
 
@@ -170,11 +173,14 @@ void generate_indices(const string &graph_filename) {
             graph_filename.c_str(), 0, 1);
     cout << "Graph size: " << net->GetNodes() << 
         " " << net->GetEdges() << endl;
+    for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) 
+        elist.insert(edge_composer(EI.GetSrcNId(), EI.GetDstNId()));
+    cout << "Edge list size: " << elist.size() << endl;
     print_n_update_timer();
 
     cout << "2. Compute support" << endl;
     slow_sorted_type sorted_edge_support; 
-    compute_support(net, edge_support, sorted_edge_support);
+    compute_support(net, elist, edge_support, sorted_edge_support);
     string support_filename = graph_filename + "esupport";
     //save_indices(support_filename, edge_support);
     print_n_update_timer();

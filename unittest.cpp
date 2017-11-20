@@ -4,9 +4,11 @@
 #include "decomposer.hpp"
 #include "induced_graph.hpp"
 #include "tree_index.hpp"
+/*
 #include "tcp_index.hpp"
 #include "query.hpp"
 #include "archiver.hpp"
+*/
 
 
 // TODO: design a new example
@@ -17,6 +19,7 @@ vector<vid_type> testcases;
 size_t num_testcases = 0;
 
 PUNGraph net;
+unordered_set<eid_type> elist;
 
 eint_map edge_support;
 slow_sorted_type sorted_edge_support; 
@@ -53,7 +56,7 @@ TEST(TestcasesLoadingTest, MultipleQueryVertices) {
 }
 
 TEST(DecomposerTest, EdgeSupportTest) {
-    compute_support(net, edge_support, sorted_edge_support);
+    compute_support(net, elist, edge_support, sorted_edge_support);
     eint_map exp_edge_support;
 
     exp_edge_support.insert(make_pair(edge_composer(0, 1), 1));
@@ -171,6 +174,7 @@ TEST(TreeIndexConstructionTest, ConstructionTest) {
     ASSERT_EQ(-1, index_tree[virtual_root_id].parent);
 }
 
+/*
 TEST(TCPIndexConstructionTest, ConstructionTest) {
     construct_tcp_index(net, edge_trussness, tcp_index);
     int exp_k[] = {3, 21, 9, 15, 29, 11, 8, 15, 15, 8};
@@ -413,9 +417,12 @@ TEST(ArchiverTest, ITSLTest) {
     ASSERT_EQ(index_tree, stored_index_tree);
     ASSERT_EQ(index_hash, stored_index_hash);
 }
+*/
 
 int main(int argc, char **argv) {
     net = TSnap::LoadEdgeList<PUNGraph>(graph_fn.c_str(), 0, 1);
+    for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) 
+        elist.insert(edge_composer(EI.GetSrcNId(), EI.GetDstNId()));
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
