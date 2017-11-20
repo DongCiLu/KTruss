@@ -112,7 +112,7 @@ void do_queries(string graph_filename,
                     }
                 }
                 if (!found) {
-                    verification ++;
+                    verification_error ++;
                     cout << "ERROR: cannot find communities for test case: "
                         << i << " with query vertex " << testcases[i] 
                         << " and query k = " << query_k << endl;
