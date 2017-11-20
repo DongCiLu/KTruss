@@ -6,9 +6,10 @@
 #include "induced_graph.hpp"
 #include "tree_index.hpp"
 #include "query.hpp"
-#include "update.hpp"
 #include "testcase.hpp"
+#include "archiver.hpp"
 /*
+#include "update.hpp"
 #include "tcp_index.hpp"
 */
 
@@ -117,6 +118,7 @@ void do_queries(const string &testcase_filename) {
 }
 */
 
+/*
 void check_mst(const PUNGraph mst, const PUNGraph net, const int num_cc) {
     if (mst->GetNodes() != net->GetEdges() || 
             mst->GetEdges() != mst->GetNodes() - num_cc) { 
@@ -145,6 +147,7 @@ void check_index_tree(const iidinode_map &index_tree,
         << " ignored nodes." << endl;
     cout << "Index hash table size is " << index_hash.size() << endl;
 }
+*/
 
 /*
 void save_indices(string &filename, eint_map &edge_support) {
@@ -155,6 +158,7 @@ void save_indices(string &filename, eint_map &edge_support) {
 }
 */
 
+/*
 void generate_indices(const string &graph_filename) {
     unordered_set<eid_type> elist;
     eint_map edge_support;
@@ -208,12 +212,10 @@ void generate_indices(const string &graph_filename) {
     check_index_tree(index_tree, index_hash);
     print_n_update_timer();
 
-    /*
     cout << "6. Construct tcp index" << endl;
     construct_tcp_index(net, edge_trussness, tcp_index);
     cout << "TCP index has " << tcp_index.size() << " nodes." << endl;
     print_n_update_timer();
-    */
 
     cout << "edge trussness size: " << edge_trussness.size() << " * " <<  3 * 4 << endl;
     cout << "triangle trussness size: " << triangle_trussness.size() << " * " << 3 * 4 << endl;
@@ -222,12 +224,15 @@ void generate_indices(const string &graph_filename) {
     cout << "index tree size: " << index_tree.size() << " * " <<  4 * 4 << endl;
     cout << "index hash size: " << index_hash.size() << " * " <<  3 * 4 << endl;
 }
+*/
 
 int main(int argc, char** argv){
     bool init = true;
     print_n_update_timer(init);
 
-    generate_indices(argv[1]);
+
+    create_checkpoint_dir("checkpoint");
+    //generate_indices(argv[1]);
 
     return 0;
 }
