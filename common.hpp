@@ -50,8 +50,6 @@ typedef vector< list<eid_type> > counting_sorted_type;
 typedef unordered_map<eid_type, inode_id_type> eiid_map;
 typedef unordered_map<inode_id_type, inode> iidinode_map;
 
-int max_net_k = 0;
-
 inline eid_type edge_composer(vid_type u, vid_type v) {
     if (u < v) 
         return (eid_type(u) << SHIFTSIZE) + v;

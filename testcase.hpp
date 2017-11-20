@@ -6,18 +6,17 @@
 #ifndef TESTCASE_HPP
 #define TESTCASE_HPP
 
-int load_testcases(string filename, 
-                vector<vid_type> &testcases,
-                unsigned int n_test, 
-                string mode = "single_q"){
+size_t load_testcases(string filename, 
+        size_t n_queries, 
+        vector<vid_type> &testcases,
+        string mode = "single_q"){
     if (mode != "single_q" && mode != "multi_q") {
         cerr << "Not supported query type!" << endl;
         return -1;
     }
-        
     set<vid_type> visited_vertices;
     ifstream in(filename.c_str());
-    while(testcases.size() < n_test) {
+    while(testcases.size() < n_queries) {
         string test_line;
         if(in.eof()) {
             cout << "Not enough test cases, reach end of testcase file"<< endl;

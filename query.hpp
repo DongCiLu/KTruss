@@ -56,8 +56,8 @@ void truss_raw_query(exact_qr_set_type &truss_communities,
         if (edge_trussness[e] >= query_k &&
                 visited_edges.find(e) == visited_edges.end()) {
             community_type truss_community;
-            truss_raw_edge_query(
-                    truss_community, e, query_k, net, edge_trussness, visited_edges);
+            truss_raw_edge_query(truss_community, e, query_k, 
+                    net, edge_trussness, visited_edges);
             truss_communities.push_back(truss_community);
         }
     }
@@ -196,5 +196,7 @@ void truss_maxk_query(qr_set_type &res,
         }
     }
 }
+
+void truss_exact_query(qr_set_type
 
 #endif

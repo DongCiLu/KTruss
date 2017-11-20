@@ -24,7 +24,7 @@ string generate_filename(string checkpoint_dir,
 
 void save_edge_trussness(eint_map &edge_trussness, 
         counting_sorted_type &sorted_edge_trussness,
-        string &graph_filename,
+        string graph_filename,
         string checkpoint_dir) {
     string edge_trussness_filename = generate_filename(
             checkpoint_dir, graph_filename, "_trussness");
@@ -40,7 +40,7 @@ void save_edge_trussness(eint_map &edge_trussness,
 
 void load_edge_trussness(eint_map &edge_trussness, 
         counting_sorted_type &sorted_edge_trussness,
-        string &graph_filename,
+        string graph_filename,
         string checkpoint_dir,
         bool load_sorted = true) {
     string edge_trussness_filename = generate_filename(
@@ -70,7 +70,7 @@ void save_mst(PUNGraph &mst,
         eint_map &triangle_trussness,
         unordered_map<eid_type, vid_type> &encode_table,
         unordered_map<vid_type, eid_type> &decode_table,
-        string &graph_filename,
+        string graph_filename,
         string checkpoint_dir) {
     string mst_graph_filename = generate_filename(
             checkpoint_dir, graph_filename, "_mst_graph");
@@ -104,7 +104,7 @@ void load_mst(PUNGraph &mst,
         eint_map &triangle_trussness,
         unordered_map<eid_type, vid_type> &encode_table,
         unordered_map<vid_type, eid_type> &decode_table,
-        string &graph_filename,
+        string graph_filename,
         string checkpoint_dir) {
     string mst_graph_filename = generate_filename(
             checkpoint_dir, graph_filename, "_mst_graph");
@@ -146,7 +146,7 @@ void load_mst(PUNGraph &mst,
 
 void save_index_tree(iidinode_map &index_tree, 
         eiid_map &index_hash,
-        string &graph_filename,
+        string graph_filename,
         string checkpoint_dir) {
     string it_filename = generate_filename(
             checkpoint_dir, graph_filename, "_index_tree");
@@ -174,7 +174,7 @@ void save_index_tree(iidinode_map &index_tree,
 
 void load_index_tree(iidinode_map &index_tree, 
         eiid_map &index_hash,
-        string &graph_filename,
+        string graph_filename,
         string checkpoint_dir) {
     string it_filename = generate_filename(
             checkpoint_dir, graph_filename, "_index_tree");

@@ -87,7 +87,7 @@ TEST(DecomposerTest, EdgeSupportTest) {
 }
 
 TEST(DecomposerTest, EdgeTrussnessTest) {
-    max_net_k = compute_trussness(
+    int max_net_k = compute_trussness(
             net, edge_support, sorted_edge_support, 
             edge_trussness, sorted_edge_trussness);
     eint_map exp_edge_trussness;
