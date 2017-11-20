@@ -250,7 +250,7 @@ int main(int argc, char** argv){
     }
     string mode = argv[1];
     string graph_filename = argv[2];
-    string checkpoint_dir = "dataset/checkpoints";
+    string checkpoint_dir = "datasets/checkpoints";
     if (mode == "index") {
         generate_indices(graph_filename, checkpoint_dir);
     }
