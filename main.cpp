@@ -5,10 +5,10 @@
 #include "decomposer.hpp"
 #include "induced_graph.hpp"
 #include "tree_index.hpp"
-/*
 #include "query.hpp"
 #include "update.hpp"
 #include "testcase.hpp"
+/*
 #include "tcp_index.hpp"
 */
 

@@ -5,27 +5,28 @@
 #define QUERY_HPP
 
 
-void truss_raw_edge_query(
-        community_type &truss_community,
+// this is not optimized
+void truss_raw_edge_query(community_type &truss_community,
         eid_type query_e,
         int query_k, 
         PUNGraph &net,
         eint_map &edge_trussness,
-        unordered_set<eid_type, boost::hash<eid_type> > &visited_edges) {
+        unordered_set<eid_type> &visited_edges) {
     // truss discovery for a single edge
     queue<eid_type> fifo;
     fifo.push(query_e);
     visited_edges.insert(query_e);
     while (!fifo.empty()) {
         eid_type e = fifo.front();
+        pair<vid_type, vid_type> vpair = vertex_extractor(e);
         fifo.pop();
-        truss_community.insert(e);
-        for (int j = 0; j < net->GetNI(e.first).GetDeg(); j++) {
-            vid_type w = net->GetNI(e.first).GetNbrNId(j);
+        truss_community.push_back(vpair);
+        for (int j = 0; j < net->GetNI(vpair.first).GetDeg(); j++) {
+            vid_type w = net->GetNI(vpair.first).GetNbrNId(j);
             // test if it is a triangle
-            if (net->IsEdge(e.second, w)) {
-                eid_type adj_e1 = edge_composer(e.first, w);
-                eid_type adj_e2 = edge_composer(e.second, w);
+            if (net->IsEdge(vpair.second, w)) {
+                eid_type adj_e1 = edge_composer(vpair.first, w);
+                eid_type adj_e2 = edge_composer(vpair.second, w);
                 if (edge_trussness[adj_e1] >= query_k &&
                         edge_trussness[adj_e2] >= query_k) {
                     if (visited_edges.find(adj_e1) == visited_edges.end()) {
@@ -48,7 +49,7 @@ void truss_raw_query(exact_qr_set_type &truss_communities,
         PUNGraph &net, 
         eint_map &edge_trussness) {
     // this is the k-truss query based on the edge trussness index
-    unordered_set<eid_type, boost::hash<eid_type> > visited_edges;
+    unordered_set<eid_type> visited_edges;
     for (int i = 0; i < net->GetNI(query_vid).GetDeg(); i++) {
         vid_type u = net->GetNI(query_vid).GetNbrNId(i);
         eid_type e = edge_composer(u, query_vid);
@@ -62,7 +63,7 @@ void truss_raw_query(exact_qr_set_type &truss_communities,
     }
 }
 
-void branch_search(set<inode_id_type> &branch_nodes,
+void branch_search(unordered_set<inode_id_type> &branch_nodes,
         inode_id_type iid, 
         iidinode_map &index_tree) {
     while(iid != -1) {
@@ -71,7 +72,7 @@ void branch_search(set<inode_id_type> &branch_nodes,
     }
 }
 
-void truss_forest_single_v (set<inode_id_type> &single_forest,
+void truss_forest_single_v (unordered_set<inode_id_type> &single_forest,
         vid_type query_vid,
         PUNGraph &net,
         iidinode_map &index_tree,
@@ -81,13 +82,13 @@ void truss_forest_single_v (set<inode_id_type> &single_forest,
         vid_type v = net->GetNI(query_vid).GetNbrNId(i);
         eid_type e = edge_composer(query_vid, v);
         inode_id_type iid = index_hash[e];
-        set<inode_id_type> branch_nodes;
+        unordered_set<inode_id_type> branch_nodes;
         branch_search(branch_nodes, iid, index_tree);
         single_forest.insert(branch_nodes.begin(), branch_nodes.end());
     }
 }
 
-void truss_intersection_forest(set<inode_id_type> &intersection_forest,
+void truss_intersection_forest(unordered_set<inode_id_type> &intersection_forest,
         vector<vid_type>& query_vids, 
         PUNGraph &net,
         iidinode_map &index_tree,
@@ -97,22 +98,27 @@ void truss_intersection_forest(set<inode_id_type> &intersection_forest,
             citer = query_vids.begin();
             citer != query_vids.end();
             ++ citer) {
-        set<inode_id_type> single_forest;
+        unordered_set<inode_id_type> single_forest;
         vid_type query_vid = *citer;
         // find maxk community of a single vertex
         truss_forest_single_v(single_forest, query_vid,
                 net, index_tree, index_hash);
         // store intersection of both forest
         if (init) {
-            set<inode_id_type> new_intersection_forest;
-            std::set_intersection(single_forest.begin(), single_forest.end(),
-                    intersection_forest.begin(), intersection_forest.end(),
-                    std::inserter(new_intersection_forest, 
-                        new_intersection_forest.begin()));
-            intersection_forest = new_intersection_forest;
+            unordered_set<inode_id_type> new_intersection_forest;
+            if (intersection_forest.size() < single_forest.size())
+                intersection_forest.swap(single_forest);
+            for (unordered_set<inode_id_type>::iterator 
+                    iter = single_forest.begin();
+                    iter != single_forest.end();
+                    ++ iter) {
+                if (intersection_forest.find(*iter) != intersection_forest.end())
+                    new_intersection_forest.insert(*iter);
+            }
+            intersection_forest.swap(new_intersection_forest);
         }
         else {
-            intersection_forest = single_forest;
+            intersection_forest.swap(single_forest);
             init = true;
         }
     }
@@ -124,15 +130,15 @@ void truss_anyk_query(qr_set_type &res,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
     // find intersection forest
-    set<inode_id_type> intersection_forest;
+    unordered_set<inode_id_type> intersection_forest;
     truss_intersection_forest(intersection_forest,
         query_vids, net, index_tree, index_hash);
     // output the intersection forest in required format
-    for (set<inode_id_type>::iterator iter = intersection_forest.begin();
+    for (unordered_set<inode_id_type>::iterator iter = intersection_forest.begin();
             iter != intersection_forest.end();
             ++ iter) {
         qr_type res_node(*iter, index_tree[*iter].size, index_tree[*iter].k);
-        res.insert(res_node);
+        res.push_back(res_node);
     }
 }
 
@@ -143,11 +149,11 @@ void truss_k_query(qr_set_type &res,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
     // find intersection forest
-    set<inode_id_type> intersection_forest;
+    unordered_set<inode_id_type> intersection_forest;
     truss_intersection_forest(intersection_forest,
         query_vids, net, index_tree, index_hash);
     // output the intersection forest in required format
-    for (set<inode_id_type>::iterator iter = intersection_forest.begin();
+    for (unordered_set<inode_id_type>::iterator iter = intersection_forest.begin();
             iter != intersection_forest.end();
             ++ iter) {
         if (index_tree[*iter].k >= query_k) {
@@ -158,7 +164,7 @@ void truss_k_query(qr_set_type &res,
             }
             else {
                 qr_type res_node(*iter, index_tree[*iter].size, index_tree[*iter].k);
-                res.insert(res_node);
+                res.push_back(res_node);
             }
         }
     }
@@ -170,23 +176,23 @@ void truss_maxk_query(qr_set_type &res,
         iidinode_map &index_tree,
         eiid_map &index_hash) {
     // find intersection forest
-    set<inode_id_type> intersection_forest;
+    unordered_set<inode_id_type> intersection_forest;
     truss_intersection_forest(intersection_forest,
         query_vids, net, index_tree, index_hash);
     // find truss communtiy with max k in the intersection forest
     int max_k = -1;
-    for (set<inode_id_type>::iterator iter = intersection_forest.begin();
+    for (unordered_set<inode_id_type>::iterator iter = intersection_forest.begin();
             iter != intersection_forest.end();
             ++ iter) {
         if (index_tree[*iter].k > max_k) {
             max_k = index_tree[*iter].k;
             res.clear();
             qr_type res_node(*iter, index_tree[*iter].size, max_k);
-            res.insert(res_node);
+            res.push_back(res_node);
         }
         else if (index_tree[*iter].k == max_k) {
             qr_type res_node(*iter, index_tree[*iter].size, max_k);
-            res.insert(res_node);
+            res.push_back(res_node);
         }
     }
 }

@@ -1,13 +1,15 @@
+#include <algorithm>
 #include "gtest/gtest.h"
+
 #include "common.hpp"
 #include "testcase.hpp"
 #include "decomposer.hpp"
 #include "induced_graph.hpp"
 #include "tree_index.hpp"
-/*
-#include "tcp_index.hpp"
 #include "query.hpp"
 #include "archiver.hpp"
+/*
+#include "tcp_index.hpp"
 */
 
 
@@ -193,10 +195,11 @@ TEST(TCPIndexConstructionTest, ConstructionTest) {
         ASSERT_EQ(exp_k[i], k);
     }
 }
+*/
 
 TEST(QueryTest, RawTrussSESKQueryTest) {
     community_type truss_community;
-    unordered_set<eid_type, boost::hash<eid_type> > visited_edges;
+    unordered_set<eid_type> visited_edges;
     vector< pair<eid_type, int> > queries;
     vector<int> exp_results;
     queries.push_back(make_pair(edge_composer(3, 7), 5));
@@ -225,19 +228,19 @@ TEST(QueryTest, RawTrussSVSKQueryTest) {
     queries.push_back(make_pair(4, 4));
     qr_set.clear();
     qr.set(20, 6, 4);
-    qr_set.insert(qr);
+    qr_set.push_back(qr);
     qr.set(4, 10, 5);
-    qr_set.insert(qr);
+    qr_set.push_back(qr);
     exp_community_infos.push_back(qr_set);
     queries.push_back(make_pair(4, 3));
     qr_set.clear();
     qr.set(8, 21, 3);
-    qr_set.insert(qr);
+    qr_set.push_back(qr);
     exp_community_infos.push_back(qr_set);
     queries.push_back(make_pair(1, 3));
     qr_set.clear();
     qr.set(8, 21, 3);
-    qr_set.insert(qr);
+    qr_set.push_back(qr);
     exp_community_infos.push_back(qr_set);
     queries.push_back(make_pair(6, 5));
     qr_set.clear();
@@ -245,7 +248,7 @@ TEST(QueryTest, RawTrussSVSKQueryTest) {
     queries.push_back(make_pair(7, 2));
     qr_set.clear();
     qr.set(8, 21, 3);
-    qr_set.insert(qr);
+    qr_set.push_back(qr);
     exp_community_infos.push_back(qr_set);
 
     for (size_t i = 0; i < queries.size(); i ++) {
@@ -260,7 +263,9 @@ TEST(QueryTest, RawTrussSVSKQueryTest) {
                     iter = exp_community_infos[i].begin();
                     iter != exp_community_infos[i].end();
                     ++ iter) {
-                if (truss_communities[j].find(edge_extractor(iter->iid)) != 
+                if (std::find(truss_communities[j].begin(), 
+                            truss_communities[j].end(),
+                            vertex_extractor(edge_extractor(iter->iid))) !=
                         truss_communities[j].end()) {
                     found = true;
                     ASSERT_EQ(iter->size, truss_communities[j].size());
@@ -299,7 +304,9 @@ TEST(QueryTest, TrussSVSKQueryTest) {
                     iter = truss_community_info.begin();
                     iter != truss_community_info.end();
                     ++ iter) {
-                if (truss_communities[j].find(edge_extractor(iter->iid)) != 
+                if (std::find(truss_communities[j].begin(), 
+                            truss_communities[j].end(),
+                            vertex_extractor(edge_extractor(iter->iid))) !=
                         truss_communities[j].end()) {
                     found = true;
                     ASSERT_EQ(iter->size, truss_communities[j].size());
@@ -389,7 +396,7 @@ TEST(ArchiverTest, EdgeTrussnessSLTest) {
 TEST(ArchiverTest, MSTSLTest) {
     PUNGraph stored_mst;
     eint_map stored_triangle_trussness;
-    unordered_map<eid_type, vid_type, boost::hash<eid_type> > stored_encode_table;
+    unordered_map<eid_type, vid_type> stored_encode_table;
     unordered_map<vid_type, eid_type> stored_decode_table;
 
     save_mst(mst, triangle_trussness,
@@ -417,7 +424,6 @@ TEST(ArchiverTest, ITSLTest) {
     ASSERT_EQ(index_tree, stored_index_tree);
     ASSERT_EQ(index_hash, stored_index_hash);
 }
-*/
 
 int main(int argc, char **argv) {
     net = TSnap::LoadEdgeList<PUNGraph>(graph_fn.c_str(), 0, 1);

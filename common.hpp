@@ -128,15 +128,17 @@ struct QR {
     }
 };
 
+/*
 struct qr_hash {
     size_t operator()(const QR& _qr) const {
         return std::hash<inode_id_type>()(_qr.iid);
     }
 };
+*/
 
-typedef unordered_set<eid_type, boost::hash<eid_type> > community_type;
+typedef vector< pair<vid_type, vid_type> > community_type;
 typedef QR qr_type;
-typedef unordered_set<qr_type, qr_hash> qr_set_type;
+typedef vector<qr_type> qr_set_type;
 typedef vector<community_type> exact_qr_set_type;
 
 #endif

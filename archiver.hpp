@@ -14,8 +14,7 @@ void save_edge_trussness(eint_map &edge_trussness,
     for (eint_map::const_iterator iter = edge_trussness.begin();
             iter != edge_trussness.end();
             ++ iter) {
-        out << iter->first.first << " " 
-            << iter->first.second << " " 
+        out << iter->first << " " 
             << iter->second << endl;
     }
     out.close();
@@ -33,15 +32,15 @@ void load_edge_trussness(eint_map &edge_trussness,
         if (line.empty())
             continue;
         stringstream ss(line);
-        vid_type u = 0, v = 0;
+        eid_type e = 0;
         int k = 0;
-        ss >> u >> v >> k;
-        edge_trussness.insert(make_pair(edge_composer(u, v), k));
+        ss >> e >> k;
+        edge_trussness.insert(make_pair(e, k));
         if (load_sorted) {
             size_t size_k = static_cast<size_t>(k); 
             if (size_k >= sorted_edge_trussness.size())
                 sorted_edge_trussness.resize(size_k + 1, list<eid_type>());
-            sorted_edge_trussness[k].push_back(edge_composer(u, v));
+            sorted_edge_trussness[k].push_back(e);
         }
     }
     in.close();
@@ -49,7 +48,7 @@ void load_edge_trussness(eint_map &edge_trussness,
 
 void save_mst(PUNGraph &mst, 
         eint_map &triangle_trussness,
-        unordered_map<eid_type, vid_type, boost::hash<eid_type> > &encode_table,
+        unordered_map<eid_type, vid_type> &encode_table,
         unordered_map<vid_type, eid_type> &decode_table,
         string &graph_filename) {
     string mst_graph_filename = graph_filename + "_mst_graph";
@@ -61,40 +60,26 @@ void save_mst(PUNGraph &mst,
     for (eint_map::const_iterator iter = triangle_trussness.begin();
             iter != triangle_trussness.end();
             ++ iter) {
-        wout << iter->first.first << " " 
-            << iter->first.second << " " 
+        wout << iter->first<< " " 
             << iter->second << endl;
     }
     wout.close();
 
-    string mst_encode_filename = graph_filename + "_mst_encode";
+    string mst_encode_filename = graph_filename + "_mst_hash";
     ofstream eout(mst_encode_filename.c_str());
-    for (unordered_map<eid_type, vid_type, boost::hash<eid_type> >::const_iterator 
+    for (unordered_map<eid_type, vid_type>::const_iterator 
             iter = encode_table.begin();
             iter != encode_table.end();
             ++ iter) {
-        eout << iter->first.first << " " 
-            << iter->first.second << " " 
+        eout << iter->first << " " 
             << iter->second << endl;
     }
     eout.close();
-
-    string mst_decode_filename = graph_filename + "_mst_decode";
-    ofstream dout(mst_decode_filename.c_str());
-    for (unordered_map<vid_type, eid_type>::const_iterator 
-            iter = decode_table.begin();
-            iter != decode_table.end();
-            ++ iter) {
-        dout << iter->first << " " 
-            << iter->second.first << " " 
-            << iter->second.second << endl;
-    }
-    dout.close();
 }
 
 void load_mst(PUNGraph &mst, 
         eint_map &triangle_trussness,
-        unordered_map<eid_type, vid_type, boost::hash<eid_type> > &encode_table,
+        unordered_map<eid_type, vid_type> &encode_table,
         unordered_map<vid_type, eid_type> &decode_table,
         string &graph_filename) {
     string mst_graph_filename = graph_filename + "_mst_graph";
@@ -109,14 +94,14 @@ void load_mst(PUNGraph &mst,
         if (line.empty())
             continue;
         stringstream ss(line);
-        vid_type u = 0, v = 0;
+        eid_type e = 0;
         int k = 0;
-        ss >> u >> v >> k;
-        triangle_trussness.insert(make_pair(edge_composer(u, v), k));
+        ss >> e >> k;
+        triangle_trussness.insert(make_pair(e, k));
     }
     win.close();
 
-    string mst_encode_filename = graph_filename + "_mst_encode";
+    string mst_encode_filename = graph_filename + "_mst_hash";
     ifstream ein(mst_encode_filename.c_str());
     while(ein.good()) {
         string line;
@@ -124,25 +109,13 @@ void load_mst(PUNGraph &mst,
         if (line.empty())
             continue;
         stringstream ss(line);
-        vid_type u = 0, v = 0, w = 0;
-        ss >> u >> v >> w;
-        encode_table.insert(make_pair(edge_composer(u, v), w));
+        eid_type e = 0;
+        vid_type w = 0;
+        ss >> e >> w;
+        encode_table.insert(make_pair(e, w));
+        decode_table.insert(make_pair(w, e));
     }
     ein.close();
-
-    string mst_decode_filename = graph_filename + "_mst_decode";
-    ifstream din(mst_decode_filename.c_str());
-    while(din.good()) {
-        string line;
-        getline(din, line);
-        if (line.empty())
-            continue;
-        stringstream ss(line);
-        vid_type u = 0, v = 0, w = 0;
-        ss >> u >> v >> w;
-        decode_table.insert(make_pair(u, make_pair(v, w)));
-    }
-    din.close();
 }
 
 void save_index_tree(iidinode_map &index_tree, 
@@ -164,8 +137,7 @@ void save_index_tree(iidinode_map &index_tree,
     for (eiid_map::const_iterator iter = index_hash.begin();
             iter != index_hash.end();
             ++ iter) {
-        ihout << iter->first.first << " " 
-            << iter->first.second << " " 
+        ihout << iter->first << " " 
             << iter->second << endl;
     }
     ihout.close();
@@ -197,9 +169,10 @@ void load_index_tree(iidinode_map &index_tree,
         if (line.empty())
             continue;
         stringstream ss(line);
-        vid_type u = 0, v = 0, w = 0;
-        ss >> u >> v >> w;
-        index_hash.insert(make_pair(make_pair(u, v), w));
+        eid_type e = 0;
+        vid_type w = 0;
+        ss >> e >> w;
+        index_hash.insert(make_pair(e, w));
     }
     ihin.close();
 }
