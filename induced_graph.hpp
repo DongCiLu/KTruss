@@ -63,7 +63,8 @@ size_t construct_mst(const PUNGraph &net,
     unordered_map<vid_type, int> rank;
 
     for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) {
-        vid_type v = mst_vid_composer(EI.GetSrcNId(), EI.GetDstNId());
+        eid_type e = edge_composer(EI.GetSrcNId(), EI.GetDstNId());
+        vid_type v = mst_vid_composer(e);
         cc.insert(make_pair(v, v));
         rank.insert(make_pair(v, 0));
         mst->AddNode(v);
@@ -79,7 +80,8 @@ size_t construct_mst(const PUNGraph &net,
                 iter != sorted_edge_trussness[edge_weight].end();
                 ++ iter) {
             vid_type u = -1, v = -1;
-            get_low_high_deg_vertices(net, iter->first, iter->second, u, v);
+            pair<vid_type, vid_type> vpair = vertex_extractor(*iter);
+            get_low_high_deg_vertices(net, vpair.first, vpair.second, u, v);
             int u_deg = net->GetNI(u).GetDeg();
             for (int i = 0; i < u_deg; i++) {
                 vid_type w = net->GetNI(u).GetNbrNId(i);
@@ -95,9 +97,9 @@ size_t construct_mst(const PUNGraph &net,
                     if (e1_tuple < e2_tuple && e1_tuple < e3_tuple) {
                         triangle_cnt ++;
                         int uvw_trussness = edge_trussness[e1];
-                        vid_type v1 = mst_vid_composer(e1.first, e1.second);
-                        vid_type v2 = mst_vid_composer(e2.first, e2.second);
-                        vid_type v3 = mst_vid_composer(e3.first, e3.second);
+                        vid_type v1 = mst_vid_composer(e1);
+                        vid_type v2 = mst_vid_composer(e2);
+                        vid_type v3 = mst_vid_composer(e3);
                         test_and_add_mst_edge(v1, v2, uvw_trussness, 
                                 cc, rank, mst, triangle_trussness);
                         test_and_add_mst_edge(v1, v3, uvw_trussness, 

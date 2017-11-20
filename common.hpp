@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <climits>
 #include <time.h>
 #include <boost/functional/hash.hpp>
 
@@ -21,11 +22,14 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
+#define SHIFTSIZE 31
+#define SHIFTMASK INT_MAX
+
 using namespace std;
 
 typedef int vid_type;
-typedef pair<vid_type, vid_type> eid_type;
-typedef vid_type inode_id_type;
+typedef long eid_type;
+typedef long inode_id_type;
 struct inode{
     inode_id_type parent;
     size_t size;
@@ -33,21 +37,32 @@ struct inode{
     
     inode(inode_id_type parent = -1, size_t size = -1, int k = -1): 
         parent(parent), size(size), k(k) { }
+
+    bool operator==(const inode& rhs) const {
+        return this->parent == rhs.parent && 
+            this->size == rhs.size &&
+            this->k == rhs.k;
+    }
 };
-typedef unordered_map<eid_type, int, boost::hash<eid_type> > eint_map;
+typedef unordered_map<eid_type, int> eint_map;
 typedef set< pair<int, eid_type> > slow_sorted_type;
 typedef vector< list<eid_type> > counting_sorted_type;
-typedef unordered_map<eid_type, inode_id_type, boost::hash<eid_type> > 
-eiid_map;
+typedef unordered_map<eid_type, inode_id_type> eiid_map;
 typedef unordered_map<inode_id_type, inode> iidinode_map;
 
 int max_net_k = 0;
 
-inline eid_type edge_composer(const vid_type &u, const vid_type &v) {
+inline eid_type edge_composer(vid_type u, vid_type v) {
     if (u < v) 
-        return make_pair(u, v);
+        return (eid_type(u) << SHIFTSIZE) + v;
     else
-        return make_pair(v, u);
+        return (eid_type(v) << SHIFTSIZE) + u;
+}
+
+inline pair<vid_type, vid_type> vertex_extractor(eid_type e) {
+    vid_type v = vid_type(e & SHIFTMASK);
+    vid_type u = (e - v) >> SHIFTSIZE;
+    return make_pair(u, v);
 }
 
 void get_low_high_deg_vertices(const PUNGraph &net, 
@@ -63,20 +78,12 @@ void get_low_high_deg_vertices(const PUNGraph &net,
     }
 }
 
-/*
- * We have to use hash table as a brute-force scheme 
- * because A * max + B soon reaches the limit of int.
- * But all we need is a int number for each edge, 
- * note boost hash or std hash will hash to size_t values,
- * which may lead to collision when cast to int.
- * To avoid handle this by ourself, we simpley use two tables.
- */
-unordered_map<eid_type, vid_type, boost::hash<eid_type> > encode_table;
+// convert eid_type (long) to vid_type (int)
+unordered_map<eid_type, vid_type> encode_table;
 unordered_map<vid_type, eid_type> decode_table;
 int vid_cnt = 0;
 
-inline vid_type mst_vid_composer(vid_type u, vid_type v) {
-    eid_type e = edge_composer(u, v);
+inline vid_type mst_vid_composer(eid_type e) {
     if (encode_table.find(e) == encode_table.end()) {
         encode_table.insert(make_pair(e, vid_cnt));
         decode_table.insert(make_pair(vid_cnt, e));
@@ -85,7 +92,7 @@ inline vid_type mst_vid_composer(vid_type u, vid_type v) {
     return encode_table[e];
 }
 
-inline eid_type edge_extractor(const vid_type &x) {
+inline eid_type edge_extractor(vid_type x) {
     return decode_table[x];
 }
 
