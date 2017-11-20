@@ -1,0 +1,6 @@
+1. Loading graph and test cases
+Graph size: 42923 14503900
+elapsed time: 4.46943
+2. Compute support
+elapsed time: 3019.62
+3. Truss Decomposition (Index Construction)

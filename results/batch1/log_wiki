@@ -1,0 +1,15 @@
+1. Loading graph and test cases
+Graph size: 2388953 4656682
+elapsed time: 2.91711
+2. Compute support
+elapsed time: 65.4224
+3. Truss Decomposition (Index Construction)
+the maximum k of the graph is: 53
+elapsed time: 55.5466
+4. Build MST from generated graph
+MST has 4656682 nodes, 1677687 edges and 2978995 connected components.
+elapsed time: 48.3114
+5. Construct heirachical index
+Index tree has 3717 nodes with 2975379 ignored nodes.
+Index hash table size is 4656682
+elapsed time: 11.4458

@@ -1,0 +1,4 @@
+./simple.sh: line 4:  4283 Killed                  ./main datasets/bio_wcc.txt datasets/bio_wcc.txt > log_bio
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+./simple.sh: line 6:  7775 Aborted                 ./main datasets/hollywood_wcc.txt datasets/hollywood_wcc.txt > log_hollywood

@@ -1,0 +1,9 @@
+1. Loading graph and test cases
+Graph size: 42923 14503900
+elapsed time: 4.40955
+2. Compute support
+elapsed time: 3005.94
+3. Truss Decomposition (Index Construction)
+the maximum k of the graph is: 418
+elapsed time: 28930.7
+4. Build MST from generated graph
