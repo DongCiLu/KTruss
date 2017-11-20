@@ -197,6 +197,5 @@ void truss_maxk_query(qr_set_type &res,
     }
 }
 
-void truss_exact_query(qr_set_type
 
 #endif
