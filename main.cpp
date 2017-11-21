@@ -24,6 +24,74 @@ void print_n_update_timer(bool silent = false) {
     last_time = clock();
 }
 
+void verify_raw_info(vector<vid_type> &testcases,
+        vector<exact_qr_set_type> &truss_communities,
+        vector<qr_set_type> &truss_community_infos) {
+    size_t verification_error = 0;
+    for (size_t i = 0; i < testcases.size(); i ++) {
+        if (truss_community_infos[i].size() != truss_communities[i].size()) {
+            cout << "ERROR: wrong number of communities for test case: "
+                << i << " with query vertex " << testcases[i] << endl;
+        }
+        for (qr_set_type::iterator 
+                iter = truss_community_infos[i].begin();
+                iter != truss_community_infos[i].end();
+                ++ iter) {
+            bool found = false;
+            for (size_t j = 0; j < truss_communities[i].size(); j ++) {
+                if (std::find(truss_communities[i][j].begin(), 
+                            truss_communities[i][j].end(),
+                            vertex_extractor(edge_extractor(iter->iid))) !=
+                        truss_communities[i][j].end()) {
+                    found = true;
+                    if (iter->size !=  truss_communities[i][j].size()) {
+                        cout << "ERROR: wrong size of communities for test case: "
+                            << i << " with query vertex " << testcases[i] << endl;
+                    }
+                    break;
+                }
+            }
+            if (!found && !truss_community_infos[i].empty()) {
+                verification_error ++;
+                cout << "ERROR: cannot find communities for test case: "
+                    << i << " with query vertex " << testcases[i]  << endl;
+            }
+        } 
+    }
+    if (verification_error == 0) 
+        cout << "Success!" << endl;
+}
+
+void verify_raw_exact(vector<vid_type> &testcases,
+        vector<exact_qr_set_type> &truss_communities1,
+        vector<exact_qr_set_type> &truss_communities2) {
+    size_t verification_error = 0;
+    for (size_t i = 0; i < testcases.size(); i ++) {
+        if (truss_communities1[i].size() != truss_communities2[i].size()) {
+            cout << "ERROR: wrong number of communities for test case: "
+                << i << " with query vertex " << testcases[i] << endl;
+        }
+        community_type total_community1, total_community2;
+        for (size_t j = 0; j < truss_communities1[i].size(); j ++) {
+            total_community1.insert(total_community1.end(), 
+                    truss_communities1[i][j].begin(),
+                    truss_communities1[i][j].end());
+        } 
+        for (size_t j = 0; j < truss_communities2[i].size(); j ++) {
+            total_community2.insert(total_community2.end(), 
+                    truss_communities2[i][j].begin(),
+                    truss_communities2[i][j].end());
+        } 
+        std::sort(total_community1.begin(), total_community1.end());
+        std::sort(total_community2.begin(), total_community2.end());
+        if (total_community1 != total_community2) {
+            verification_error ++;
+        }
+    }
+    if (verification_error == 0) 
+        cout << "Success!" << endl;
+}
+
 void do_queries(string graph_filename, 
         string checkpoint_dir, 
         string testcase_filename, 
@@ -60,7 +128,8 @@ void do_queries(string graph_filename,
     cout << "3. K-Truss Query Processing" << endl;
     if (query_k > 0) {
         cout << query_k << "-Truss query" << endl;
-        vector<exact_qr_set_type> truss_communities;
+        vector<exact_qr_set_type> truss_communities1;
+        vector<exact_qr_set_type> truss_communities2;
         vector<qr_set_type> truss_community_infos;
 
         cout << "3.1 Starting raw query" << endl;
@@ -69,7 +138,7 @@ void do_queries(string graph_filename,
             truss_raw_query(truss_community, 
                     testcases[i], query_k,
                     net, edge_trussness);
-            truss_communities.push_back(truss_community);
+            truss_communities1.push_back(truss_community);
         }
         print_n_update_timer();
 
@@ -84,43 +153,18 @@ void do_queries(string graph_filename,
         }
         print_n_update_timer();
 
-        cout << "verifying results..." << endl;
-        size_t verification_error = 0;
+        cout << "3.2 Starting truss exact query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
-            if (truss_community_infos[i].size() != truss_communities[i].size()) {
-                cout << "ERROR: wrong number of communities for test case: "
-                    << i << " with query vertex " << testcases[i] 
-                    << " and query k = " << query_k << endl;
-            }
-            for (size_t j = 0; j < truss_communities[i].size(); j ++) {
-                bool found = false;
-                for (qr_set_type::iterator 
-                        iter = truss_community_infos[i].begin();
-                        iter != truss_community_infos[i].end();
-                        ++ iter) {
-                    if (std::find(truss_communities[i][j].begin(), 
-                                truss_communities[i][j].end(),
-                                vertex_extractor(edge_extractor(iter->iid))) !=
-                            truss_communities[i][j].end()) {
-                        found = true;
-                        if (iter->size !=  truss_communities[i][j].size()) {
-                            cout << "ERROR: wrong size of communities for test case: "
-                                << i << " with query vertex " << testcases[i] 
-                                << " and query k = " << query_k << endl;
-                        }
-                        break;
-                    }
-                }
-                if (!found) {
-                    verification_error ++;
-                    cout << "ERROR: cannot find communities for test case: "
-                        << i << " with query vertex " << testcases[i] 
-                        << " and query k = " << query_k << endl;
-                }
-            } 
+            exact_qr_set_type truss_community;
+            truss_exact_query(truss_community, truss_community_infos[i], 
+                    mst, triangle_trussness);
+            truss_communities2.push_back(truss_community);
         }
-        if (verification_error == 0) 
-            cout << "Success!" << endl;
+        print_n_update_timer();
+
+        cout << "verifying results..." << endl;
+        verify_raw_info(testcases, truss_communities1, truss_community_infos);
+        verify_raw_exact(testcases, truss_communities1, truss_communities2);
     }
     else if (query_k == 0) {
         cout << "Any-K-truss query" << endl;

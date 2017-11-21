@@ -424,9 +424,9 @@ TEST(ArchiverTest, EdgeTrussnessSLTest) {
     counting_sorted_type stored_sorted_edge_trussness; 
 
     save_edge_trussness(edge_trussness, sorted_edge_trussness, 
-            graph_fn, "checkpoint");
+            graph_fn, "datasets/checkpoints");
     load_edge_trussness(stored_edge_trussness, stored_sorted_edge_trussness, 
-            graph_fn, "checkpoint");
+            graph_fn, "datasets/checkpoints");
     
     ASSERT_EQ(stored_edge_trussness, edge_trussness);
     ASSERT_EQ(6, stored_sorted_edge_trussness.size());
@@ -444,9 +444,9 @@ TEST(ArchiverTest, MSTSLTest) {
     unordered_map<vid_type, eid_type> stored_decode_table;
 
     save_mst(mst, triangle_trussness,
-            encode_table, decode_table, graph_fn, "checkpoint");
+            encode_table, decode_table, graph_fn, "datasets/checkpoints");
     load_mst(stored_mst, stored_triangle_trussness,
-            stored_encode_table, stored_decode_table, graph_fn, "checkpoint");
+            stored_encode_table, stored_decode_table, graph_fn, "datasets/checkpoints");
 
     ASSERT_EQ(mst->GetNodes(), stored_mst->GetNodes());
     ASSERT_EQ(mst->GetEdges(), stored_mst->GetEdges());
@@ -462,8 +462,8 @@ TEST(ArchiverTest, ITSLTest) {
     iidinode_map stored_index_tree;
     eiid_map stored_index_hash;
 
-    save_index_tree(index_tree, index_hash, graph_fn, "checkpoint");
-    load_index_tree(stored_index_tree, stored_index_hash, graph_fn, "checkpoint");
+    save_index_tree(index_tree, index_hash, graph_fn, "datasets/checkpoints");
+    load_index_tree(stored_index_tree, stored_index_hash, graph_fn, "datasets/checkpoints");
 
     ASSERT_EQ(index_tree, stored_index_tree);
     ASSERT_EQ(index_hash, stored_index_hash);
@@ -473,7 +473,7 @@ int main(int argc, char **argv) {
     net = TSnap::LoadEdgeList<PUNGraph>(graph_fn.c_str(), 0, 1);
     for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) 
         elist.insert(edge_composer(EI.GetSrcNId(), EI.GetDstNId()));
-    create_checkpoint_dir("checkpoint");
+    create_checkpoint_dir("datasets/checkpoints");
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
