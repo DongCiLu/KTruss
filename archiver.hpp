@@ -88,7 +88,8 @@ void save_mst(PUNGraph &mst,
     }
     wout.close();
 
-    string mst_encode_filename = graph_filename + "_mst_hash";
+    string mst_encode_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_mst_hash");
     ofstream eout(mst_encode_filename.c_str());
     for (unordered_map<eid_type, vid_type>::const_iterator 
             iter = encode_table.begin();
