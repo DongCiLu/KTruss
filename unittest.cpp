@@ -40,21 +40,21 @@ TEST(TestcasesLoadingTest, SingleQueryVertex) {
     // when required number of testcases is available in the provided file
     testcases.clear();
     num_testcases = 3;
-    EXPECT_EQ(3, load_testcases(testcase_fn, testcases, num_testcases));
+    EXPECT_EQ(3, load_testcases(testcase_fn, num_testcases, testcases));
     // when required number of testcases is not available in the provided file
     testcases.clear();
     num_testcases = 9;
-    EXPECT_EQ(8, load_testcases(testcase_fn, testcases, num_testcases));
+    EXPECT_EQ(8, load_testcases(testcase_fn, num_testcases, testcases));
 }
 
 TEST(TestcasesLoadingTest, MultipleQueryVertices) {
     // test multiple query vertex case
     testcases.clear();
     num_testcases = 5;
-    ASSERT_EQ(-1, load_testcases(testcase_fn, testcases, num_testcases, "random_q"));
+    ASSERT_EQ(-1, load_testcases(testcase_fn, num_testcases, testcases, "random_q"));
     testcases.clear();
     num_testcases = 5;
-    ASSERT_EQ(-1, load_testcases(testcase_fn, testcases, num_testcases, "multi_q"));
+    ASSERT_EQ(-1, load_testcases(testcase_fn, num_testcases, testcases, "multi_q"));
 }
 
 TEST(DecomposerTest, EdgeSupportTest) {
@@ -87,7 +87,7 @@ TEST(DecomposerTest, EdgeSupportTest) {
 }
 
 TEST(DecomposerTest, EdgeTrussnessTest) {
-    int max_net_k = compute_trussness(
+    compute_trussness(
             net, edge_support, sorted_edge_support, 
             edge_trussness, sorted_edge_trussness);
     eint_map exp_edge_trussness;
@@ -315,6 +315,48 @@ TEST(QueryTest, TrussSVSKQueryTest) {
             }
             ASSERT_EQ(true, found);
         } 
+    }
+}
+
+TEST(QueryTest, TrussSVSKEQueryTest) {
+    exact_qr_set_type truss_communities1;
+    exact_qr_set_type truss_communities2;
+    qr_set_type truss_community_info;
+    vector< pair<vid_type, int> > queries;
+    queries.push_back(make_pair(4, 4));
+    queries.push_back(make_pair(4, 3));
+    queries.push_back(make_pair(1, 3));
+    queries.push_back(make_pair(6, 5));
+    queries.push_back(make_pair(7, 2));
+
+    for (size_t i = 0; i < queries.size(); i ++) {
+        truss_communities1.clear();
+        truss_communities2.clear();
+        truss_community_info.clear();
+        vector<vid_type> query_vids; 
+        query_vids.push_back(queries[i].first);
+        truss_k_query(truss_community_info, query_vids, queries[i].second,
+                net, index_tree, index_hash);
+        truss_exact_query(truss_communities2, truss_community_info, 
+                mst, triangle_trussness);
+        truss_raw_query(truss_communities1, 
+                queries[i].first, queries[i].second, 
+                net, edge_trussness);
+        ASSERT_EQ(truss_communities1.size(), truss_communities2.size());
+        community_type total_community1, total_community2;
+        for (size_t j = 0; j < truss_communities1.size(); j ++) {
+            total_community1.insert(total_community1.end(), 
+                    truss_communities1[j].begin(),
+                    truss_communities1[j].end());
+        } 
+        for (size_t j = 0; j < truss_communities2.size(); j ++) {
+            total_community2.insert(total_community2.end(), 
+                    truss_communities2[j].begin(),
+                    truss_communities2[j].end());
+        } 
+        std::sort(total_community1.begin(), total_community1.end());
+        std::sort(total_community2.begin(), total_community2.end());
+        ASSERT_EQ(total_community1, total_community2);
     }
 }
 
