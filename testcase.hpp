@@ -52,6 +52,7 @@ void save_testcases(PUNGraph net,
                 out << degree_vertex_set[index].second << endl;
             }
         }
+        cout << "max degree in test case: " << max_degree << endl;
         out.close();
     }
     /*
