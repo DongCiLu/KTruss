@@ -19,7 +19,8 @@ void print_n_update_timer(bool silent = false) {
     static clock_t last_time;
     if (!silent) {
         cout << "elapsed time: " << 
-            double(clock() - last_time) / CLOCKS_PER_SEC << endl;
+            double(clock() - last_time) / 
+            (double(CLOCKS_PER_SEC) / 1000) << "ms." << endl;
     }
     last_time = clock();
 }

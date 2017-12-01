@@ -39,11 +39,16 @@ void save_testcases(PUNGraph net,
         size_t n_bucket = 10;
         size_t query_per_bucket = 100;
         size_t bucket_size = degree_vertex_set.size() / n_bucket;
+        int max_degree = 0;
         for (size_t i = 0; i < n_bucket; i ++) {
             for (size_t j = 0; j < query_per_bucket; j ++) {
                 size_t index = rand() % bucket_size + bucket_size * i;
+                if (degree_vertex_set[index].first > max_degree) 
+                    max_degree = degree_vertex_set[index].first;
+                /*
                 while (degree_vertex_set[index].first > 1000) 
                     index = rand() % bucket_size + bucket_size * i;
+                    */
                 out << degree_vertex_set[index].second << endl;
             }
         }
