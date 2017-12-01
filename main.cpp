@@ -29,32 +29,37 @@ void verify_raw_info(vector<vid_type> &testcases,
         vector<qr_set_type> &truss_community_infos) {
     size_t verification_error = 0;
     for (size_t i = 0; i < testcases.size(); i ++) {
-        if (truss_community_infos[i].size() != truss_communities[i].size()) {
-            cout << "ERROR: wrong number of communities for test case: "
+        if (truss_community_infos[i].size() != 
+                truss_communities[i].size()) {
+            cout << "ERROR: wrong number of communities for testcase: "
                 << i << " with query vertex " << testcases[i] << endl;
         }
         for (qr_set_type::iterator 
-                iter = truss_community_infos[i].begin();
+                iter =  truss_community_infos[i].begin();
                 iter != truss_community_infos[i].end();
                 ++ iter) {
             bool found = false;
             for (size_t j = 0; j < truss_communities[i].size(); j ++) {
                 if (std::find(truss_communities[i][j].begin(), 
                             truss_communities[i][j].end(),
-                            vertex_extractor(edge_extractor(iter->iid))) !=
+                            vertex_extractor(
+                                edge_extractor(iter->iid))) !=
                         truss_communities[i][j].end()) {
                     found = true;
-                    if (iter->size !=  truss_communities[i][j].size()) {
-                        cout << "ERROR: wrong size of communities for test case: "
-                            << i << " with query vertex " << testcases[i] << endl;
+                    if (iter->size != truss_communities[i][j].size()) {
+                        cout << "ERROR: wrong size of communities" 
+                            << " for test case: "<< i 
+                            << " with query vertex " 
+                            << testcases[i] << endl;
                     }
                     break;
                 }
             }
             if (!found && !truss_community_infos[i].empty()) {
                 verification_error ++;
-                cout << "ERROR: cannot find communities for test case: "
-                    << i << " with query vertex " << testcases[i]  << endl;
+                cout << "ERROR: cannot find communities for testcase: "
+                    << i << " with query vertex " 
+                    << testcases[i]  << endl;
             }
         } 
     }
@@ -67,8 +72,9 @@ void verify_raw_exact(vector<vid_type> &testcases,
         vector<exact_qr_set_type> &truss_communities2) {
     size_t verification_error = 0;
     for (size_t i = 0; i < testcases.size(); i ++) {
-        if (truss_communities1[i].size() != truss_communities2[i].size()) {
-            cout << "ERROR: wrong number of communities for test case: "
+        if (truss_communities1[i].size() != 
+                truss_communities2[i].size()) {
+            cout << "ERROR: wrong number of communities for testcase: "
                 << i << " with query vertex " << testcases[i] << endl;
         }
         community_type total_community1, total_community2;
@@ -101,7 +107,8 @@ void do_queries(string graph_filename,
     cout << "1. Loading graph and testcases" << endl;
     PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
             graph_filename.c_str(), 0, 1);
-    n_queries = load_testcases(testcase_filename, n_queries, testcases);
+    n_queries = 
+        load_testcases(testcase_filename, n_queries, testcases);
     cout << "Teset case size: " << n_queries << endl;
     print_n_update_timer();
 

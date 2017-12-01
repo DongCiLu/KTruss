@@ -128,7 +128,8 @@ void load_mst(PUNGraph &mst,
     }
     win.close();
 
-    string mst_encode_filename = graph_filename + "_mst_hash";
+    string mst_encode_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_mst_hash");
     ifstream ein(mst_encode_filename.c_str());
     while(ein.good()) {
         string line;
