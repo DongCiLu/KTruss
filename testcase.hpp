@@ -73,12 +73,12 @@ size_t load_testcases(string filename,
         cerr << "Not supported query type!" << endl;
         return -1;
     }
-    set<vid_type> visited_vertices;
     ifstream in(filename.c_str());
     while(testcases.size() < n_queries) {
         string test_line;
         if(in.eof()) {
-            cout << "Not enough test cases, reach end of testcase file"<< endl;
+            cout << "Not enough test cases, "
+                << "reach end of testcase file"<< endl;
             break;
         }
         getline(in, test_line);
@@ -88,14 +88,7 @@ size_t load_testcases(string filename,
         if (mode == "single_q") {
             int test = -1;
             ss >> test;
-            // cout << "Read test query vertex " << test 
-                // << " from " << test_line;
-            if (visited_vertices.find(test) == visited_vertices.end()) {
-                testcases.push_back(test);
-                visited_vertices.insert(test);
-                // cout << " saved!" << endl;
-            }
-            // cout << " not saved!" << endl;
+            testcases.push_back(test);
         }
         else {
             // TODO: implement multi q

@@ -141,17 +141,21 @@ void do_queries(string graph_filename,
         vector<qr_set_type> truss_community_infos;
 
         cout << "3.1 Starting raw query" << endl;
+        size_t bucket_size = 100;
         for (size_t i = 0; i < testcases.size(); i ++) {
+            if (i % bucket_size == bucket_size - 1)
+                print_n_update_timer();
             exact_qr_set_type truss_community;
             truss_raw_query(truss_community, 
                     testcases[i], query_k,
                     net, edge_trussness);
             truss_communities1.push_back(truss_community);
         }
-        print_n_update_timer();
 
         cout << "3.2 Starting truss info query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
+            if (i % bucket_size == bucket_size - 1)
+                print_n_update_timer();
             qr_set_type truss_community_info;
             vector<vid_type> query_vids; 
             query_vids.push_back(testcases[i]);
@@ -159,16 +163,19 @@ void do_queries(string graph_filename,
                     net, index_tree, index_hash);
             truss_community_infos.push_back(truss_community_info);
         }
-        print_n_update_timer();
 
+        /*
         cout << "3.2 Starting truss exact query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
+            if (i % bucket_size == bucket_size - 1)
+                print_n_update_timer();
             exact_qr_set_type truss_community;
-            truss_exact_query(truss_community, truss_community_infos[i], 
+            truss_exact_query(truss_community, 
+                    truss_community_infos[i], 
                     mst, triangle_trussness);
             truss_communities2.push_back(truss_community);
         }
-        print_n_update_timer();
+        */
 
         cout << "verifying results..." << endl;
         verify_raw_info(testcases, truss_communities1, truss_community_infos);
