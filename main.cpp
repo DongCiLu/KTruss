@@ -139,6 +139,7 @@ void do_queries(string graph_filename,
         vector<exact_qr_set_type> truss_communities2;
         vector<qr_set_type> truss_community_infos;
 
+        /*
         cout << "3.1 Starting raw query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
             exact_qr_set_type truss_community;
@@ -148,6 +149,7 @@ void do_queries(string graph_filename,
             truss_communities1.push_back(truss_community);
         }
         print_n_update_timer();
+        */
 
         cout << "3.2 Starting truss info query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
@@ -184,7 +186,9 @@ void do_queries(string graph_filename,
     }
 }
 
-void check_mst(const PUNGraph mst, const PUNGraph net, const int num_cc) {
+void check_mst(const PUNGraph mst, 
+        const PUNGraph net, 
+        const int num_cc) {
     if (mst->GetNodes() != net->GetEdges() || 
             mst->GetEdges() != mst->GetNodes() - num_cc) { 
         cout << "Incorrect mst constructed." << endl;
@@ -292,6 +296,16 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     cout << "index hash size: " << index_hash.size() << endl;
 }
 
+void generate_testcases(string graph_filename, string testcase_dir) {
+    cout << "1. Loading graph ...." << endl;
+    PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
+            graph_filename.c_str(), 0, 1);
+    cout << "Graph size: " << net->GetNodes() << 
+        " " << net->GetEdges() << endl;
+    save_testcases(net, graph_filename, testcase_dir, "single_q");
+    // save_testcases(net, graph_filename, testcase_dir, "multi_q");
+}
+
 int main(int argc, char** argv){
     print_n_update_timer(true);
 
@@ -302,8 +316,12 @@ int main(int argc, char** argv){
     string mode = argv[1];
     string graph_filename = argv[2];
     string checkpoint_dir = "datasets/checkpoints";
+    string testcase_dir = "datasets/testcases_truss";
     if (mode == "index") {
         generate_indices(graph_filename, checkpoint_dir);
+    }
+    else if (mode == "testcase") {
+        generate_testcases(graph_filename, testcase_dir);
     }
     else if (mode == "query") {
         if (argc < 6) {
