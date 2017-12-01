@@ -140,7 +140,6 @@ void do_queries(string graph_filename,
         vector<exact_qr_set_type> truss_communities2;
         vector<qr_set_type> truss_community_infos;
 
-        /*
         cout << "3.1 Starting raw query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
             exact_qr_set_type truss_community;
@@ -150,7 +149,6 @@ void do_queries(string graph_filename,
             truss_communities1.push_back(truss_community);
         }
         print_n_update_timer();
-        */
 
         cout << "3.2 Starting truss info query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
