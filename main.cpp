@@ -179,8 +179,10 @@ void do_queries(string graph_filename,
         print_n_update_timer(true);
 
         cout << "verifying results..." << endl;
-        verify_raw_info(testcases, truss_communities1, truss_community_infos);
-        verify_raw_exact(testcases, truss_communities1, truss_communities2);
+        verify_raw_info(testcases, truss_communities1, 
+                truss_community_infos);
+        verify_raw_exact(testcases, truss_communities1, 
+                truss_communities2);
     }
     else if (query_k == 0) {
         cout << "Any-K-truss query" << endl;

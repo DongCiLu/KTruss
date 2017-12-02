@@ -200,7 +200,7 @@ void truss_maxk_query(qr_set_type &res,
 void truss_exact_query(exact_qr_set_type &res,
         qr_set_type &infos,
         PUNGraph mst,
-        eint_map triangle_trussness) {
+        eint_map &triangle_trussness) {
     for (size_t i = 0; i < infos.size(); i ++) {
         inode_id_type seed = infos[i].iid;
         size_t exp_size = infos[i].size;
@@ -218,7 +218,8 @@ void truss_exact_query(exact_qr_set_type &res,
             truss_community.push_back(vpair);
             for (int j = 0; j < mst->GetNI(u).GetDeg(); j++) {
                 vid_type v = mst->GetNI(u).GetNbrNId(j);
-                if (visited_vertices.find(v) == visited_vertices.end()) {
+                if (visited_vertices.find(v) == 
+                        visited_vertices.end()) {
                     eid_type e = edge_composer(u, v);
                     if (triangle_trussness[e] >= k) {
                         fifo.push(v);
@@ -228,7 +229,8 @@ void truss_exact_query(exact_qr_set_type &res,
             }
         }
         if (truss_community.size() != exp_size) {
-            pair<vid_type, vid_type> vpair = vertex_extractor(edge_extractor(seed));
+            pair<vid_type, vid_type> vpair = 
+                vertex_extractor(edge_extractor(seed));
             cout << "ERROR: expected community size not meet: " 
                 << exp_size << " " << truss_community.size() 
                 << " of community " << seed << "("
