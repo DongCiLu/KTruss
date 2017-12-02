@@ -151,6 +151,7 @@ void do_queries(string graph_filename,
                     net, edge_trussness);
             truss_communities1.push_back(truss_community);
         }
+        print_n_update_timer(true);
 
         cout << "3.2 Starting truss info query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
@@ -163,8 +164,8 @@ void do_queries(string graph_filename,
                     net, index_tree, index_hash);
             truss_community_infos.push_back(truss_community_info);
         }
+        print_n_update_timer(true);
 
-        /*
         cout << "3.2 Starting truss exact query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1)
@@ -175,7 +176,7 @@ void do_queries(string graph_filename,
                     mst, triangle_trussness);
             truss_communities2.push_back(truss_community);
         }
-        */
+        print_n_update_timer(true);
 
         cout << "verifying results..." << endl;
         verify_raw_info(testcases, truss_communities1, truss_community_infos);
