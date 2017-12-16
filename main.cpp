@@ -52,6 +52,7 @@ void verify_raw_info(vector<vid_type> &testcases,
                             << " for test case: "<< i 
                             << " with query vertex " 
                             << testcases[i] << endl;
+                        cout << iter->iid << " " << iter->k << " " << iter->size << endl;
                     }
                     break;
                 }
@@ -77,6 +78,8 @@ void verify_raw_exact(vector<vid_type> &testcases,
                 truss_communities2[i].size()) {
             cout << "ERROR: wrong number of communities for testcase: "
                 << i << " with query vertex " << testcases[i] << endl;
+            cout << "raw size: " << truss_communities1[i].size()
+                << " exact size: " << truss_communities2[i].size() << endl;
         }
         community_type total_community1, total_community2;
         for (size_t j = 0; j < truss_communities1[i].size(); j ++) {
@@ -93,6 +96,17 @@ void verify_raw_exact(vector<vid_type> &testcases,
         std::sort(total_community2.begin(), total_community2.end());
         if (total_community1 != total_community2) {
             verification_error ++;
+            cout << "failed to pass verification" << endl;
+            cout << "raw size: " << total_community1.size() 
+                << " exact size: " << total_community2.size() << endl;
+            set< pair<vid_type, vid_type> > 
+                unique_community1(total_community1.begin(), 
+                        total_community1.end());
+            set< pair<vid_type, vid_type> > 
+                unique_community2(total_community2.begin(), 
+                        total_community2.end());
+            cout << "unique raw size: " << unique_community1.size()
+                << " unique exact size: " << total_community2.size() << endl;
         }
     }
     if (verification_error == 0) 
@@ -140,8 +154,9 @@ void do_queries(string graph_filename,
         vector<exact_qr_set_type> truss_communities2;
         vector<qr_set_type> truss_community_infos;
 
-        cout << "3.1 Starting raw query" << endl;
         size_t bucket_size = 100;
+        /*
+        cout << "3.1 Starting raw query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1)
                 print_n_update_timer();
@@ -152,6 +167,7 @@ void do_queries(string graph_filename,
             truss_communities1.push_back(truss_community);
         }
         print_n_update_timer(true);
+        */
 
         cout << "3.2 Starting truss info query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
