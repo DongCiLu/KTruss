@@ -112,6 +112,7 @@ size_t construct_mst(const PUNGraph &net,
             }
         }
     }
+    mst->Defrag();
     cout << "triangle count: " << triangle_cnt 
         << " triangle access count: " << triangle_access_cnt << endl;
     return count_cc(cc);

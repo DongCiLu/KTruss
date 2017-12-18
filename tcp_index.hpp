@@ -3,6 +3,18 @@
 #ifndef TCP_INDEX_HPP
 #define TCP_INDEX_HPP
 
+int get_max_ego_net_k(const PUNGraph &net,
+        eint_map &edge_trussness,
+        vid_type u) {
+    int max_ego_net_k = 0;
+    for (int i = 0; i < net->GetNI(u).GetDeg(); i++) {
+        vid_type v = net->GetNI(u).GetNbrNId(i);
+        if (edge_trussness[edge_composer(u,v)] > max_ego_net_k)
+            max_ego_net_k = edge_trussness[edge_composer(u,v)];
+    }
+    return max_ego_net_k;
+}
+
 void generate_ego_mst_kruskal(tcp_index_type &tcpi,
         unordered_map<vid_type, vid_type> &cc,
         unordered_map<vid_type, int> &rank,
@@ -11,8 +23,9 @@ void generate_ego_mst_kruskal(tcp_index_type &tcpi,
             edge_weight >= 0; edge_weight --) {
         for (size_t i = 0; i < sorted_ego_triangle_trussness[edge_weight].size(); i ++) {
             eid_type e = sorted_ego_triangle_trussness[edge_weight][i];
-            vid_type u = e.first;
-            vid_type v = e.second;
+            pair<vid_type, vid_type> vpair = vertex_extractor(e);
+            vid_type u = vpair.first;
+            vid_type v = vpair.second;
             vid_type pu = cc[u];
             vid_type pv = cc[v];
 
@@ -34,18 +47,6 @@ void generate_ego_mst_kruskal(tcp_index_type &tcpi,
             }
         }
     }
-}
-
-int get_max_ego_net_k(const PUNGraph &net,
-        eint_map &edge_trussness,
-        vid_type u) {
-    int max_ego_net_k = 0;
-    for (int i = 0; i < net->GetNI(u).GetDeg(); i++) {
-        vid_type v = net->GetNI(u).GetNbrNId(i);
-        if (edge_trussness[edge_composer(u,v)] > max_ego_net_k)
-            max_ego_net_k = edge_trussness[edge_composer(u,v)];
-    }
-    return max_ego_net_k;
 }
 
 void construct_tcp_index_single(const PUNGraph &net,
@@ -101,6 +102,7 @@ void construct_tcp_index(const PUNGraph &net,
         int max_ego_net_k = get_max_ego_net_k(net, edge_trussness, u);
         construct_tcp_index_single(
                 net, edge_trussness, u, max_ego_net_k, tcp_index[u]);
+        tcp_index[u].ego_graph->Defrag();
     }
 }
 

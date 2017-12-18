@@ -211,4 +211,61 @@ void load_index_tree(iidinode_map &index_tree,
     ihin.close();
 }
 
+void save_tcp_index(tcp_index_table_type &tcp_index, 
+        string graph_filename,
+        string checkpoint_dir) {
+    string tcp_index_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_tcp_index");
+    ofstream tout(tcp_index_filename.c_str());
+    for (tcp_index_table_type::iterator 
+            iter = tcp_index.begin();
+            iter != tcp_index.end();
+            ++ iter) {
+        tout << iter->first << " ";
+        // omit vertices with zero degree
+        for (eint_map::iterator 
+                eiter = iter->second.ego_triangle_trussness.begin();
+                eiter != iter->second.ego_triangle_trussness.end();
+                ++ eiter) {
+            pair<vid_type, vid_type> vpair = vertex_extractor(eiter->first);
+            tout << vpair.first << " " 
+                << vpair.second << " " 
+                << eiter->second << " ";
+        }
+        tout << endl;
+    }
+    tout.close();
+}
+
+void load_tcp_index(tcp_index_table_type &tcp_index, 
+        string graph_filename,
+        string checkpoint_dir) {
+    string tcp_index_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_tcp_index");
+    ifstream tin(tcp_index_filename.c_str());
+    while(tin.good()) {
+        string line;
+        getline(tin, line);
+        if (line.empty())
+            continue;
+        stringstream ss(line);
+        vid_type u = -1;
+        ss >> u;
+        tcp_index_type tcpi;
+        tcpi.ego_graph = TUNGraph::New();
+        while (!ss.eof()){
+            vid_type v1 = -1, v2 = -1;
+            int k = -1;
+            ss >> v1 >> v2 >> k;
+            if (v1 != -1 && v2 != -1 && k != -1) {
+                tcpi.ego_graph->AddEdge2(v1, v2); // add nodes automatically
+                tcpi.ego_triangle_trussness[edge_composer(v1, v2)] = k;
+            }
+        }
+        tcpi.ego_graph->Defrag();
+        tcp_index[u] = tcpi;
+    }
+    tin.close();
+}
+
 #endif

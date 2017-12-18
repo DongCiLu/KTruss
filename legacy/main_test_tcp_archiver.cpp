@@ -131,20 +131,49 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     save_tcp_index(tcp_index, graph_filename, checkpoint_dir);
     print_n_update_timer(silent);
 
+    tcp_index_table_type tcp_index_new;
+    load_tcp_index(tcp_index_new, graph_filename, checkpoint_dir);
+
+    for (tcp_index_table_type::iterator 
+            iter = tcp_index.begin();
+            iter != tcp_index.end();
+            ++ iter) {
+        if (tcp_index_new.find(iter->first) == tcp_index_new.end()) {
+            cout << "Cannot find entry " << iter->first 
+                << " with size " << iter->second.ego_triangle_trussness.size() << endl;
+        }
+        if (iter->second.ego_graph->GetEdges() != 
+                tcp_index_new[iter->first].ego_graph->GetEdges() ||
+                iter->second.ego_triangle_trussness.size() != 
+                tcp_index_new[iter->first].ego_triangle_trussness.size()) {
+            cout << "Old and new record not equal: "  
+                << " " << iter->second.ego_graph->GetEdges() 
+                << " " << tcp_index_new[iter->first].ego_graph->GetEdges() 
+                << " " << iter->second.ego_triangle_trussness.size() 
+                << " " << tcp_index_new[iter->first].ego_triangle_trussness.size()
+                << endl;
+        }
+        if (iter->second.ego_graph->GetEdges() != 
+                iter->second.ego_triangle_trussness.size()) {
+            cout << "Not unity: " 
+                << " " << iter->second.ego_graph->GetEdges() 
+                << " " << iter->second.ego_triangle_trussness.size() 
+                << endl;
+        }
+        cout << "processed: "  
+            << " " << iter->second.ego_graph->GetEdges() 
+            << " " << tcp_index_new[iter->first].ego_graph->GetEdges() 
+            << " " << iter->second.ego_triangle_trussness.size() 
+            << " " << tcp_index_new[iter->first].ego_triangle_trussness.size()
+            << endl;
+    }
+
     cout << "edge trussness size: " << edge_trussness.size() << endl;
     cout << "triangle trussness size: " << triangle_trussness.size() << endl;
     cout << "encode table size: " << encode_table.size() << endl;
     cout << "decode table size: " << decode_table.size() << endl;
     cout << "index tree size: " << index_tree.size() << endl;
     cout << "index hash size: " << index_hash.size() << endl;
-    size_t tcp_size = 0;
-    for (tcp_index_table_type::iterator 
-            iter = tcp_index.begin();
-            iter != tcp_index.end();
-            ++ iter) {
-        tcp_size += iter->second.ego_triangle_trussness.size();
-    }
-    cout << "tcp index size: " << tcp_size << endl;
 }
 void verify_raw_info(vector<vid_type> &testcases,
         vector<exact_qr_set_type> &truss_communities,
@@ -259,27 +288,17 @@ void do_queries(string graph_filename,
     eint_map triangle_trussness;
     iidinode_map index_tree;
     eiid_map index_hash;
-    tcp_index_table_type tcp_index;
     load_edge_trussness(edge_trussness, sorted_edge_trussness,
         graph_filename, checkpoint_dir, false);
     load_mst(mst, triangle_trussness, encode_table, decode_table, 
             graph_filename, checkpoint_dir);
     load_index_tree(index_tree, index_hash, graph_filename, checkpoint_dir);
-    load_tcp_index(tcp_index, graph_filename, checkpoint_dir);
     cout << "edge trussness size: " << edge_trussness.size() << endl;
     cout << "triangle trussness size: " << triangle_trussness.size() << endl;
     cout << "encode table size: " << encode_table.size() << endl;
     cout << "decode table size: " << decode_table.size() << endl;
     cout << "index tree size: " << index_tree.size() << endl;
     cout << "index hash size: " << index_hash.size() << endl;
-    size_t tcp_size = 0;
-    for (tcp_index_table_type::iterator 
-            iter = tcp_index.begin();
-            iter != tcp_index.end();
-            ++ iter) {
-        tcp_size += iter->second.ego_triangle_trussness.size();
-    }
-    cout << "tcp index size: " << tcp_size << endl;
     print_n_update_timer();
 
     cout << "3. K-Truss Query Processing" << endl;
