@@ -25,6 +25,118 @@ void print_n_update_timer(bool silent = false) {
     last_time = clock();
 }
 
+void check_mst(const PUNGraph mst, 
+        const PUNGraph net, 
+        const int num_cc) {
+    if (mst->GetNodes() != net->GetEdges() || 
+            mst->GetEdges() != mst->GetNodes() - num_cc) { 
+        cout << "Incorrect mst constructed." << endl;
+        cout << mst->GetNodes() << "-" << net->GetEdges() << " " 
+            << mst->GetEdges() << "-" << mst->GetNodes() - num_cc << endl;
+    }
+    else {
+        cout << "MST has " << mst->GetNodes() << " nodes, "
+            << mst->GetEdges() << " edges and "
+            << num_cc << " connected components." << endl;
+    }
+}
+
+void check_index_tree(const iidinode_map &index_tree, 
+        const eiid_map &index_hash) {
+    size_t inode_ignore_cnt = 0;
+    for (eiid_map::const_iterator citer = index_hash.begin();
+            citer != index_hash.end(); 
+            ++ citer) {
+        if (citer->second == -1)
+            inode_ignore_cnt ++;
+    }
+    cout << "Index tree has " << index_tree.size() 
+        << " nodes with " << inode_ignore_cnt 
+        << " ignored nodes." << endl;
+    cout << "Index hash table size is " << index_hash.size() << endl;
+}
+
+void generate_indices(string graph_filename, string checkpoint_dir) {
+    unordered_set<eid_type> elist;
+    eint_map edge_support;
+    eint_map edge_trussness;
+
+    PUNGraph mst = TUNGraph::New();
+    eint_map triangle_trussness;
+
+    iidinode_map index_tree;
+    eiid_map index_hash;
+
+    tcp_index_table_type tcp_index;
+
+    bool silent = true;
+    create_checkpoint_dir(checkpoint_dir);
+
+    cout << "1. Loading graph ...." << endl;
+    PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
+            graph_filename.c_str(), 0, 1);
+    cout << "Graph size: " << net->GetNodes() << 
+        " " << net->GetEdges() << endl;
+    TSnap::DelSelfEdges(net);
+    cout << "Graph size after remove self edges: " << net->GetNodes() << 
+        " " << net->GetEdges() << endl;
+    for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) 
+        elist.insert(edge_composer(EI.GetSrcNId(), EI.GetDstNId()));
+    cout << "Edge list size: " << elist.size() << endl;
+    print_n_update_timer();
+
+    cout << "2. Compute support" << endl;
+    slow_sorted_type sorted_edge_support; 
+    compute_support(net, elist, edge_support, sorted_edge_support);
+    string support_filename = graph_filename + "esupport";
+    print_n_update_timer();
+    cout << "edge support size: " << edge_support.size() << endl;
+    cout << "sorted edge support size: " << sorted_edge_support.size() << endl;
+
+    cout << "3. Truss Decomposition (Index Construction)" << endl;
+    counting_sorted_type sorted_edge_trussness;
+    int max_net_k = compute_trussness(
+            net, edge_support, sorted_edge_support, 
+            edge_trussness, sorted_edge_trussness);
+    cout << "the maximum k of the graph is: " << max_net_k << endl;
+    print_n_update_timer();
+    save_edge_trussness(edge_trussness, sorted_edge_trussness, 
+            graph_filename, checkpoint_dir);
+    print_n_update_timer(silent);
+
+    cout << "4. Build MST from generated graph" << endl;
+    int num_cc = construct_mst(
+            net, edge_trussness, sorted_edge_trussness, mst, triangle_trussness);
+    check_mst(mst, net, num_cc);
+    print_n_update_timer();
+    save_mst(mst, triangle_trussness, 
+            encode_table, decode_table,
+            graph_filename, checkpoint_dir);
+    print_n_update_timer(silent);
+
+    cout << "5. Construct heirachical index" << endl;
+    construct_index_tree(mst, edge_trussness, triangle_trussness, 
+            index_tree, index_hash);
+    check_index_tree(index_tree, index_hash);
+    print_n_update_timer();
+    save_index_tree(index_tree, index_hash, 
+            graph_filename, checkpoint_dir);
+    print_n_update_timer(silent);
+
+    /*
+    cout << "6. Construct tcp index" << endl;
+    construct_tcp_index(net, edge_trussness, tcp_index);
+    cout << "TCP index has " << tcp_index.size() << " nodes." << endl;
+    print_n_update_timer();
+    */
+
+    cout << "edge trussness size: " << edge_trussness.size() << endl;
+    cout << "triangle trussness size: " << triangle_trussness.size() << endl;
+    cout << "encode table size: " << encode_table.size() << endl;
+    cout << "decode table size: " << decode_table.size() << endl;
+    cout << "index tree size: " << index_tree.size() << endl;
+    cout << "index hash size: " << index_hash.size() << endl;
+}
 void verify_raw_info(vector<vid_type> &testcases,
         vector<exact_qr_set_type> &truss_communities,
         vector<qr_set_type> &truss_community_infos) {
@@ -51,8 +163,11 @@ void verify_raw_info(vector<vid_type> &testcases,
                         cout << "ERROR: wrong size of communities" 
                             << " for test case: "<< i 
                             << " with query vertex " 
-                            << testcases[i] << endl;
-                        cout << iter->iid << " " << iter->k << " " << iter->size << endl;
+                            << testcases[i] << ", indexed size "
+                            << iter->size << " actual size " 
+                            << truss_communities[i][j].size() << endl;
+                        cout << "Inode info: " << iter->iid << " " 
+                            << iter->k << " " << iter->size << endl;
                     }
                     break;
                 }
@@ -113,6 +228,47 @@ void verify_raw_exact(vector<vid_type> &testcases,
         cout << "Success!" << endl;
 }
 
+/*
+void special_test(eint_map &edge_trussness, PUNGraph net, 
+        eint_map &triangle_trussness, PUNGraph mst) {
+    eid_type e1 = edge_extractor(35306981);
+    eid_type e2 = edge_extractor(42179835);
+    pair<vid_type, vid_type> vpair1 = vertex_extractor(e1);
+    pair<vid_type, vid_type> vpair2 = vertex_extractor(e2);
+    cout << "edge 1: " << vpair1.first << " " << vpair1.second 
+        << " with trussness: " << edge_trussness[e1] << endl;
+    cout << "edge 2: " << vpair2.first << " " << vpair2.second 
+        << " with trussness: " << edge_trussness[e2] << endl;
+
+    check_mst(mst, net, 7581208);
+    unordered_set<eid_type> visited_edges;
+    map<int, size_t> truss_count;
+    community_type truss_community;
+    truss_raw_edge_query(truss_community, e1, 16, 
+            net, edge_trussness, visited_edges, truss_count);
+    cout << "16 size: " << truss_community.size() << endl;
+
+    exact_qr_set_type truss_community_ext;
+    qr_type res_node(35306981, 199, 16);
+    qr_set_type res;
+    res.push_back(res_node);
+    truss_exact_query(truss_community_ext, 
+            res, mst, triangle_trussness, truss_community);
+
+    visited_edges.clear();
+    truss_count.clear();
+    truss_community.clear();
+    truss_raw_edge_query(truss_community, e1, 10, 
+            net, edge_trussness, visited_edges, truss_count);
+    cout << "10 size: " << truss_community.size() << endl;
+    if (std::find(truss_community.begin(), 
+                truss_community.end(),
+                vpair2) != truss_community.end()) {
+        cout << "found vpair2 in truss 10" << endl;
+    }
+}
+*/
+
 void do_queries(string graph_filename, 
         string checkpoint_dir, 
         string testcase_filename, 
@@ -122,6 +278,7 @@ void do_queries(string graph_filename,
     cout << "1. Loading graph and testcases" << endl;
     PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
             graph_filename.c_str(), 0, 1);
+    TSnap::DelSelfEdges(net);
     n_queries = 
         load_testcases(testcase_filename, n_queries, testcases);
     cout << "Teset case size: " << n_queries << endl;
@@ -147,6 +304,8 @@ void do_queries(string graph_filename,
     cout << "index hash size: " << index_hash.size() << endl;
     print_n_update_timer();
 
+    // special_test(edge_trussness, net, triangle_trussness, mst);
+
     cout << "3. K-Truss Query Processing" << endl;
     if (query_k > 0) {
         cout << query_k << "-Truss query" << endl;
@@ -155,7 +314,6 @@ void do_queries(string graph_filename,
         vector<qr_set_type> truss_community_infos;
 
         size_t bucket_size = 100;
-        /*
         cout << "3.1 Starting raw query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1)
@@ -167,7 +325,6 @@ void do_queries(string graph_filename,
             truss_communities1.push_back(truss_community);
         }
         print_n_update_timer(true);
-        */
 
         cout << "3.2 Starting truss info query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
@@ -211,116 +368,6 @@ void do_queries(string graph_filename,
     }
 }
 
-void check_mst(const PUNGraph mst, 
-        const PUNGraph net, 
-        const int num_cc) {
-    if (mst->GetNodes() != net->GetEdges() || 
-            mst->GetEdges() != mst->GetNodes() - num_cc) { 
-        cout << "Incorrect mst constructed." << endl;
-        cout << mst->GetNodes() << "-" << net->GetEdges() << " " 
-            << mst->GetEdges() << "-" << mst->GetNodes() - num_cc << endl;
-    }
-    else {
-        cout << "MST has " << mst->GetNodes() << " nodes, "
-            << mst->GetEdges() << " edges and "
-            << num_cc << " connected components." << endl;
-    }
-}
-
-void check_index_tree(const iidinode_map &index_tree, 
-        const eiid_map &index_hash) {
-    size_t inode_ignore_cnt = 0;
-    for (eiid_map::const_iterator citer = index_hash.begin();
-            citer != index_hash.end(); 
-            ++ citer) {
-        if (citer->second == -1)
-            inode_ignore_cnt ++;
-    }
-    cout << "Index tree has " << index_tree.size() 
-        << " nodes with " << inode_ignore_cnt 
-        << " ignored nodes." << endl;
-    cout << "Index hash table size is " << index_hash.size() << endl;
-}
-
-void generate_indices(string graph_filename, string checkpoint_dir) {
-    unordered_set<eid_type> elist;
-    eint_map edge_support;
-    eint_map edge_trussness;
-
-    PUNGraph mst = TUNGraph::New();
-    eint_map triangle_trussness;
-
-    iidinode_map index_tree;
-    eiid_map index_hash;
-
-    tcp_index_table_type tcp_index;
-
-    bool silent = true;
-    create_checkpoint_dir(checkpoint_dir);
-
-    cout << "1. Loading graph ...." << endl;
-    PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
-            graph_filename.c_str(), 0, 1);
-    cout << "Graph size: " << net->GetNodes() << 
-        " " << net->GetEdges() << endl;
-    for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) 
-        elist.insert(edge_composer(EI.GetSrcNId(), EI.GetDstNId()));
-    cout << "Edge list size: " << elist.size() << endl;
-    print_n_update_timer();
-
-    cout << "2. Compute support" << endl;
-    slow_sorted_type sorted_edge_support; 
-    compute_support(net, elist, edge_support, sorted_edge_support);
-    string support_filename = graph_filename + "esupport";
-    print_n_update_timer();
-    cout << "edge support size: " << edge_support.size() << endl;
-    cout << "sorted edge support size: " << sorted_edge_support.size() << endl;
-
-    cout << "3. Truss Decomposition (Index Construction)" << endl;
-    counting_sorted_type sorted_edge_trussness;
-    int max_net_k = compute_trussness(
-            net, edge_support, sorted_edge_support, 
-            edge_trussness, sorted_edge_trussness);
-    cout << "the maximum k of the graph is: " << max_net_k << endl;
-    print_n_update_timer();
-    save_edge_trussness(edge_trussness, sorted_edge_trussness, 
-            graph_filename, checkpoint_dir);
-    print_n_update_timer(silent);
-
-    cout << "4. Build MST from generated graph" << endl;
-    int num_cc = construct_mst(
-            net, edge_trussness, sorted_edge_trussness, mst, triangle_trussness);
-    check_mst(mst, net, num_cc);
-    print_n_update_timer();
-    save_mst(mst, triangle_trussness, 
-            encode_table, decode_table,
-            graph_filename, checkpoint_dir);
-    print_n_update_timer(silent);
-
-    cout << "5. Construct heirachical index" << endl;
-    construct_index_tree(mst, edge_trussness, triangle_trussness, 
-            index_tree, index_hash);
-    check_index_tree(index_tree, index_hash);
-    print_n_update_timer();
-    save_index_tree(index_tree, index_hash, 
-            graph_filename, checkpoint_dir);
-    print_n_update_timer(silent);
-
-    /*
-    cout << "6. Construct tcp index" << endl;
-    construct_tcp_index(net, edge_trussness, tcp_index);
-    cout << "TCP index has " << tcp_index.size() << " nodes." << endl;
-    print_n_update_timer();
-    */
-
-    cout << "edge trussness size: " << edge_trussness.size() << endl;
-    cout << "triangle trussness size: " << triangle_trussness.size() << endl;
-    cout << "encode table size: " << encode_table.size() << endl;
-    cout << "decode table size: " << decode_table.size() << endl;
-    cout << "index tree size: " << index_tree.size() << endl;
-    cout << "index hash size: " << index_hash.size() << endl;
-}
-
 void generate_testcases(string graph_filename, string testcase_dir) {
     cout << "1. Loading graph ...." << endl;
     PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
@@ -340,8 +387,9 @@ int main(int argc, char** argv){
     }
     string mode = argv[1];
     string graph_filename = argv[2];
-    string checkpoint_dir = "datasets/checkpoints";
+    string checkpoint_dir = "datasets/checkpoints_test";
     string testcase_dir = "datasets/testcases_truss";
+
     if (mode == "index") {
         generate_indices(graph_filename, checkpoint_dir);
     }

@@ -11,11 +11,15 @@ void truss_raw_edge_query(community_type &truss_community,
         int query_k, 
         PUNGraph &net,
         eint_map &edge_trussness,
-        unordered_set<eid_type> &visited_edges) {
+        unordered_set<eid_type> &visited_edges,
+        map<int, size_t> &truss_count) {
     // truss discovery for a single edge
     queue<eid_type> fifo;
     fifo.push(query_e);
     visited_edges.insert(query_e);
+    if (truss_count.find(edge_trussness[query_e]) == truss_count.end())
+        truss_count[edge_trussness[query_e]] = 0;
+    truss_count[edge_trussness[query_e]] ++;
     while (!fifo.empty()) {
         eid_type e = fifo.front();
         fifo.pop();
@@ -35,11 +39,17 @@ void truss_raw_edge_query(community_type &truss_community,
                             visited_edges.end()) {
                         fifo.push(adj_e1);
                         visited_edges.insert(adj_e1);
+                        if (truss_count.find(edge_trussness[adj_e1]) == truss_count.end())
+                            truss_count[edge_trussness[adj_e1]] = 0;
+                        truss_count[edge_trussness[adj_e1]] ++;
                     }
                     if (visited_edges.find(adj_e2) == 
                             visited_edges.end()) {
                         fifo.push(adj_e2);
                         visited_edges.insert(adj_e2);
+                        if (truss_count.find(edge_trussness[adj_e2]) == truss_count.end())
+                            truss_count[edge_trussness[adj_e2]] = 0;
+                        truss_count[edge_trussness[adj_e2]] ++;
                     }
                 }
             }
@@ -54,6 +64,7 @@ void truss_raw_query(exact_qr_set_type &truss_communities,
         eint_map &edge_trussness) {
     // this is the k-truss query based on the edge trussness index
     unordered_set<eid_type> visited_edges;
+    map<int, size_t> truss_count;
     for (int i = 0; i < net->GetNI(query_vid).GetDeg(); i++) {
         vid_type u = net->GetNI(query_vid).GetNbrNId(i);
         eid_type e = edge_composer(u, query_vid);
@@ -61,10 +72,18 @@ void truss_raw_query(exact_qr_set_type &truss_communities,
                 visited_edges.find(e) == visited_edges.end()) {
             community_type truss_community;
             truss_raw_edge_query(truss_community, e, query_k, 
-                    net, edge_trussness, visited_edges);
+                    net, edge_trussness, visited_edges, truss_count);
             truss_communities.push_back(truss_community);
         }
     }
+
+    cout << "Trussness count during raw search: " << endl;
+    for (map<int, size_t>::iterator iter = truss_count.begin();
+            iter != truss_count.end();
+            ++iter) {
+        cout << iter->first << ": " << iter->second << endl;
+    }
+    cout << "---" << endl;
 }
 
 void branch_search(unordered_set<inode_id_type> &branch_nodes,
@@ -91,6 +110,14 @@ void truss_forest_single_v (
         inode_id_type iid = index_hash[e];
         unordered_set<inode_id_type> branch_nodes;
         branch_search(branch_nodes, iid, index_tree);
+        for(unordered_set<inode_id_type>::iterator 
+                iter = branch_nodes.begin();
+                iter != branch_nodes.end();
+                ++ iter) {
+            cout << "branch result: " << *iter << " " 
+                << index_tree[*iter].k << " " 
+                << index_tree[*iter].size << endl;
+        }
         single_forest.insert(branch_nodes.begin(), branch_nodes.end());
     }
 }
@@ -166,6 +193,9 @@ void truss_k_query(qr_set_type &res,
             iter = intersection_forest.begin();
             iter != intersection_forest.end();
             ++ iter) {
+        cout << "intersection result: " << *iter << " " 
+            << index_tree[*iter].k << " " 
+            << index_tree[*iter].size << endl;
         if (index_tree[*iter].k >= query_k) {
             inode_id_type piid = index_tree[*iter].parent;
             if (index_tree[piid].k >= query_k && 
@@ -212,15 +242,18 @@ void truss_maxk_query(qr_set_type &res,
 void truss_exact_query(exact_qr_set_type &res,
         qr_set_type &infos,
         PUNGraph mst,
-        eint_map &triangle_trussness) {
+        eint_map &triangle_trussness, 
+        community_type &raw_community) {
     for (size_t i = 0; i < infos.size(); i ++) {
         inode_id_type seed = infos[i].iid;
         size_t exp_size = infos[i].size;
         int k = infos[i].k;
+        k = 4;
 
         community_type truss_community;
         unordered_set<vid_type> visited_vertices;
         queue<vid_type> fifo;
+        size_t should_in_cnt = 0;
 
         fifo.push(seed);
         visited_vertices.insert(seed);
@@ -229,17 +262,47 @@ void truss_exact_query(exact_qr_set_type &res,
             pair<vid_type, vid_type> vpair = vertex_extractor(edge_extractor(u));
             fifo.pop();
             truss_community.push_back(vpair);
+            if (std::find(raw_community.begin(), 
+                        raw_community.end(),
+                        vpair) != raw_community.end()) {
+                should_in_cnt ++;
+            }
+
+            size_t useful_cnt = 0;
             for (int j = 0; j < mst->GetNI(u).GetDeg(); j++) {
                 vid_type v = mst->GetNI(u).GetNbrNId(j);
                 if (visited_vertices.find(v) == 
                         visited_vertices.end()) {
+                    useful_cnt ++;
                     eid_type e = edge_composer(u, v);
+                    pair<vid_type, vid_type> vpair_temp = 
+                        vertex_extractor(edge_extractor(v));
+                    bool raw_in = false;
+                    if (std::find(raw_community.begin(), 
+                                raw_community.end(),
+                                vpair_temp) != raw_community.end()) {
+                        raw_in = true;
+                    }
                     if (triangle_trussness[e] >= k) {
                         fifo.push(v);
                         visited_vertices.insert(v);
                     }
+                    else {
+                        if (raw_in) {
+                            cout << v << " should but not in with edge trussness of "
+                                << triangle_trussness[e] << endl;
+                        }
+                    }
                 }
             }
+            /*
+            if (useful_cnt == 0)  {
+                pair<vid_type, vid_type> vpair_temp = 
+                    vertex_extractor(edge_extractor(u));
+                cout << "boundary " << u << ": " 
+                    << vpair_temp.first << " " << vpair_temp.second << endl;
+            }
+            */
         }
         if (truss_community.size() != exp_size) {
             pair<vid_type, vid_type> vpair = 
@@ -251,6 +314,7 @@ void truss_exact_query(exact_qr_set_type &res,
                 << ") with trussness " << k << endl;
         }
         res.push_back(truss_community);
+        cout << "should in count: " << should_in_cnt << endl;
     }
 }
 
