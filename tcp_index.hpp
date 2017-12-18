@@ -32,7 +32,6 @@ void generate_ego_mst_kruskal(tcp_index_type &tcpi,
                 if (rank[pu] == rank[pv])
                     rank[pv] ++;
             }
-            pu += edge_weight; // I forgot what is this for.
         }
     }
 }

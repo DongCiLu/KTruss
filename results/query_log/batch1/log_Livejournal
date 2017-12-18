@@ -1,0 +1,75 @@
+1. Loading graph and testcases
+Teset case size: 1000
+elapsed time: 29376.7ms.
+2. Loading indices
+edge trussness size: 43362750
+triangle trussness size: 35781542
+encode table size: 43362750
+decode table size: 43362750
+index tree size: 3009240
+index hash size: 43362750
+elapsed time: 216364ms.
+3. K-Truss Query Processing
+10-Truss query
+3.1 Starting raw query
+elapsed time: 0.159ms.
+elapsed time: 0.121ms.
+elapsed time: 0.142ms.
+elapsed time: 0.185ms.
+elapsed time: 0.226ms.
+elapsed time: 0.321ms.
+elapsed time: 5.809ms.
+elapsed time: 17.152ms.
+elapsed time: 524640ms.
+elapsed time: 899637ms.
+3.2 Starting truss info query
+elapsed time: 0.318ms.
+elapsed time: 0.243ms.
+elapsed time: 0.377ms.
+elapsed time: 0.486ms.
+elapsed time: 0.705ms.
+elapsed time: 0.979ms.
+elapsed time: 1.61ms.
+elapsed time: 2.447ms.
+elapsed time: 4.69ms.
+elapsed time: 28.253ms.
+3.2 Starting truss exact query
+elapsed time: 0.009ms.
+elapsed time: 0.004ms.
+elapsed time: 0.003ms.
+elapsed time: 0.001ms.
+elapsed time: 0.002ms.
+elapsed time: 0.007ms.
+elapsed time: 1.189ms.
+elapsed time: 3.91ms.
+elapsed time: 1268.66ms.
+elapsed time: 2604.32ms.
+verifying results...
+ERROR: wrong size of communities for test case: 649 with query vertex 4682527
+ERROR: wrong size of communities for test case: 656 with query vertex 4482090
+ERROR: wrong size of communities for test case: 683 with query vertex 4168273
+ERROR: wrong size of communities for test case: 752 with query vertex 3070284
+ERROR: wrong size of communities for test case: 796 with query vertex 3182526
+ERROR: wrong size of communities for test case: 802 with query vertex 2361973
+ERROR: wrong size of communities for test case: 803 with query vertex 742491
+ERROR: wrong number of communities for testcase: 806 with query vertex 4115751
+ERROR: wrong size of communities for test case: 806 with query vertex 4115751
+ERROR: wrong size of communities for test case: 806 with query vertex 4115751
+ERROR: wrong size of communities for test case: 838 with query vertex 1529267
+ERROR: wrong size of communities for test case: 863 with query vertex 3896374
+ERROR: wrong size of communities for test case: 883 with query vertex 3258677
+ERROR: wrong size of communities for test case: 889 with query vertex 4655458
+ERROR: wrong size of communities for test case: 893 with query vertex 3498379
+ERROR: wrong size of communities for test case: 908 with query vertex 352958
+ERROR: wrong size of communities for test case: 910 with query vertex 102295
+ERROR: wrong size of communities for test case: 916 with query vertex 302669
+ERROR: wrong size of communities for test case: 918 with query vertex 1653937
+ERROR: wrong size of communities for test case: 922 with query vertex 1082352
+ERROR: wrong size of communities for test case: 951 with query vertex 286462
+ERROR: wrong size of communities for test case: 954 with query vertex 3650714
+ERROR: wrong size of communities for test case: 967 with query vertex 748885
+ERROR: wrong size of communities for test case: 984 with query vertex 1098485
+ERROR: wrong size of communities for test case: 993 with query vertex 835159
+ERROR: wrong size of communities for test case: 994 with query vertex 1082405
+Success!
+ERROR: wrong number of communities for testcase: 806 with query vertex 4115751

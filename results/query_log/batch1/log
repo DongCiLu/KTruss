@@ -1,0 +1,134 @@
+1. Loading graph and testcases
+Teset case size: 1
+elapsed time: 22180ms.
+2. Loading indices
+edge trussness size: 43362750
+triangle trussness size: 35781542
+encode table size: 43362750
+decode table size: 43362750
+index tree size: 3009240
+index hash size: 43362750
+elapsed time: 197840ms.
+3. K-Truss Query Processing
+10-Truss query
+3.2 Starting truss info query
+branch result: 35306981 16 199
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 35306981 16 199
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+branch result: 42938955 4 30185061
+branch result: 32237130 5 22240830
+branch result: 9324438 6 12640856
+branch result: 43327809 3 34339503
+branch result: 28809547 8 1314180
+branch result: 4223796 7 4807760
+branch result: 42179835 11 422
+branch result: 42170654 12 421
+intersection result: 35306981 16 199
+intersection result: 42938955 4 30185061
+intersection result: 32237130 5 22240830
+intersection result: 9324438 6 12640856
+intersection result: 43327809 3 34339503
+intersection result: 28809547 8 1314180
+intersection result: 4223796 7 4807760
+intersection result: 42179835 11 422
+intersection result: 42170654 12 421
+3.2 Starting truss exact query
+verifying results...
