@@ -77,9 +77,10 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
             graph_filename.c_str(), 0, 1);
     cout << "Graph size: " << net->GetNodes() << 
         " " << net->GetEdges() << endl;
-    TSnap::DelSelfEdges(net);
-    cout << "Graph size after remove self edges: " << net->GetNodes() << 
-        " " << net->GetEdges() << endl;
+    // We use preprocessed graphs without any self edges
+    // TSnap::DelSelfEdges(net);
+    // cout << "Graph size after remove self edges: " << net->GetNodes() << 
+        // " " << net->GetEdges() << endl;
     for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) 
         elist.insert(edge_composer(EI.GetSrcNId(), EI.GetDstNId()));
     cout << "Edge list size: " << elist.size() << endl;
@@ -228,47 +229,6 @@ void verify_raw_exact(vector<vid_type> &testcases,
         cout << "Success!" << endl;
 }
 
-/*
-void special_test(eint_map &edge_trussness, PUNGraph net, 
-        eint_map &triangle_trussness, PUNGraph mst) {
-    eid_type e1 = edge_extractor(35306981);
-    eid_type e2 = edge_extractor(42179835);
-    pair<vid_type, vid_type> vpair1 = vertex_extractor(e1);
-    pair<vid_type, vid_type> vpair2 = vertex_extractor(e2);
-    cout << "edge 1: " << vpair1.first << " " << vpair1.second 
-        << " with trussness: " << edge_trussness[e1] << endl;
-    cout << "edge 2: " << vpair2.first << " " << vpair2.second 
-        << " with trussness: " << edge_trussness[e2] << endl;
-
-    check_mst(mst, net, 7581208);
-    unordered_set<eid_type> visited_edges;
-    map<int, size_t> truss_count;
-    community_type truss_community;
-    truss_raw_edge_query(truss_community, e1, 16, 
-            net, edge_trussness, visited_edges, truss_count);
-    cout << "16 size: " << truss_community.size() << endl;
-
-    exact_qr_set_type truss_community_ext;
-    qr_type res_node(35306981, 199, 16);
-    qr_set_type res;
-    res.push_back(res_node);
-    truss_exact_query(truss_community_ext, 
-            res, mst, triangle_trussness, truss_community);
-
-    visited_edges.clear();
-    truss_count.clear();
-    truss_community.clear();
-    truss_raw_edge_query(truss_community, e1, 10, 
-            net, edge_trussness, visited_edges, truss_count);
-    cout << "10 size: " << truss_community.size() << endl;
-    if (std::find(truss_community.begin(), 
-                truss_community.end(),
-                vpair2) != truss_community.end()) {
-        cout << "found vpair2 in truss 10" << endl;
-    }
-}
-*/
-
 void do_queries(string graph_filename, 
         string checkpoint_dir, 
         string testcase_filename, 
@@ -278,7 +238,7 @@ void do_queries(string graph_filename,
     cout << "1. Loading graph and testcases" << endl;
     PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
             graph_filename.c_str(), 0, 1);
-    TSnap::DelSelfEdges(net);
+    // TSnap::DelSelfEdges(net);
     n_queries = 
         load_testcases(testcase_filename, n_queries, testcases);
     cout << "Teset case size: " << n_queries << endl;
@@ -303,8 +263,6 @@ void do_queries(string graph_filename,
     cout << "index tree size: " << index_tree.size() << endl;
     cout << "index hash size: " << index_hash.size() << endl;
     print_n_update_timer();
-
-    // special_test(edge_trussness, net, triangle_trussness, mst);
 
     cout << "3. K-Truss Query Processing" << endl;
     if (query_k > 0) {
@@ -387,7 +345,7 @@ int main(int argc, char** argv){
     }
     string mode = argv[1];
     string graph_filename = argv[2];
-    string checkpoint_dir = "datasets/checkpoints_test";
+    string checkpoint_dir = "datasets/checkpoints";
     string testcase_dir = "datasets/testcases_truss";
 
     if (mode == "index") {

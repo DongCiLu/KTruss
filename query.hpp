@@ -71,8 +71,6 @@ void branch_search(unordered_set<inode_id_type> &branch_nodes,
         inode_id_type iid, 
         iidinode_map &index_tree) {
     while(iid != -1) {
-        if (iid <= reserve_interval)
-            cout << "encounter edge community" << endl;
         branch_nodes.insert(iid);
         iid = index_tree[iid].parent;
     }
