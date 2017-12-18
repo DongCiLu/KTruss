@@ -10,8 +10,7 @@ int main(int argc, char** argv) {
     fn += "nse";
     cout << fn << endl;
     TSnap::DelSelfEdges(net);
-    TFOut out(fn);
-    net->Save(out);
+    TSnap::SaveEdgeList(net, fn.c_str());
 
     return 0;
 }
