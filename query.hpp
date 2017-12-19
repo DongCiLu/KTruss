@@ -252,4 +252,89 @@ void truss_exact_query(exact_qr_set_type &res,
     }
 }
 
+inline eid_type unordered_edge_composer(vid_type u, vid_type v) {
+    return (eid_type(u) << SHIFTSIZE) + v;
+}
+
+void compute_vk(unordered_set<vid_type> &vk,
+        vid_type seed,
+        int query_k,
+        PUNGraph ego_net,
+        eint_map &ego_triangle_trussness) {
+    queue<vid_type> fifo;
+    unordered_set<vid_type> visited_vertices;
+    fifo.push(seed);
+    visited_vertices.insert(seed);
+    while (!fifo.empty()) {
+        vid_type u = fifo.front();
+        fifo.pop();
+        vk.insert(u);
+        for (int j = 0; j < ego_net->GetNI(u).GetDeg(); j++) {
+            vid_type v = ego_net->GetNI(u).GetNbrNId(j);
+            if (visited_vertices.find(v) == visited_vertices.end() && 
+                    ego_triangle_trussness[edge_composer(u, v)] >= query_k) {
+                fifo.push(v);
+                visited_vertices.insert(v);
+            }
+        }
+    }
+}
+
+void truss_tcp_edge_query(community_type &truss_community,
+        eid_type query_e,
+        int query_k, 
+        PUNGraph &net,
+        tcp_index_table_type &tcp_index,
+        unordered_set<eid_type> &visited_edges) {
+    queue<eid_type> fifo;
+    fifo.push(query_e);
+    while (!fifo.empty()) {
+        eid_type e = fifo.front();
+        fifo.pop();
+        if (visited_edges.find(e) == visited_edges.end()) {
+            pair<vid_type, vid_type> vpair = vertex_extractor(e);
+            unordered_set<vid_type> vk;
+            if (tcp_index[vpair.first].ego_graph->IsNode(vpair.second)) {
+                compute_vk(vk, vpair.second, query_k, 
+                        tcp_index[vpair.first].ego_graph, 
+                        tcp_index[vpair.first].ego_triangle_trussness);
+            }
+            for (unordered_set<vid_type>::iterator iter = vk.begin();
+                    iter != vk.end();
+                    ++ iter) {
+                visited_edges.insert(unordered_edge_composer(vpair.first, *iter));
+                if (visited_edges.find(unordered_edge_composer(*iter, vpair.first)) == 
+                        visited_edges.end()) {
+                    if (vpair.first < *iter)
+                        truss_community.push_back(make_pair(vpair.first, *iter));
+                    else
+                        truss_community.push_back(make_pair(*iter, vpair.first));
+                    fifo.push(unordered_edge_composer(*iter, vpair.first));
+                }
+            }
+        }
+    }
+}
+
+void truss_tcp_query(exact_qr_set_type &truss_communities,
+        vid_type query_vid, 
+        int query_k, 
+        PUNGraph &net,
+        eint_map &edge_trussness,
+        tcp_index_table_type &tcp_index) {
+    unordered_set<eid_type> visited_edges;
+    for (int i = 0; i < net->GetNI(query_vid).GetDeg(); i++) {
+        vid_type u = net->GetNI(query_vid).GetNbrNId(i);
+        eid_type unordered_e = unordered_edge_composer(query_vid, u);
+        eid_type e = edge_composer(u, query_vid);
+        if (edge_trussness[e] >= query_k &&
+                visited_edges.find(unordered_e) == visited_edges.end()) {
+            community_type truss_community;
+            truss_tcp_edge_query(truss_community, unordered_e, query_k, 
+                    net, tcp_index, visited_edges);
+            truss_communities.push_back(truss_community);
+        }
+    }
+}
+
 #endif

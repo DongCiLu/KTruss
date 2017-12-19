@@ -202,8 +202,8 @@ void verify_raw_exact(vector<vid_type> &testcases,
                 truss_communities2[i].size()) {
             cout << "ERROR: wrong number of communities for testcase: "
                 << i << " with query vertex " << testcases[i] << endl;
-            cout << "raw size: " << truss_communities1[i].size()
-                << " exact size: " << truss_communities2[i].size() << endl;
+            cout << "raw number of communities: " << truss_communities1[i].size()
+                << " exact number of communities: " << truss_communities2[i].size() << endl;
         }
         community_type total_community1, total_community2;
         for (size_t j = 0; j < truss_communities1[i].size(); j ++) {
@@ -221,16 +221,16 @@ void verify_raw_exact(vector<vid_type> &testcases,
         if (total_community1 != total_community2) {
             verification_error ++;
             cout << "failed to pass verification" << endl;
-            cout << "raw size: " << total_community1.size() 
-                << " exact size: " << total_community2.size() << endl;
+            cout << "raw community total size: " << total_community1.size() 
+                << " exact community total size: " << total_community2.size() << endl;
             set< pair<vid_type, vid_type> > 
                 unique_community1(total_community1.begin(), 
                         total_community1.end());
             set< pair<vid_type, vid_type> > 
                 unique_community2(total_community2.begin(), 
                         total_community2.end());
-            cout << "unique raw size: " << unique_community1.size()
-                << " unique exact size: " << total_community2.size() << endl;
+            cout << "unique raw community size: " << unique_community1.size()
+                << " unique exact community size: " << total_community2.size() << endl;
         }
     }
     if (verification_error == 0) 
@@ -287,9 +287,12 @@ void do_queries(string graph_filename,
         cout << query_k << "-Truss query" << endl;
         vector<exact_qr_set_type> truss_communities1;
         vector<exact_qr_set_type> truss_communities2;
+        vector<exact_qr_set_type> truss_communities3;
         vector<qr_set_type> truss_community_infos;
 
         size_t bucket_size = 100;
+        
+        /*
         cout << "3.1 Starting raw query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1)
@@ -301,6 +304,7 @@ void do_queries(string graph_filename,
             truss_communities1.push_back(truss_community);
         }
         print_n_update_timer(true);
+        */
 
         cout << "3.2 Starting truss info query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
@@ -315,7 +319,7 @@ void do_queries(string graph_filename,
         }
         print_n_update_timer(true);
 
-        cout << "3.2 Starting truss exact query" << endl;
+        cout << "3.3 Starting truss exact query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1)
                 print_n_update_timer();
@@ -327,10 +331,22 @@ void do_queries(string graph_filename,
         }
         print_n_update_timer(true);
 
+        cout << "3.4 Starting tcp query" << endl;
+        for (size_t i = 0; i < testcases.size(); i ++) {
+            if (i % bucket_size == bucket_size - 1)
+                print_n_update_timer();
+            exact_qr_set_type truss_community;
+            truss_tcp_query(truss_community, 
+                    testcases[i], query_k,
+                    net, edge_trussness, tcp_index);
+            truss_communities3.push_back(truss_community);
+        }
+        print_n_update_timer(true);
+
         cout << "verifying results..." << endl;
-        verify_raw_info(testcases, truss_communities1, 
+        verify_raw_info(testcases, truss_communities3, 
                 truss_community_infos);
-        verify_raw_exact(testcases, truss_communities1, 
+        verify_raw_exact(testcases, truss_communities3, 
                 truss_communities2);
     }
     else if (query_k == 0) {
