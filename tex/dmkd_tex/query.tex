@@ -1,0 +1,147 @@
+\section{\Probdef{} query}
+\label{query}
+
+\vskip 0.1in \noindent \textbf{Query on \TreeIndex{}.}
+\Treeindex{} supports three basic types of k-truss community queries of a single query vertex $q$ as listed below.
+
+\begin{itemize}
+	\item{K-truss query:} Given a vertex $q$ and an integer $k$, find the k-truss community that contains $q$.
+	\item{Max-k-truss query:} Given a vertex $q$, find the k-truss community with highest possible trussness that contains $q$.
+	\item{Any-k-truss query:} Given a vertex $q$, find all the k-truss communities that contains $q$.
+\end{itemize}
+
+Max-k-truss query is naturally supported by simply looking up the hash table $h$ and comparing trussness of $h[x_e]$ for each neighbor edge. We show the queries process algorithms for k-truss query and any-k-truss query in \autoref{alg:\treeindex{}_query}. A common operation used in both query algorithms is what we called backtrack branch search, which is defined in \autoref{def:backtrack_branch_search} below. We can see that if a specific $k$ is provided, the backtrack branch search will stop once the trussness falls below $k$. On the other hand, if no $k$ is provided, a value of $0$ is used and the search will reach the root of the tree.
+
+\begin{Def}[Backtrack branch search]
+Given a vertex $C_{0} \in G_t$ and an integer $k$, the backtrack branch search returns a list of vertices $C_{0},...,C_{i},...$ that $C_{i+1}$ is the parent vertex of $C_{i}$ in $G_t$ and any vertex $C_{i}$ meets $\tau_{C_{i}} \ge k$. We refer to the searching results $C_{0},...,C_{i},...$ as backtrack branch and denote it as $B$.
+\label{def:backtrack_branch_search}
+\end{Def}
+
+\Treeindex{} also supports all three types of queries when the input is a set of query vertices $Q$. The query process algorithms simply takes intersections of the query results of each individual query vertex for k-truss queries and any-k-truss queries. For max-k-truss queries, the query process algorithm needs to calculate the least common ancestors in $G_t$ of the results of each individual query vertex.
+
+\begin{algorithm}
+	\KwData{$G_{o}(V_{o},E_{o})$, $G_{t}(V_{t},E_{t})$, the hash table $h$, a query vertex $q$ or a set of query vertices $Q$, [an integer k]}
+	\KwResult{a set of k-truss community IDs $R$}
+	\SetKwProg{Fn}{function}{}{end}
+	\BlankLine
+	\Fn{branch\_search ($C \in G_t$, $G_t$, [$k$ = 0])}{
+		$B \gets \emptyset$\;
+		\While{$C \neq \emptyset$ \textbf{and} $\tau_{C} \ge k$}{
+			$B \gets B \bigcup {C}$\;
+			$C \gets C.parent$\;
+		}
+		\Return{$B$}
+	}
+	\BlankLine
+	\Fn{query\_k ($q$, $G_o$, $G_t$, $k$)}{
+		$R \gets \emptyset$\;
+		\For{$e \in N_q$}{
+			$B \gets$ branch\_search ($h[x_e]$, $G_t$, $k$)\;
+			\If{$\tau_{B[-1]} = k$}{
+				$R \gets R \bigcup B[-1]$; \Comment{$B[-1]$ is the last element in $B$}
+			}
+		}
+		\Return{$R$}
+	}
+	\BlankLine
+	\Fn{query\_anyk ($q$, $G_o$, $G_t$)}{
+		$R \gets \emptyset$\;
+		\For{$e \in N_q$}{
+			$B \gets$ branch\_search ($h[x_e]$, $G_t$)\;
+			$R \gets R \bigcup B$\;
+		}
+		\Return{$R$}
+	}
+	\caption{Query on \Treeindex{}}\label{alg:\treeindex{}_query}
+\end{algorithm}
+
+For single vertex queries, the time complexity is $O(d_q)$ for max-k-truss queries and $O(\sum_{e \in N_q}\tau_{h[x_e]})$ for k-truss and any-k-truss queries. The space complexity is $O(1)$ for max-k-truss queries, $O(d_q)$ for k-truss queries and $\sum_{e \in N_q}\tau_{h[x_e]}$ for any-k-truss queries. For multiple vertices max-k-ktruss queries, since the least common ancestor computation takes $O(H)$\footnote{$O(H)$ is for simple online algorithm, off-line algorithms can achieve time complexity of $O(1)$~\cite{bender2000lca}.} time, where $H$ is the height of the tree. The query time is $O(\sum_{q \in Q}(\max_{e \in N_q}\tau_{h[x_e]} + d_q))$ and the space is $O(\max_{q \in Q}\max_{e \in N_q}\tau_{h[x_e]})$. Multiple vertices k-truss queries take $O(\sum_{q \in Q}\sum_{e \in N_q}\tau_{h[x_e]})$ time and $O(\max_{q \in Q}d_q)$ space. For multiple vertices any-k-truss queries, the time and space complexity is $O(\sum_{q \in Q}\sum_{e \in N_q}\tau_{h[x_e]})$ and $O(\max_{q \in Q}\sum_{e \in N_q}\tau_{h[x_e]})$ respectively.
+
+%\Treeindex{} supports multiple types of k-truss community queries. We start by defining backtrack branch search and least common ancestor. Then we introduce four most common types of queries supported by \treeindex{}.
+%
+%\begin{Def}[Backtrack branch search]
+%Given a vertex $C_{0} \in G_t$ and an integer $k$, the backtrack branch search returns a list of vertices $C_{0},...,C_{i},...$ that $C_{i+1}$ is the parent vertex of $C_{i}$ in $G_t$ and any vertex $C_{i}$ meets $\tau_{C_{i}} \ge k$. We refer to the searching results $C_{0},...,C_{i},...$ as backtrack branch and denote it as $B$.
+%\label{def:backtrack_branch_search}
+%\end{Def}
+%
+%\begin{Def}[Least common ancestor]
+%Given a set of vertices $C_{0},...,C_{s}$ in $G_t$, if $C_{0},...,C_{s}$ belong to the same tree $T$, the least common ancestor of $C_{0},...,C_{s}$ is the vertex furthest from the root of $T$ that is an ancestor of all vertices in $C_{0},...,C_{s}$. We denote the least common ancestor as the $LCA$.
+%\label{def:lca_search}
+%\end{Def}
+%
+%\Treeindex{} supports both single vertex query and multiple vertices query. It also support query for k-truss communities of a specific $k$ or any possible $k$. Here we list four most common types of queries supported by \treeindex{}.
+%
+%\begin{itemize}
+	%\item \textbf{Single vertex and a specified $k$.} \\
+	%Given a query vertex $q$ and an integer $k$, find the k-truss community that contains $q$ with trussness $k$. The query algorithm iterates neighbor edges of $q$. For each edge $e$, let $x_e$ be the representing vertex in $G_m$. The algorithm performs a backtrack branch search with $h[x_e]$ and $k$ in $G_t$ and get the backtrack branch $B_e$. Let $C_e$ contain the last vertex in $B_e$ if it has trussness equals $k$ or be $\emptyset$ otherwise. The union of results of all neighbor edges $\bigcup_{e} C_e$ is all the k-truss communities that contains $q$ with trussness of $k$. 
+	%\item \textbf{Single vertex with any possible $k$.} \\
+	%Given a query vertex $q$, find all the k-truss communities that contains $q$. Similar to last one, the query algorithm also performs a backtrack branch search on each neighbor edge of $q$. The union of results of all neighbor edges $\bigcup_{e} B_e$ are all the k-truss communities that contains $q$. 
+	%\item \textbf{Multiple vertex with a specified $k$.} \\
+	%Given a set of query vertices $Q$, find the k-truss community that contains all vertices in $Q$ with trussness $k$. For each $q \in Q$, find $R_q = \bigcup_{e} C_e$ using the single vertex query algorithm. The intersection of results of all query vertices $\bigcap_{q} R_q$ is all the k-truss communities that contains all vertices in $Q$ with trussness of $k$.
+	%\item \textbf{Multiple vertex with any possible $k$.} \\
+	%Given a set of query vertices $Q$, find all k-truss communities that contains all vertices in $Q$. For each $q \in Q$, let $e_q$ be neighbor edges of $q$ and $x_{e_q}$ be the representing vertex in $G_m$. We denote $\bigcup_{e_q} h[x_{e_q}]$ as $H_q$. For two vertices $p,q \in Q$, the query algorithm combines $H_p$ and $H_q$ in the following way. For each pair of vertices $h[x_{e_p}] \in H_p$ and $h[x_{e_q}] \in H_q$, the algorithm finds the least common ancestor of $h[x_{e_p}]$ and $h[x_{e_q}]$ in $G_t$, if there is any. We denote it as $LCA_{\{e_{p},e_{q}\}}$. The union of least common ancestor of each pair of vertices $H_{\{p,q\}} = \bigcup_{\{e_{p},e_{q}\}} LCA_{\{e_{p},e_{q}\}}$ is the combining result of $H_p$ and $H_q$. The algorithm iteratively combines all query vertices in this way and gets $H_Q$. Then for each index vertex in $H_Q$, the algorithm performs a backtrack branch search to and return the union of the results $R_Q$ which is all the k-truss communities that contains all vertices in $Q$. 
+%\end{itemize}
+
+%\begin{algorithm}
+	%\KwData{$G_{o}(V_{o},E_{o})$, $G_{t}(V_{t},E_{t})$, the hash table $h$, a query vertex $q$ or a set of query vertices $Q$, [an integer k]}
+	%\KwResult{a set of k-truss community IDs $R$}
+	%\SetKwProg{Fn}{function}{}{end}
+	%\BlankLine
+	%\Fn{branch\_search ($C \in G_t$, $G_t$, [$k$ = 0])}{
+		%$B \gets \emptyset$\;
+		%\While{$C \neq \emptyset$ \textbf{and} $\tau_{C} \ge k$}{
+			%$B \gets B \bigcup {C}$\;
+			%$C \gets$ parent of $C$ in $G_t$\;
+		%}
+		%\Return{$B$}
+	%}
+	%\BlankLine
+	%\Fn{query\_singleq ($q$, $G_o$, $G_t$, $k$)}{
+		%$R \gets \emptyset$\;
+		%\For{$e \in N_q$}{
+			%$B$ = branch\_search ($h[x_e]$, $G_t$, $k$)\;
+			%\If{$\tau_{B[-1]} = k$}{
+				%$R \gets R \bigcup B[-1]$; \Comment{$B[-1]$ is the last element in $B$}
+			%}
+		%}
+		%\Return{$R$}
+	%}
+	%\BlankLine
+	%\Fn{query\_singleq\_anyk ($q$, $G_o$, $G_t$)}{
+		%$R \gets \emptyset$\;
+		%\For{$e \in N_q$}{
+			%$B$ = branch\_search ($h[x_e]$, $G_t$)\;
+			%$R \gets R \bigcup B$\;
+		%}
+		%\Return{$R$}
+	%}
+	%\BlankLine
+	%\Fn{query\_multiq ($Q$, $G_o$, $G_t$, $k$)}{
+		%$R \gets \emptyset$, $initialized \gets False$\;
+		%\For{$q \in Q$}{
+			%\eIf{$initialized = False$}{
+				%$R \gets$ query\_singleq ($q$, $G_o$, $G_t$, $k$)\;
+				%$initialized \gets True$\;
+			%}{
+				%$R \gets R \bigcap$ query\_singleq ($q$, $G_o$, $G_t$, $k$)\;
+			%}
+		%}
+		%\Return{$R$}
+	%}
+	%\BlankLine
+	%\Fn{query\_multiq\_anyk ($Q$, $G_o$, $G_t$)}{
+		%$R \gets \emptyset$, $initialized \gets False$\;
+		%\For{$q \in Q$}{
+			%\eIf{$initialized = False$}{
+				%$R \gets$ query\_singleq\_anyk ($q$, $G_o$, $G_t$)\;
+				%$initialized \gets True$\;
+			%}{
+				%$R^{\prime} \gets$ query\_singleq\_anyk ($q$, $G_o$, $G_t$)\;
+			%}
+		%}
+		%\Return{$R$}
+	%}
+	%\caption{Query on \inducedgraph{}}\label{alg:\inducedgraph{}_query}
+%\end{algorithm}
+%
+%For single vertex queries, the time complexity is $O(\sum_{e \in N_q}\tau_{h[x_e]})$, the space complexity is $O(d_q)$ if $k$ is specified or $\sum_{e \in N_q}\tau_{h[x_e]}$ otherwise. For multiple vertices queries, when $k$ is specified, the time complexity is $O(\sum_{q \in Q}\sum_{e \in N_q}\tau_{h[x_e]})$ and the space complexity is $O(\sum_{q \in Q}d_q)$. Since the least common ancestor computation takes $O(h)$\footnote{$O(h)$ is for simple online algorithm, off-line algorithms can achieve time complexity of $O(1)$~\cite{bender2000lca}.} time, where $h$ is the height of the tree. If $k$ is not specified, the time complexity is $O(\sum_{q \in Q}\sum_{e \in N_q}\tau_{h[x_e]})$ and the space complexity is $O(\sum_{q \in Q}\sum_{e \in N_q}\tau_{h[x_e]})$.
