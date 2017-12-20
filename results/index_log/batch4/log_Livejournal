@@ -1,0 +1,31 @@
+1. Loading graph ....
+Graph size: 4843953 42845684
+Edge list size: 42845684
+elapsed time: 50499ms.
+2. Compute support
+elapsed time: 512836ms.
+edge support size: 42845684
+sorted edge support size: 42845684
+3. Truss Decomposition (Index Construction)
+the maximum k of the graph is: 362
+elapsed time: 859079ms.
+4. Build MST from generated graph
+cc size: 42845684 * 8
+rank size: 42845684 * 8
+triangle count: 285688896 triangle access count: 857066688
+MST has 42845684 nodes, 35338917 edges and 7506767 connected components.
+elapsed time: 880861ms.
+5. Construct heirachical index
+Index tree has 346735 nodes with 7319094 ignored nodes.
+Index hash table size is 42845684
+elapsed time: 150622ms.
+6. Construct tcp index
+TCP index has 4843953 nodes.
+elapsed time: 1.2901e+06ms.
+edge trussness size: 42845684
+triangle trussness size: 35338917
+encode table size: 42845684
+decode table size: 42845684
+index tree size: 346735
+index hash size: 42845684
+tcp index size: 66157207
