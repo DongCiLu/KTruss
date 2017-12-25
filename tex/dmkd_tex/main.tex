@@ -103,7 +103,7 @@
               \email{zlu12@vols.utk.edu}           %  \\
 %             \emph{Present address:} of F. Author  %  if needed
            \and
-					 Zheng Lu \at
+					 Yunhe Feng \at
 							Electrical Engineering \& Computer Science, University of Tennessee \\
 							\email{yfeng14@vols.utk.edu} 
            Qing Cao \at
@@ -120,8 +120,7 @@
 \begin{abstract}
 Recently, there has been significant interest in the study of the community search problem in social and information networks: given one or more query nodes, find densely connected communities containing the query nodes. However, most existing algorithms require linear computational time to the size of the found community for each specific K value. Therefore, state-of-the-art algorithms have limited scalability in large scale graphs, where communities grow to millions of edges.
 
-In this paper, given an undirected graph G and a set of query
-nodes $Q$, we study community query using the k-truss based community model. We formulate our problem of finding a connected truss community, as finding a connected k-truss subgraph with all possible k that contains Q. The state-of-art approximation algorithm can achieve this goal with a time complexity of $O(n'm')$ where $n'$ and $m'$ are the size of the result truss community. For queries that only identity and exact size of communities are required, We construct an index structure that can retrieve there information of all connected k-truss communities that contain $Q$ with all possible K values. The algorithm can run in $\sum_{u \in Q} d(u)$, where $d(u)$ is the degree of vertex $u$. We prove that this is the optimal time complexity for truss community query. Extensive experiments on real-world networks show the effectiveness and efficiency of our algorithms. 
+In this paper, given an undirected graph G and a set of query nodes $Q$, we formulate a new problem call truss community identity search, which can help answer various query types with multiple query vertices such as max-k truss query, any-k truss query as well as k-truss query. This new proposed problem can be used in many applications as building blocks for community related queries. To solve this problem and k-truss community search efficiently, we propose a 2-level index structure for fast query process. Not only our index structure can support various query types with multiple query vertices. We ourperform state-of-the-art truss index for single vertex k-truss community search. We also develop an efficient algorithm to construct such an index. Extensive experiments on real-world networks show the effectiveness and efficiency of our algorithms. 
 \keywords{K-truss \and dynamic graph \and query process}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
