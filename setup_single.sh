@@ -4,8 +4,8 @@ ssh-copy-id lanterns2.eecs.utk.edu
 sudo chown zlu12 /mydata
 
 scp lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/regular/* /mydata
-scp -r lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/testcase_truss /mydata
-scp lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/checkpoints /mydata
+scp -r lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/testcases_truss /mydata
+scp -r lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/checkpoints /mydata
 
 sudo apt-get update
 sudo apt-get -y install vim ssh gcc g++ build-essential
