@@ -72,7 +72,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     bool silent = true;
     create_checkpoint_dir(checkpoint_dir);
 
-    cout << "1. Loading graph ...." << endl;
+    cout << "\n1. Loading graph ...." << endl;
     PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
             graph_filename.c_str(), 0, 1);
     cout << "Graph size: " << net->GetNodes() << 
@@ -86,7 +86,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     cout << "Edge list size: " << elist.size() << endl;
     print_n_update_timer();
 
-    cout << "2. Compute support" << endl;
+    cout << "\n2. Compute support" << endl;
     slow_sorted_type sorted_edge_support; 
     compute_support(net, elist, edge_support, sorted_edge_support);
     string support_filename = graph_filename + "esupport";
@@ -94,7 +94,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     cout << "edge support size: " << edge_support.size() << endl;
     cout << "sorted edge support size: " << sorted_edge_support.size() << endl;
 
-    cout << "3. Truss Decomposition (Index Construction)" << endl;
+    cout << "\n3. Truss Decomposition (Index Construction)" << endl;
     counting_sorted_type sorted_edge_trussness;
     int max_net_k = compute_trussness(
             net, edge_support, sorted_edge_support, 
@@ -105,7 +105,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
             graph_filename, checkpoint_dir);
     print_n_update_timer(silent);
 
-    cout << "4. Build MST from generated graph" << endl;
+    cout << "\n4. Build MST from generated graph" << endl;
     int num_cc = construct_mst(
             net, edge_trussness, sorted_edge_trussness, mst, triangle_trussness);
     check_mst(mst, net, num_cc);
@@ -115,7 +115,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
             graph_filename, checkpoint_dir);
     print_n_update_timer(silent);
 
-    cout << "5. Construct heirachical index" << endl;
+    cout << "\n5. Construct heirachical index" << endl;
     construct_index_tree(mst, edge_trussness, triangle_trussness, 
             index_tree, index_hash);
     check_index_tree(index_tree, index_hash);
@@ -124,7 +124,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
             graph_filename, checkpoint_dir);
     print_n_update_timer(silent);
 
-    cout << "6. Construct tcp index" << endl;
+    cout << "\n6. Construct tcp index" << endl;
     construct_tcp_index(net, edge_trussness, tcp_index);
     cout << "TCP index has " << tcp_index.size() << " nodes." << endl;
     print_n_update_timer();
@@ -146,6 +146,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     }
     cout << "tcp index size: " << tcp_size << endl;
 }
+
 void verify_raw_info(vector<vid_type> &testcases,
         vector<exact_qr_set_type> &truss_communities,
         vector<qr_set_type> &truss_community_infos) {
@@ -243,7 +244,7 @@ void do_queries(string graph_filename,
         int query_k, 
         size_t n_queries) {
     vector<vid_type> testcases;
-    cout << "1. Loading graph and testcases" << endl;
+    cout << "\n1. Loading graph and testcases" << endl;
     PUNGraph net = TSnap::LoadEdgeList<PUNGraph>(
             graph_filename.c_str(), 0, 1);
     // TSnap::DelSelfEdges(net);
@@ -252,7 +253,7 @@ void do_queries(string graph_filename,
     cout << "Teset case size: " << n_queries << endl;
     print_n_update_timer();
 
-    cout << "2. Loading indices" << endl;
+    cout << "\n2. Loading indices" << endl;
     eint_map edge_trussness;
     counting_sorted_type sorted_edge_trussness; // not loaded
     PUNGraph mst;
@@ -282,7 +283,7 @@ void do_queries(string graph_filename,
     cout << "tcp index size: " << tcp_size << endl;
     print_n_update_timer();
 
-    cout << "3. K-Truss Query Processing" << endl;
+    cout << "\n3. K-Truss Query Processing" << endl;
     if (query_k > 0) {
         cout << query_k << "-Truss query" << endl;
         vector<exact_qr_set_type> truss_communities1;
@@ -403,6 +404,7 @@ int main(int argc, char** argv){
         cout << "ERROR: wrong mode, only support index mode or query mode" << endl;
     }
 
+    cout << "\nDone.\n" << endl;
     return 0;
 }
 
