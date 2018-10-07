@@ -1,0 +1,12 @@
+
+1. Loading graph ....
+Graph size: 1069126 56306653
+Edge list size: 56306653
+elapsed time: 161612ms.
+
+2. Compute support
+elapsed time: 4.42825e+06ms.
+edge support size: 56306653
+sorted edge support size: 56306653
+
+3. Truss Decomposition (Index Construction)
