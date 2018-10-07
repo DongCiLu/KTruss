@@ -15,7 +15,6 @@
 ./main query datasets/wiki_wccnse.txt datasets/testcases_truss/wiki_wccnse.txt_testcase_single_q 10 1000 &> log_wiki_query.txt
 ./main query datasets/skitter_wccnse.txt datasets/testcases_truss/skitter_wccnse.txt_testcase_single_q 10 1000 &> log_skitter_query.txt
 ./main query datasets/Livejournal_wccnse.txt datasets/testcases_truss/Livejournal_wccnse.txt_testcase_single_q 10 1000 &> log_Livejournal_query.txt
-./main query datasets/Livejournal_wccnse.txt datasets/testcases_truss/Livejournal_wccnse.txt_testcase_single_q 10 1000 &> log_Livejournal_query.txt
 ./main query datasets/baidu_wccnse.txt datasets/testcases_truss/baidu_wccnse.txt_testcase_single_q 10 1000 &> log_baidu_query.txt
 
 # large networks
