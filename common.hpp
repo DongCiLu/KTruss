@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <climits>
 #include <time.h>
+#include <iostream>
 #include <boost/functional/hash.hpp>
 
 #include <cassert>
@@ -138,5 +139,28 @@ typedef vector< pair<vid_type, vid_type> > community_type;
 typedef QR qr_type;
 typedef vector<qr_type> qr_set_type;
 typedef vector<community_type> exact_qr_set_type;
+
+class Timer {
+    public:
+        Timer() {
+            last_time = clock();
+        }
+
+        void print_n_update_timer() {
+            cout << "elapsed time: " << update_timer() 
+                << "ms." << endl;
+        }
+
+        double update_timer() {
+            double time_diff = double(clock() - last_time) / 
+                    (double(CLOCKS_PER_SEC) / 1000);
+            last_time = clock();
+            return time_diff;
+        }
+
+    private:
+        clock_t last_time;
+
+};
 
 #endif

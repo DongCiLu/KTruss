@@ -141,10 +141,12 @@ void truss_anyk_query(qr_set_type &res,
     truss_intersection_forest(intersection_forest,
         query_vids, net, index_tree, index_hash);
     // output the intersection forest in required format
-    for (unordered_set<inode_id_type>::iterator iter = intersection_forest.begin();
+    for (unordered_set<inode_id_type>::iterator iter = 
+            intersection_forest.begin();
             iter != intersection_forest.end();
             ++ iter) {
-        qr_type res_node(*iter, index_tree[*iter].size, index_tree[*iter].k);
+        qr_type res_node(*iter, index_tree[*iter].size, 
+                index_tree[*iter].k);
         res.push_back(res_node);
     }
 }
@@ -191,7 +193,8 @@ void truss_maxk_query(qr_set_type &res,
         query_vids, net, index_tree, index_hash);
     // find truss communtiy with max k in the intersection forest
     int max_k = -1;
-    for (unordered_set<inode_id_type>::iterator iter = intersection_forest.begin();
+    for (unordered_set<inode_id_type>::iterator 
+            iter = intersection_forest.begin();
             iter != intersection_forest.end();
             ++ iter) {
         if (index_tree[*iter].k > max_k) {
@@ -207,14 +210,25 @@ void truss_maxk_query(qr_set_type &res,
     }
 }
 
-void truss_exact_query(exact_qr_set_type &res,
+double truss_exact_query(exact_qr_set_type &res,
         qr_set_type &infos,
         PUNGraph mst,
-        eint_map &triangle_trussness) {
+        eint_map &triangle_trussness,
+        unordered_map<inode_id_type, double> &exact_query_cache,
+        bool cache_flag) {
+    double total_time = 0;
+    Timer t;
     for (size_t i = 0; i < infos.size(); i ++) {
         inode_id_type seed = infos[i].iid;
         size_t exp_size = infos[i].size;
         int k = infos[i].k;
+
+        if (cache_flag && exact_query_cache.find(seed) != 
+                exact_query_cache.end()) {
+            total_time += exact_query_cache[seed];
+            total_time += t.update_timer();
+            continue;
+        }
 
         community_type truss_community;
         unordered_set<vid_type> visited_vertices;
@@ -224,7 +238,8 @@ void truss_exact_query(exact_qr_set_type &res,
         visited_vertices.insert(seed);
         while (!fifo.empty()) {
             vid_type u = fifo.front();
-            pair<vid_type, vid_type> vpair = vertex_extractor(edge_extractor(u));
+            pair<vid_type, vid_type> vpair = 
+                vertex_extractor(edge_extractor(u));
             fifo.pop();
             truss_community.push_back(vpair);
             for (int j = 0; j < mst->GetNI(u).GetDeg(); j++) {
@@ -249,7 +264,14 @@ void truss_exact_query(exact_qr_set_type &res,
                 << ") with trussness " << k << endl;
         }
         res.push_back(truss_community);
+        double time_diff = t.update_timer();
+        if (cache_flag) {
+            exact_query_cache[seed] = time_diff;
+        }
+        total_time += time_diff;
     }
+    total_time += t.update_timer();
+    return total_time;
 }
 
 inline eid_type unordered_edge_composer(vid_type u, vid_type v) {

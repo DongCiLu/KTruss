@@ -25,8 +25,8 @@
 
 ./main testcase datasets/orkut_wccnse.txt &> log_orkut_testcase.txt
 ./main testcase datasets/sinaweibo_wccnse.txt &> log_sinaweibo_testcase.txt
-# ./main index datasets/hollywood_wccnse.txt &> log_hollywood_testcase.txt
-# ./main index datasets/bio_wccnse.txt &> log_bio_testcase.txt
+# ./main testcase datasets/hollywood_wccnse.txt &> log_hollywood_testcase.txt
+# ./main testcase datasets/bio_wccnse.txt &> log_bio_testcase.txt
 
 ./main query datasets/orkut_wccnse.txt datasets/testcases_truss/orkut_wccnse.txt_testcase_single_q 10 1000 &> log_orkut_query.txt
 ./main query datasets/sinaweibo_wccnse.txt datasets/testcases_truss/sinaweibo_wccnse.txt_testcase_single_q 10 1000 &> log_sinaweibo_query.txt
