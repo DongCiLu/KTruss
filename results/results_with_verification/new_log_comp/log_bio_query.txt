@@ -1,0 +1,56 @@
+
+1. Loading graph and testcases
+Teset case size: 1000
+elapsed time: 36490.7ms.
+
+2. Loading indices
+edge trussness size: 14460977
+triangle trussness size: 14455329
+encode table size: 14460977
+decode table size: 14460977
+index tree size: 1375
+index hash size: 14460977
+tcp index size: 28869114
+elapsed time: 98960.4ms.
+
+3. K-Truss Query Processing
+10-Truss query
+3.2 Starting truss info query
+elapsed time: 0.273ms.
+elapsed time: 1.339ms.
+elapsed time: 8.018ms.
+elapsed time: 37.822ms.
+elapsed time: 165.405ms.
+elapsed time: 614.702ms.
+elapsed time: 2067.25ms.
+elapsed time: 5158.51ms.
+elapsed time: 9625.18ms.
+elapsed time: 19337.7ms.
+3.3 Starting truss exact query
+elapsed time: 0.015ms.
+elapsed time: 402259ms.
+elapsed time: 1.04437e+06ms.
+elapsed time: 1.141e+06ms.
+elapsed time: 1.14167e+06ms.
+elapsed time: 1.13484e+06ms.
+elapsed time: 1.11213e+06ms.
+elapsed time: 1.08756e+06ms.
+elapsed time: 1.08751e+06ms.
+elapsed time: 1.08746e+06ms.
+3.4 Starting tcp query
+elapsed time: 0.194ms.
+elapsed time: 1.08146e+06ms.
+elapsed time: 2.91516e+06ms.
+elapsed time: 3.27705e+06ms.
+elapsed time: 3.28656e+06ms.
+elapsed time: 3.29465e+06ms.
+elapsed time: 3.30029e+06ms.
+elapsed time: 3.30634e+06ms.
+elapsed time: 3.31091e+06ms.
+elapsed time: 3.31507e+06ms.
+verifying results...
+Success!
+Success!
+
+Done.
+

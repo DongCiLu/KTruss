@@ -1,0 +1,44 @@
+
+1. Loading graph and testcases
+Teset case size: 1000
+elapsed time: 122113ms.
+
+2. Loading indices
+edge trussness size: 56306653
+triangle trussness size: 56260460
+encode table size: 56306653
+decode table size: 56306653
+index tree size: 28943
+index hash size: 56306653
+tcp index size: 111394655
+elapsed time: 357446ms.
+
+3. K-Truss Query Processing
+10-Truss query
+3.2 Starting truss info query
+elapsed time: 0.343ms.
+elapsed time: 0.822ms.
+elapsed time: 1.744ms.
+elapsed time: 2.905ms.
+elapsed time: 6.131ms.
+elapsed time: 9.56ms.
+elapsed time: 17.773ms.
+elapsed time: 35.925ms.
+elapsed time: 83.242ms.
+elapsed time: 1032.61ms.
+3.3 Starting truss exact query
+elapsed time: 0.012ms.
+elapsed time: 1.40915e+06ms.
+elapsed time: 3.29122e+06ms.
+elapsed time: 3.54989e+06ms.
+elapsed time: 3.74607e+06ms.
+elapsed time: 3.73015e+06ms.
+elapsed time: 4.10777e+06ms.
+elapsed time: 4.09483e+06ms.
+elapsed time: 4.11642e+06ms.
+elapsed time: 4.19263e+06ms.
+3.4 Starting tcp query
+elapsed time: 7.817ms.
+elapsed time: 4.98533e+06ms.
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
