@@ -222,18 +222,15 @@ double truss_exact_query(exact_qr_set_type &res,
         inode_id_type seed = infos[i].iid;
         size_t exp_size = infos[i].size;
         int k = infos[i].k;
-
         if (cache_flag && exact_query_cache.find(seed) != 
                 exact_query_cache.end()) {
             total_time += exact_query_cache[seed];
             total_time += t.update_timer();
             continue;
         }
-
         community_type truss_community;
         unordered_set<vid_type> visited_vertices;
         queue<vid_type> fifo;
-
         fifo.push(seed);
         visited_vertices.insert(seed);
         while (!fifo.empty()) {

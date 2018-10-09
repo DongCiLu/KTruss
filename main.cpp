@@ -280,9 +280,11 @@ void do_queries(string graph_filename,
         size_t n_requested_queries) {
     Timer t;
     vector<vector<vid_type>> testcases;
-    // the exact query cache is only for runtime analysis purpose,
-    // when the exact query result is required for verification, 
-    // this cache should be disabled.
+    /* 
+     * the exact query cache is only for runtime analysis purpose,
+     * when the exact query result is required for verification, 
+     * this cache should be disabled.
+     */
 #ifdef VERIFY_RESULT
     bool cache_flag = false;
 #else
@@ -360,7 +362,7 @@ void do_queries(string graph_filename,
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1) {
                 t.print_n_update_timer();
-                cout << "elapsed time without cache " 
+                cout << "\telapsed time without cache " 
                      << total_time << endl;
                 total_time = 0;
             }
@@ -375,7 +377,7 @@ void do_queries(string graph_filename,
         }
         t.update_timer();
 
-        if (testcases[0].size() == 1) {
+        if (!testcases.empty() && testcases[0].size() == 1) {
             // single query vertex case
             cout << "3.4 Starting tcp query" << endl;
             for (size_t i = 0; i < testcases.size(); i ++) {
@@ -420,7 +422,7 @@ void do_queries(string graph_filename,
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1) {
                 t.print_n_update_timer();
-                cout << "elapsed time without cache " 
+                cout << "\telapsed time without cache " 
                      << total_time << endl;
                 total_time = 0;
             }
@@ -452,7 +454,7 @@ void do_queries(string graph_filename,
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1) {
                 t.print_n_update_timer();
-                cout << "elapsed time without cache " 
+                cout << "\telapsed time without cache " 
                      << total_time << endl;
                 total_time = 0;
             }

@@ -78,7 +78,7 @@ size_t load_testcases(string filename,
         size_t n_queries, 
         vector<vector<vid_type>> &testcases){
     ifstream in(filename.c_str());
-    while(testcases.size() < n_queries) {
+    while(in.good() && testcases.size() < n_queries) {
         string test_line;
         if(in.eof()) {
             cout << "Not enough test cases, "

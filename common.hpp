@@ -147,7 +147,7 @@ class Timer {
         }
 
         void print_n_update_timer() {
-            cout << "elapsed time: " << update_timer() 
+            cout << "\telapsed time: " << update_timer() 
                 << "ms." << endl;
         }
 
