@@ -1,0 +1,6 @@
+1. Loading graph ....
+Graph size: 42923 14460977
+max degree in test case: 4761
+
+Done.
+
