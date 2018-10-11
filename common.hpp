@@ -77,7 +77,12 @@ void get_low_high_deg_vertices(const PUNGraph &net,
     }
 }
 
-// convert eid_type (long) to vid_type (int)
+/* 
+ * Convert eid_type (long) to vid_type (int), 
+ * because SNAP only supports int32 as vertex id.
+ * Due to this limitation, this implemetation cannot handle 
+ * graphs with more than INT_MAX (around 2 billions) edges
+ */
 unordered_map<eid_type, vid_type> encode_table;
 unordered_map<vid_type, eid_type> decode_table;
 int vid_cnt = 0;
@@ -140,6 +145,12 @@ typedef QR qr_type;
 typedef vector<qr_type> qr_set_type;
 typedef vector<community_type> exact_qr_set_type;
 
+inline bool is_vertex_in_mst_vertex(vid_type mstv, vid_type v) {
+    pair<vid_type, vid_type> vpair = 
+        vertex_extractor(edge_extractor(mstv));
+    return (v == vpair.first || v == vpair.second);
+}
+
 class Timer {
     public:
         Timer() {
@@ -160,7 +171,6 @@ class Timer {
 
     private:
         clock_t last_time;
-
 };
 
 #endif

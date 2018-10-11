@@ -466,6 +466,34 @@ void do_queries(string graph_filename,
         }
         t.update_timer();
     }
+    else if (query_k == -2 && 
+            !testcases.empty() && testcases[0].size() == 2) {
+        cout << "Truss path query" << endl;
+        vector<qr_set_type> truss_community_infos;
+
+        cout << "3.2 Starting truss info query" << endl;
+        for (size_t i = 0; i < testcases.size(); i ++) {
+            if (i % bucket_size == bucket_size - 1)
+                t.print_n_update_timer();
+            qr_set_type truss_community_info;
+            truss_maxk_query(truss_community_info, testcases[i], 
+                    net, index_tree, index_hash);
+            truss_community_infos.push_back(truss_community_info);
+        }
+        t.update_timer();
+
+        cout << "3.3 Starting truss path query" << endl;
+        for (size_t i = 0; i < testcases.size(); i ++) {
+            if (i % bucket_size == bucket_size - 1) 
+                t.print_n_update_timer();
+            vector<vid_type> maximin_truss_path;
+            truss_path_query(maximin_truss_path, 
+                    truss_community_infos[i], 
+                    mst, triangle_trussness,
+                    testcases[i][0], testcases[i][1]);
+        }
+        t.update_timer();
+    }
     else {
         cout << "Unsupported query type." << endl;
     }
