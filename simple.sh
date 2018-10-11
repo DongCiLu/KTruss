@@ -143,3 +143,14 @@
 ./main query datasets/hollywood_wccnse.txt 3 0 1000 &> log_hollywood_query_3_anyk.txt
 ./main query datasets/bio_wccnse.txt 3 0 1000 &> log_bio_query_3_anyk.txt
 
+# path query
+./main query datasets/facebook_wccnse.txt 2 -2 1000 &> log_facebook_query_2_path.txt
+./main query datasets/wiki_wccnse.txt 2 -2 1000 &> log_wiki_query_2_path.txt
+./main query datasets/skitter_wccnse.txt 2 -2 1000 &> log_skitter_query_2_path.txt
+./main query datasets/Livejournal_wccnse.txt 2 -2 1000 &> log_Livejournal_query_2_path.txt
+./main query datasets/baidu_wccnse.txt 2 -2 1000 &> log_baidu_query_2_path.txt
+
+./main query datasets/orkut_wccnse.txt 2 -2 1000 &> log_orkut_query_2_path.txt
+./main query datasets/sinaweibo_wccnse.txt 2 -2 1000 &> log_sinaweibo_query_2_path.txt
+./main query datasets/hollywood_wccnse.txt 2 -2 1000 &> log_hollywood_query_2_path.txt
+./main query datasets/bio_wccnse.txt 2 -2 1000 &> log_bio_query_2_path.txt
