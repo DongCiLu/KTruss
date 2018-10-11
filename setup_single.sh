@@ -4,6 +4,7 @@ ssh-copy-id lanterns2.eecs.utk.edu
 sudo chown zlu12 /mydata
 
 scp lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/regular/* /mydata
+scp lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/large/* /mydata
 scp -r lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/testcases_truss /mydata
 scp -r lanterns2.eecs.utk.edu:/local_scratch/Datasets/graph_datasets/checkpoints /mydata
 
