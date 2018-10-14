@@ -1,0 +1,16 @@
+1. Loading graph ....
+Graph size: 4039 88234
+Degree range in this bracket: 20 - 24 with 234 vertices.
+Degree range in this bracket: 24 - 28 with 234 vertices.
+Degree range in this bracket: 28 - 34 with 234 vertices.
+Degree range in this bracket: 34 - 40 with 234 vertices.
+Degree range in this bracket: 40 - 49 with 234 vertices.
+Degree range in this bracket: 49 - 62 with 234 vertices.
+Degree range in this bracket: 62 - 77 with 234 vertices.
+Degree range in this bracket: 77 - 102 with 234 vertices.
+Degree range in this bracket: 102 - 142 with 234 vertices.
+Degree range in this bracket: 142 - 792 with 234 vertices.
+max degree in test case: 547
+
+Done.
+

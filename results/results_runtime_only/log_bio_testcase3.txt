@@ -1,0 +1,16 @@
+1. Loading graph ....
+Graph size: 42923 14460977
+Degree range in this bracket: 20 - 45 with 3517 vertices.
+Degree range in this bracket: 45 - 92 with 3517 vertices.
+Degree range in this bracket: 92 - 170 with 3517 vertices.
+Degree range in this bracket: 170 - 294 with 3517 vertices.
+Degree range in this bracket: 294 - 479 with 3517 vertices.
+Degree range in this bracket: 479 - 741 with 3517 vertices.
+Degree range in this bracket: 741 - 1084 with 3517 vertices.
+Degree range in this bracket: 1084 - 1504 with 3517 vertices.
+Degree range in this bracket: 1504 - 2095 with 3517 vertices.
+Degree range in this bracket: 2095 - 6451 with 3517 vertices.
+max degree in test case: 6169
+
+Done.
+
