@@ -10,6 +10,18 @@
 	\item{Any-k-truss query:} Given a vertex $q$, find all the k-truss communities that contains $q$.
 \end{itemize}
 
+\note{try not to use programming language}
+
+The k-truss query of a single vertex starts at finding the forest of it in the \treeindex{}. The algorithm iterate all the adjacent edges of the query vertex and add the branch of each adjacent edges to it. Each \treeindex{} vertex will be only added once.
+
+If there are multiple query vertices, the algorithm will take the intersections of the forest of each query vertex.
+
+For any-k-truss query, the intersections of forests is the result already.
+
+For max-k-truss query, the algorithm needs to find the communities within the intersections of forests with the highest k.
+
+For k-truss query, we return the communities within the intersections that is greater or equal to the required k. Note that if a vertex's parent on the \treeindex{} has already been included, we will not include it anymore.
+
 Max-k-truss query is naturally supported by simply looking up the hash table $h$ and comparing trussness of $h[x_e]$ for each neighbor edge. We show the queries process algorithms for k-truss query and any-k-truss query in \autoref{alg:\treeindex{}_query}. A common operation used in both query algorithms is what we called backtrack branch search, which is defined in \autoref{def:backtrack_branch_search} below. We can see that if a specific $k$ is provided, the backtrack branch search will stop once the trussness falls below $k$. On the other hand, if no $k$ is provided, a value of $0$ is used and the search will reach the root of the tree.
 
 \begin{Def}[Backtrack branch search]

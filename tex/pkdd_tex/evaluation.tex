@@ -39,6 +39,9 @@ We evaluate our algorithms, we use a Cloudlab~\cite{RicciEide:login14} c8220 ser
 \subsection{Query time}
 \label{eval_query_time}
 
+For any vertices to appear in a k-truss community, the lowest degree is k + 1. If we partition vertices uniformly by their degree and the graph has highly screw degree distribution, then vertices in the most of partitions would have too low degree to appear in a k-truss community. To show the performance of different algorithms on mining community structures in this kind of graphs, we discard vertices with degree less than 20 and uniformly partition the rest of vertices.
+
+
 We evaluate the query time of various types of k-truss community queries on our index structure. We first evaluate the single vertex k-truss community search and compare the query time with the TCP index proposed in~\cite{huang2014querying}. We also use index free scheme as a baseline. As the k-truss community search time heavily rely on the degree of the query vertex, so we follow the similar procedure used in~\cite{huang2014querying}. We partition the vertices in each graph according to their degree into 10 categories and at each category, we randomly select 100 vertices to perform 100 independent k-truss community search. For all the queries, we fix the k at 10, which results in communities sufficiently large when degree of the query vertex is high to show the performance difference of different algorithms. For each query vertex, we first perform k-truss community identity search to find identity and seed edge for each resulting community on top-level index, and then we perform the k-truss community search on bottom-level index with breath first search.
 
 \begin{figure}[ht]
