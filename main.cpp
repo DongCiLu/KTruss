@@ -273,6 +273,22 @@ void verify_raw_exact(vector<vector<vid_type>> &testcases,
         cout << "Success!" << endl;
 }
 
+void compressor(string graph_filename, string checkpoint_dir) {
+    cout << "\n1. Loading indices" << endl;
+    PUNGraph mst;
+    eint_map triangle_trussness;
+    iidinode_map index_tree;
+    eiid_map index_hash;
+    load_mst(mst, triangle_trussness, encode_table, decode_table, 
+            graph_filename, checkpoint_dir);
+    load_index_tree(index_tree, index_hash, 
+            graph_filename, checkpoint_dir);
+
+    cout << "\n1. Compressing indices" << endl;
+    compress(mst, triangle_trussness, encode_table, decode_table, 
+            index_tree, index_hash, graph_filename, checkpoint_dir);
+}
+
 void do_queries(string graph_filename, 
         string checkpoint_dir, 
         string testcase_filename, 
@@ -552,6 +568,10 @@ int main(int argc, char** argv){
         size_t n_queries = atoi(argv[5]); 
         do_queries(graph_filename, checkpoint_dir, 
                 testcase_filename, query_k, n_queries);
+    }
+    else if (mode == "compress") {
+        /* calculate minimum space required to store the index */
+        compressor(graph_filename, checkpoint_dir);
     }
     else {
         print_usage();
