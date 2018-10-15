@@ -2,7 +2,8 @@ import os
 import argparse
 
 OUTDIR = 'results'
-RESULTS_DIR = 'results/results_runtime_only'
+# RESULTS_DIR = 'results/results_runtime_only'
+RESULTS_DIR = 'results/results_maximin_path'
 PREFIX_LEN = 4
 
 def collect_results(query_type):
@@ -10,6 +11,7 @@ def collect_results(query_type):
     info = {}
     exact = {}
     tcp = {}
+    path = {}
     for subdir, dirs, files in os.walk(RESULTS_DIR):
         for f in files:
             if f.find(query_type) == -1:
@@ -39,6 +41,12 @@ def collect_results(query_type):
                         prefix = "elapsed time: "
                         posfix = "ms."
                         continue
+                    if line.find("Starting truss path") != -1:
+                        path[graph_name] = []
+                        flag = "path"
+                        prefix = "elapsed time: "
+                        posfix = "ms."
+                        continue
                     if flag == "" or line.find(prefix) == -1:
                         continue
                     remain = line.split(prefix)[1]
@@ -50,6 +58,8 @@ def collect_results(query_type):
                         exact[graph_name].append(remain)
                     elif flag == "tcp":
                         tcp[graph_name].append(remain)
+                    elif flag == "path":
+                        path[graph_name].append(remain)
 
     graph_seq = ["facebook", "wiki", "skitter", "baidu", "livejournal",
             "orkut", "sinaweibo", "hollywood", "bio"]
@@ -72,6 +82,13 @@ def collect_results(query_type):
         if graph_name not in tcp:
             continue
         for item in tcp[graph_name]:
+            out.write("{}, ".format(item))
+        out.write("\n")
+    out.write("\n")
+    for graph_name in graph_seq:
+        if graph_name not in path:
+            continue
+        for item in path[graph_name]:
             out.write("{}, ".format(item))
         out.write("\n")
 
