@@ -284,7 +284,7 @@ void compressor(string graph_filename, string checkpoint_dir) {
     load_index_tree(index_tree, index_hash, 
             graph_filename, checkpoint_dir);
 
-    cout << "\n1. Compressing indices" << endl;
+    cout << "\n2. Compressing indices" << endl;
     compress(mst, triangle_trussness, encode_table, decode_table, 
             index_tree, index_hash, graph_filename, checkpoint_dir);
 }
