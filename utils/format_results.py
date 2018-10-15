@@ -1,9 +1,9 @@
 import os
 import argparse
 
-OUTDIR = 'results'
-# RESULTS_DIR = 'results/results_runtime_only'
-RESULTS_DIR = 'results/results_maximin_path'
+OUTDIR = 'results/reformed'
+RESULTS_DIR = 'results/results_runtime_only'
+# RESULTS_DIR = 'results/results_maximin_path'
 PREFIX_LEN = 4
 
 def collect_results(query_type):
@@ -61,7 +61,7 @@ def collect_results(query_type):
                     elif flag == "path":
                         path[graph_name].append(remain)
 
-    graph_seq = ["facebook", "wiki", "skitter", "baidu", "livejournal",
+    graph_seq = ["facebook", "wiki", "skitter", "baidu", "Livejournal",
             "orkut", "sinaweibo", "hollywood", "bio"]
 
     for graph_name in graph_seq:
