@@ -156,10 +156,24 @@ void save_index_tree(iidinode_map &index_tree,
     for (iidinode_map::const_iterator iter = index_tree.begin();
             iter != index_tree.end();
             ++ iter) {
-        itout << iter->first << " " 
+        itout << "# " << iter->first << " " 
             << iter->second.parent << " " 
             << iter->second.size << " " 
-            << iter->second.k << endl;
+            << iter->second.k << endl; 
+        itout << "* ";
+        for (auto item: iter->second.children) {
+            itout << item << " ";
+        }
+        itout << endl;
+        for (auto aliter = iter->second.adj_list.begin();
+                aliter != iter->second.adj_list.end();
+                ++ aliter) {
+            itout << aliter->first << " ";
+            for (auto nbr: aliter->second) {
+                itout << nbr << " ";
+            }
+            itout << endl;
+        }
     }
     itout.close();
     string ih_filename = generate_filename(
@@ -181,17 +195,38 @@ void load_index_tree(iidinode_map &index_tree,
     string it_filename = generate_filename(
             checkpoint_dir, graph_filename, "_index_tree");
     ifstream itin(it_filename.c_str());
+    inode_id_type cur = -1;
     while(itin.good()) {
         string line;
         getline(itin, line);
         if (line.empty())
             continue;
         stringstream ss(line);
-        inode_id_type u = 0, v = 0;
-        size_t size = 0;
-        int k = 0;
-        ss >> u >> v >> size >> k;
-        index_tree.insert(make_pair(u, inode(v, size, k)));
+        if (line[0] == '#') {
+            string start_signal = "";
+            inode_id_type u = 0, v = 0;
+            size_t size = 0;
+            int k = 0;
+            ss >> start_signal >> u >> v >> size >> k;
+            index_tree.insert(make_pair(u, inode(v, size, k)));
+            cur = u;
+        }
+        else if (line[0] == '*') {
+            inode_id_type c = 0;
+            string start_signal = "";
+            ss >> start_signal;
+            while (ss >> c) {
+                index_tree[cur].children.push_back(c);
+            }
+        }
+        else {
+            vid_type u = 0, v = 0;
+            ss >> u;
+            index_tree[cur].adj_list[u] = vector<vid_type>();
+            while (ss >> v) {
+                index_tree[cur].adj_list[u].push_back(v);
+            }
+        }
     }
     itin.close();
     string ih_filename = generate_filename(

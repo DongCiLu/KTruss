@@ -14,12 +14,6 @@ void update_inode_size(const inode_id_type root_iid, iidinode_map &index_tree) {
 void update_inode_parent(inode_id_type lower_iid, 
         const inode_id_type iid, iidinode_map &index_tree) {
     if (lower_iid != -1) {
-        /*
-        cout << "update " << lower_iid
-            << "'s parent from " 
-            << index_tree[lower_iid].parent
-            << " to " << iid << endl;
-            */
         index_tree[lower_iid].parent = iid;
     }
 }
@@ -32,7 +26,7 @@ void add_new_inode(inode_id_type id,
         eiid_map &index_hash, 
         const bool virtual_inode = false) {
     // add a special case here, if trussness of the edge is 2, 
-    // we dont create inode for it, we just point it to the hyper inode.
+    // we dont create inode for it
     if (k == 2 && id != -1) {
         index_hash.insert(make_pair(edge_extractor(id), -1));
         return;
@@ -45,12 +39,6 @@ void add_new_inode(inode_id_type id,
         index_hash.insert(make_pair(edge_extractor(id), id));
         update_inode_size(parent, index_tree);
     }
-    /*
-    cout << "created a new inode with id " << id 
-        << " and parent " << parent
-        << " and weight " << k << endl;
-    cout << "index tree size: " << index_tree.size() << endl;
-    */
 }
 
 // TODO: return some value
@@ -102,7 +90,8 @@ void construct_index_tree(const PUNGraph &mst,
             int v_k = -1;
             inode_id_type lower_iid = -1;
             size_t lower_size = 0;
-            // if there is no parent of u, create an inode for u, with u as inode id 
+            // if there is no parent of u, create an inode for u, 
+            // with u as inode id 
             if (parents.find(u) ==  parents.end()) {
                 add_new_inode(u, -1, 1, node_k, index_tree, index_hash);
                 processed = true;
@@ -117,14 +106,17 @@ void construct_index_tree(const PUNGraph &mst,
                 v_k = index_tree[v_iid].k;
             }
             while (!processed) {
-                if (v_k > edge_k) { // first go up the existing tree to find insert point
-                    // not a valid insert point, moving to parent node on index tree
+                // first go up the existing tree to find insert point
+                if (v_k > edge_k) { 
+                    // not a valid insert point, 
+                    // moving to parent node on index tree
                     lower_iid = v_iid;
                     lower_size = index_tree[lower_iid].size;
                     v_iid = index_tree[v_iid].parent;
                     v_k = index_tree[v_iid].k;
                 } 
-                // insert depends on the trussness of itself, the insert point and the edge
+                // insert depends on the trussness of itself, 
+                // the insert point and the edge
                 else if (v_k < edge_k) {
                     if (edge_k == node_k) {
                         // create inode based on u
@@ -136,14 +128,16 @@ void construct_index_tree(const PUNGraph &mst,
                         processed = true;
                     }
                     else if (edge_k < node_k) {
-                        // create inode based on e as u does not belong to this inode
+                        // create inode based on e as 
+                        // u does not belong to this inode
                         inode_id_type e_iid = -u + reserve_interval;
                         add_new_inode(e_iid, v_iid, lower_size, 
                                 edge_k, index_tree, index_hash, true);
                         // link lower id with this edge cluster
                         update_inode_parent(lower_iid, e_iid, index_tree);
                         // create inode based on u
-                        add_new_inode(u, e_iid, 1, node_k, index_tree, index_hash);
+                        add_new_inode(u, e_iid, 1, node_k, 
+                                index_tree, index_hash);
                         // mark as processed
                         processed = true;
                     }
@@ -163,7 +157,8 @@ void construct_index_tree(const PUNGraph &mst,
                     }
                     else if (edge_k < node_k) { 
                         // create inode based on u
-                        add_new_inode(u, v_iid, 1, node_k, index_tree, index_hash);
+                        add_new_inode(u, v_iid, 1, node_k, 
+                                index_tree, index_hash);
                         // mark as processed
                         processed = true;
                     }
@@ -173,8 +168,31 @@ void construct_index_tree(const PUNGraph &mst,
                     }
                 }
             }
+
+            // add edge (v,u) of mst to the adj list
+            if (v != -1) {
+                inode_id_type u_iid = index_hash[e_u];
+                v_iid = index_hash[edge_extractor(v)];
+                if (index_tree[u_iid].adj_list.find(u) == 
+                        index_tree[u_iid].adj_list.end())
+                    index_tree[u_iid].adj_list[u] = vector<vid_type>();
+                index_tree[u_iid].adj_list[u].push_back(v);
+                if (index_tree[v_iid].adj_list.find(v) == 
+                        index_tree[v_iid].adj_list.end())
+                    index_tree[v_iid].adj_list[v] = vector<vid_type>();
+                index_tree[v_iid].adj_list[v].push_back(u);
+            }
         }
     }
+
+    // add children to each node
+    for (auto iter = index_tree.begin();
+            iter != index_tree.end();
+            ++ iter) {
+        if (iter->second.parent != -1) 
+            index_tree[iter->second.parent].children.push_back(iter->first);
+    }
+
 }
 
 #endif

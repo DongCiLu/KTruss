@@ -35,6 +35,8 @@ struct inode{
     inode_id_type parent;
     size_t size;
     int k;
+    vector<inode_id_type> children;
+    unordered_map<vid_type, vector<vid_type>> adj_list;
     
     inode(inode_id_type parent = -1, size_t size = -1, int k = -1): 
         parent(parent), size(size), k(k) { }
@@ -100,7 +102,10 @@ inline eid_type edge_extractor(vid_type x) {
     return decode_table[x];
 }
 
-// virtual node id starts at -2 as 0 and -1 is reserved
+/*
+ * virtual node id starts at -2 as 0 and -1 is reserved
+ * virtual node is for communities that contains edges from mst but no vertex. 
+ */
 inode_id_type reserve_interval = -2; 
 
 // definitions for tcp index
@@ -131,14 +136,6 @@ struct QR {
         this->k = k;
     }
 };
-
-/*
-struct qr_hash {
-    size_t operator()(const QR& _qr) const {
-        return std::hash<inode_id_type>()(_qr.iid);
-    }
-};
-*/
 
 typedef vector< pair<vid_type, vid_type> > community_type;
 typedef QR qr_type;

@@ -210,7 +210,60 @@ void truss_maxk_query(qr_set_type &res,
     }
 }
 
+inline void populate_community(community_type& truss_community,
+        inode_id_type seed, iidinode_map &index_tree) {
+    for (auto c: index_tree[seed].children)
+        populate_community(truss_community, c, index_tree);
+    for (auto iter = index_tree[seed].adj_list.begin();
+            iter != index_tree[seed].adj_list.end();
+            ++ iter) {
+        truss_community.push_back(vertex_extractor(
+                    edge_extractor(iter->first)));
+    }
+}
+
 double truss_exact_query(exact_qr_set_type &res,
+        qr_set_type &infos,
+        iidinode_map &index_tree,
+        unordered_map<inode_id_type, double> &exact_query_cache,
+        bool cache_flag) {
+    Timer t;
+    double total_time = 0;
+    for (size_t i = 0; i < infos.size(); i ++) {
+        inode_id_type seed = infos[i].iid;
+        size_t exp_size = infos[i].size;
+        int k = infos[i].k;
+        if (cache_flag && exact_query_cache.find(seed) != 
+                exact_query_cache.end()) {
+            total_time += exact_query_cache[seed];
+            total_time += t.update_timer();
+            continue;
+        }
+
+        community_type truss_community;
+        populate_community(truss_community, seed, index_tree);
+
+        if (truss_community.size() != exp_size) {
+            pair<vid_type, vid_type> vpair = 
+                vertex_extractor(edge_extractor(seed));
+            cout << "ERROR: expected community size not meet: " 
+                << exp_size << " " << truss_community.size() 
+                << " of community " << seed << "("
+                << vpair.first << "," << vpair.second
+                << ") with trussness " << k << endl;
+        }
+        res.push_back(truss_community);
+        double time_diff = t.update_timer();
+        if (cache_flag) {
+            exact_query_cache[seed] = time_diff;
+        }
+        total_time += time_diff;
+    }
+    total_time += t.update_timer();
+    return total_time;
+}
+
+double truss_exact_query_alternative(exact_qr_set_type &res,
         qr_set_type &infos,
         PUNGraph mst,
         eint_map &triangle_trussness,

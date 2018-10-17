@@ -12,7 +12,7 @@
 #include "archiver.hpp"
 #include "tcp_index.hpp"
 
-// #define VERIFY_RESULT
+#define VERIFY_RESULT
 
 void print_support_index_info(eint_map &edge_support, 
                               slow_sorted_type &sorted_edge_support) {
@@ -87,6 +87,33 @@ void check_index_tree(const iidinode_map &index_tree,
         << " nodes with " << inode_ignore_cnt 
         << " ignored nodes." << endl;
     cout << "Index hash table size is " << index_hash.size() << endl;
+}
+
+void update_indices(string graph_filename, string checkpoint_dir) {
+    eint_map edge_trussness;
+    counting_sorted_type sorted_edge_trussness; // not loaded
+    PUNGraph mst;
+    eint_map triangle_trussness;
+    iidinode_map index_tree;
+    eiid_map index_hash;
+
+    Timer t;
+    create_checkpoint_dir(checkpoint_dir);
+
+    cout << "\n1. Loading index" << endl;
+    load_edge_trussness(edge_trussness, sorted_edge_trussness,
+        graph_filename, checkpoint_dir, false);
+    load_mst(mst, triangle_trussness, encode_table, decode_table, 
+            graph_filename, checkpoint_dir);
+    t.update_timer();
+
+    cout << "\n5. Construct heirachical index" << endl;
+    construct_index_tree(mst, edge_trussness, triangle_trussness, 
+            index_tree, index_hash);
+    check_index_tree(index_tree, index_hash);
+    t.print_n_update_timer();
+    save_index_tree(index_tree, index_hash, 
+            graph_filename, checkpoint_dir);
 }
 
 void generate_indices(string graph_filename, string checkpoint_dir) {
@@ -182,6 +209,8 @@ void verify_raw_info(vector<vector<vid_type>> &testcases,
             for (vid_type v: testcases[i])
                 cout << v << " ";
             cout << endl;
+            cout << "***2 " << truss_community_infos[i].size() 
+                << " " << truss_communities[i].size() << endl;
         }
         for (qr_set_type::iterator 
                 iter =  truss_community_infos[i].begin();
@@ -326,6 +355,7 @@ void do_queries(string graph_filename,
     tcp_index_table_type tcp_index;
     load_edge_trussness(edge_trussness, sorted_edge_trussness,
         graph_filename, checkpoint_dir, false);
+    // load mst for path finding purpose at the moment
     load_mst(mst, triangle_trussness, encode_table, decode_table, 
             graph_filename, checkpoint_dir);
     load_index_tree(index_tree, index_hash, 
@@ -367,7 +397,8 @@ void do_queries(string graph_filename,
             if (i % bucket_size == bucket_size - 1)
                 t.print_n_update_timer();
             qr_set_type truss_community_info;
-            truss_k_query(truss_community_info, testcases[i], query_k,
+            truss_k_query(truss_community_info, 
+                    testcases[i], query_k,
                     net, index_tree, index_hash);
             truss_community_infos.push_back(truss_community_info);
         }
@@ -383,9 +414,14 @@ void do_queries(string graph_filename,
                 total_time = 0;
             }
             exact_qr_set_type truss_community;
-            total_time += truss_exact_query(truss_community, 
+            /*
+            total_time += truss_exact_query_alternative(truss_community, 
                     truss_community_infos[i], 
                     mst, triangle_trussness,
+                    exact_query_cache, cache_flag);
+            */
+            total_time += truss_exact_query(truss_community, 
+                    truss_community_infos[i], index_tree,
                     exact_query_cache, cache_flag);
 #ifdef VERIFY_RESULT
             truss_communities2.push_back(truss_community);
@@ -443,9 +479,14 @@ void do_queries(string graph_filename,
                 total_time = 0;
             }
             exact_qr_set_type truss_community;
-            total_time += truss_exact_query(truss_community, 
+            /*
+            total_time += truss_exact_query_alternative(truss_community, 
                     truss_community_infos[i], 
                     mst, triangle_trussness,
+                    exact_query_cache, cache_flag);
+            */
+            total_time += truss_exact_query(truss_community, 
+                    truss_community_infos[i], index_tree,
                     exact_query_cache, cache_flag);
         }
         t.update_timer();
@@ -475,9 +516,14 @@ void do_queries(string graph_filename,
                 total_time = 0;
             }
             exact_qr_set_type truss_community;
-            total_time += truss_exact_query(truss_community, 
+            /*
+            total_time += truss_exact_query_alternative(truss_community, 
                     truss_community_infos[i], 
                     mst, triangle_trussness,
+                    exact_query_cache, cache_flag);
+            */
+            total_time += truss_exact_query(truss_community, 
+                    truss_community_infos[i], index_tree,
                     exact_query_cache, cache_flag);
         }
         t.update_timer();
@@ -529,7 +575,7 @@ void generate_testcases(string graph_filename,
 
 void print_usage() {
     cout << "USAGE: ./main mode graph_filepath "
-         << "[num_testcases query_k n_queries]" << endl;
+         << "[num_query_vertices query_k n_queries]" << endl;
     cout << "Possible mode: index, testcase, query" << endl;
     return;
 }
@@ -572,6 +618,10 @@ int main(int argc, char** argv){
     else if (mode == "compress") {
         /* calculate minimum space required to store the index */
         compressor(graph_filename, checkpoint_dir);
+    }
+    else if (mode == "update") {
+        /* calculate minimum space required to store the index */
+        update_indices(graph_filename, checkpoint_dir);
     }
     else {
         print_usage();
