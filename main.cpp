@@ -380,6 +380,7 @@ void do_queries(string graph_filename,
         }
         t.update_timer();
 
+        /*
         if (!testcases.empty() && testcases[0].size() == 1) {
             // single query vertex case
             cout << "3.4 Starting tcp query" << endl;
@@ -404,6 +405,7 @@ void do_queries(string graph_filename,
                     truss_communities2);
 #endif
         }
+        */
     }
     else if (query_k == 0) {
         cout << "Any-K-truss query" << endl;
