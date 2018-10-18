@@ -66,10 +66,28 @@ void load_edge_trussness(eint_map &edge_trussness,
     in.close();
 }
 
-void save_coding_table(unordered_map<eid_type, vid_type> &encode_table,
+void save_mst(PUNGraph &mst, 
+        eint_map &triangle_trussness,
+        unordered_map<eid_type, vid_type> &encode_table,
         unordered_map<vid_type, eid_type> &decode_table,
         string graph_filename,
         string checkpoint_dir) {
+    string mst_graph_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_mst_graph");
+    TFOut gout(mst_graph_filename.c_str());
+    mst->Save(gout);
+
+    string mst_weight_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_mst_weight");
+    ofstream wout(mst_weight_filename.c_str());
+    for (eint_map::const_iterator iter = triangle_trussness.begin();
+            iter != triangle_trussness.end();
+            ++ iter) {
+        wout << iter->first<< " " 
+            << iter->second << endl;
+    }
+    wout.close();
+
     string mst_encode_filename = generate_filename(
             checkpoint_dir, graph_filename, "_mst_hash");
     ofstream eout(mst_encode_filename.c_str());
@@ -83,10 +101,35 @@ void save_coding_table(unordered_map<eid_type, vid_type> &encode_table,
     eout.close();
 }
 
-void load_coding_table(unordered_map<eid_type, vid_type> &encode_table,
+void load_mst(PUNGraph &mst, 
+        eint_map &triangle_trussness,
+        unordered_map<eid_type, vid_type> &encode_table,
         unordered_map<vid_type, eid_type> &decode_table,
         string graph_filename,
         string checkpoint_dir) {
+    /*
+    string mst_graph_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_mst_graph");
+    TFIn gin(mst_graph_filename.c_str());
+    mst = TUNGraph::Load(gin);
+
+    string mst_weight_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_mst_weight");
+    ifstream win(mst_weight_filename.c_str());
+    while(win.good()) {
+        string line;
+        getline(win, line);
+        if (line.empty())
+            continue;
+        stringstream ss(line);
+        eid_type e = 0;
+        int k = 0;
+        ss >> e >> k;
+        triangle_trussness.insert(make_pair(e, k));
+    }
+    win.close();
+    */
+
     string mst_encode_filename = generate_filename(
             checkpoint_dir, graph_filename, "_mst_hash");
     ifstream ein(mst_encode_filename.c_str());
@@ -260,6 +303,71 @@ void load_tcp_index(tcp_index_table_type &tcp_index,
         tcp_index[u] = tcpi;
     }
     tin.close();
+}
+
+void compress(PUNGraph mst,
+              eint_map &triangle_trussness,
+              unordered_map<eid_type, vid_type> &encode_table,
+              unordered_map<vid_type, eid_type> &decode_table,
+              iidinode_map &index_tree,
+              eiid_map &index_hash,
+              string graph_filename,
+              string checkpoint_dir) {
+    if (triangle_trussness.size() != mst->GetEdges()) {
+        cout << "ERROR, not equal edge size: " << 
+            triangle_trussness.size() << " " << mst->GetEdges() << endl;
+        return;
+    }
+    if (index_hash.size() != mst->GetNodes()) {
+        cout << "ERROR, not equal vertex size: " <<
+            index_hash.size() << " " << mst->GetNodes() << endl;
+        return;
+    }
+
+    string compressed_index1_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_compressed1");
+    string compressed_index2_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_compressed2");
+    ofstream cpout1(compressed_index1_filename.c_str());
+    ofstream cpout2(compressed_index2_filename.c_str());
+    for (auto item: triangle_trussness) {
+        pair<vid_type, vid_type> vpair = vertex_extractor(item.first);
+        cpout1 << vpair.first << "," << vpair.second << "," 
+            << item.second << ",";
+        if (index_hash.find(edge_extractor(vpair.first)) != index_hash.end()) {
+            if (index_hash[edge_extractor(vpair.first)] != -1) 
+                cpout2 << index_hash[edge_extractor(vpair.first)] << ",";
+            index_hash.erase(edge_extractor(vpair.first));
+        }
+        else cpout2 << ",";
+        if (index_hash.find(edge_extractor(vpair.second)) != index_hash.end()) {
+            if (index_hash[edge_extractor(vpair.second)] != -1)
+                cpout2 << index_hash[edge_extractor(vpair.second)];
+            index_hash.erase(edge_extractor(vpair.second));
+        }
+        cpout1 << endl;
+        cpout2 << endl;
+    }
+
+    if (index_hash.size() != 0) {
+        for (auto item: index_hash)
+            if (item.second != -1)
+                cout << "ERROR, non-trivial entry: " 
+                    << item.first << " " << item.second << endl;
+    }
+
+    cpout2 << "----" << endl;
+    for (auto iter = index_tree.begin();
+            iter != index_tree.end();
+            ++ iter) {
+        cpout2 << iter->first << "," 
+            << iter->second.parent << "," 
+            << iter->second.size << "," 
+            << iter->second.k << endl;
+    }
+
+    cpout1.close();
+    cpout2.close();
 }
 
 #endif

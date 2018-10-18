@@ -23,6 +23,7 @@ void print_support_index_info(eint_map &edge_support,
 }
 
 void print_index_info(eint_map &edge_trussness,
+                      eint_map &triangle_trussness,
                       unordered_map<eid_type, vid_type> &encode_table,
                       unordered_map<vid_type, eid_type> &decode_table,
                       iidinode_map &index_tree,
@@ -32,6 +33,8 @@ void print_index_info(eint_map &edge_trussness,
     cout << "Index information: " << endl;
     cout << "\tedge trussness size: " 
          << edge_trussness.size() << endl;
+    cout << "\ttriangle trussness size: " 
+         << triangle_trussness.size() << endl;
     cout << "\tencode table size: " 
          << encode_table.size() << endl;
     cout << "\tdecode table size: " 
@@ -84,6 +87,33 @@ void check_index_tree(const iidinode_map &index_tree,
         << " nodes with " << inode_ignore_cnt 
         << " ignored nodes." << endl;
     cout << "Index hash table size is " << index_hash.size() << endl;
+}
+
+void update_indices(string graph_filename, string checkpoint_dir) {
+    eint_map edge_trussness;
+    counting_sorted_type sorted_edge_trussness; // not loaded
+    PUNGraph mst;
+    eint_map triangle_trussness;
+    iidinode_map index_tree;
+    eiid_map index_hash;
+
+    Timer t;
+    create_checkpoint_dir(checkpoint_dir);
+
+    cout << "\n1. Loading index" << endl;
+    load_edge_trussness(edge_trussness, sorted_edge_trussness,
+        graph_filename, checkpoint_dir, false);
+    load_mst(mst, triangle_trussness, encode_table, decode_table, 
+            graph_filename, checkpoint_dir);
+    t.update_timer();
+
+    cout << "\n5. Construct heirachical index" << endl;
+    construct_index_tree(mst, edge_trussness, triangle_trussness, 
+            index_tree, index_hash);
+    check_index_tree(index_tree, index_hash);
+    t.print_n_update_timer();
+    save_index_tree(index_tree, index_hash, 
+            graph_filename, checkpoint_dir);
 }
 
 void generate_indices(string graph_filename, string checkpoint_dir) {
@@ -141,7 +171,8 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
             mst, triangle_trussness);
     check_mst(mst, net, num_cc);
     t.print_n_update_timer();
-    save_coding_table(encode_table, decode_table,
+    save_mst(mst, triangle_trussness, 
+            encode_table, decode_table,
             graph_filename, checkpoint_dir);
     t.update_timer();
 
@@ -160,7 +191,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     save_tcp_index(tcp_index, graph_filename, checkpoint_dir);
     t.update_timer();
 
-    print_index_info(edge_trussness, 
+    print_index_info(edge_trussness, triangle_trussness,
                      encode_table, decode_table,
                      index_tree, index_hash,
                      tcp_index, max_net_k); 
@@ -271,6 +302,22 @@ void verify_raw_exact(vector<vector<vid_type>> &testcases,
         cout << "Success!" << endl;
 }
 
+void compressor(string graph_filename, string checkpoint_dir) {
+    cout << "\n1. Loading indices" << endl;
+    PUNGraph mst;
+    eint_map triangle_trussness;
+    iidinode_map index_tree;
+    eiid_map index_hash;
+    load_mst(mst, triangle_trussness, encode_table, decode_table, 
+            graph_filename, checkpoint_dir);
+    load_index_tree(index_tree, index_hash, 
+            graph_filename, checkpoint_dir);
+
+    cout << "\n2. Compressing indices" << endl;
+    compress(mst, triangle_trussness, encode_table, decode_table, 
+            index_tree, index_hash, graph_filename, checkpoint_dir);
+}
+
 void do_queries(string graph_filename, 
         string checkpoint_dir, 
         string testcase_filename, 
@@ -301,18 +348,20 @@ void do_queries(string graph_filename,
     cout << "\n2. Loading indices" << endl;
     eint_map edge_trussness;
     counting_sorted_type sorted_edge_trussness; // not loaded
+    PUNGraph mst;
+    eint_map triangle_trussness;
     iidinode_map index_tree;
     eiid_map index_hash;
     tcp_index_table_type tcp_index;
     load_edge_trussness(edge_trussness, sorted_edge_trussness,
         graph_filename, checkpoint_dir, false);
     // load mst for path finding purpose at the moment
-    load_coding_table(encode_table, decode_table, 
+    load_mst(mst, triangle_trussness, encode_table, decode_table, 
             graph_filename, checkpoint_dir);
     load_index_tree(index_tree, index_hash, 
             graph_filename, checkpoint_dir);
     load_tcp_index(tcp_index, graph_filename, checkpoint_dir);
-    print_index_info(edge_trussness, 
+    print_index_info(edge_trussness, triangle_trussness,
                      encode_table, decode_table,
                      index_tree, index_hash,
                      tcp_index); 
@@ -380,6 +429,7 @@ void do_queries(string graph_filename,
         }
         t.update_timer();
 
+        /*
         if (!testcases.empty() && testcases[0].size() == 1) {
             // single query vertex case
             cout << "3.4 Starting tcp query" << endl;
@@ -404,6 +454,7 @@ void do_queries(string graph_filename,
                     truss_communities2);
 #endif
         }
+        */
     }
     else if (query_k == 0) {
         cout << "Any-K-truss query" << endl;
@@ -571,6 +622,14 @@ int main(int argc, char** argv){
         size_t n_queries = atoi(argv[5]); 
         do_queries(graph_filename, checkpoint_dir, 
                 testcase_filename, query_k, n_queries);
+    }
+    else if (mode == "compress") {
+        /* calculate minimum space required to store the index */
+        compressor(graph_filename, checkpoint_dir);
+    }
+    else if (mode == "update") {
+        /* calculate minimum space required to store the index */
+        update_indices(graph_filename, checkpoint_dir);
     }
     else {
         print_usage();

@@ -263,6 +263,67 @@ double truss_exact_query(exact_qr_set_type &res,
     return total_time;
 }
 
+double truss_exact_query_alternative(exact_qr_set_type &res,
+        qr_set_type &infos,
+        PUNGraph mst,
+        eint_map &triangle_trussness,
+        unordered_map<inode_id_type, double> &exact_query_cache,
+        bool cache_flag) {
+    double total_time = 0;
+    Timer t;
+    for (size_t i = 0; i < infos.size(); i ++) {
+        inode_id_type seed = infos[i].iid;
+        size_t exp_size = infos[i].size;
+        int k = infos[i].k;
+        if (cache_flag && exact_query_cache.find(seed) != 
+                exact_query_cache.end()) {
+            total_time += exact_query_cache[seed];
+            total_time += t.update_timer();
+            continue;
+        }
+        community_type truss_community;
+        unordered_set<vid_type> visited_vertices;
+        queue<vid_type> fifo;
+        fifo.push(seed);
+        visited_vertices.insert(seed);
+        while (!fifo.empty()) {
+            vid_type u = fifo.front();
+            pair<vid_type, vid_type> vpair = 
+                vertex_extractor(edge_extractor(u));
+            fifo.pop();
+            truss_community.push_back(vpair);
+            for (int j = 0; j < mst->GetNI(u).GetDeg(); j++) {
+                vid_type v = mst->GetNI(u).GetNbrNId(j);
+                if (visited_vertices.find(v) == 
+                        visited_vertices.end()) {
+                    eid_type e = edge_composer(u, v);
+                    if (triangle_trussness[e] >= k) {
+                        fifo.push(v);
+                        visited_vertices.insert(v);
+                    }
+                }
+            }
+        }
+        if (truss_community.size() != exp_size) {
+            pair<vid_type, vid_type> vpair = 
+                vertex_extractor(edge_extractor(seed));
+            cout << "ERROR: expected community size not meet: " 
+                << exp_size << " " << truss_community.size() 
+                << " of community " << seed << "("
+                << vpair.first << "," << vpair.second
+                << ") with trussness " << k << endl;
+        }
+        res.push_back(truss_community);
+        double time_diff = t.update_timer();
+        if (cache_flag) {
+            exact_query_cache[seed] = time_diff;
+        }
+        total_time += time_diff;
+    }
+    total_time += t.update_timer();
+    return total_time;
+}
+
 void truss_path_query(vector<vid_type> &res,
         qr_set_type &infos,
         iidinode_map &index_tree,
@@ -314,6 +375,77 @@ void truss_path_query(vector<vid_type> &res,
                 }
             }
         }
+    }
+    
+    // combine both path at lca, root must be the same 
+    // as long as they belong to the same truss community
+    int lca_index = 0;
+    while (src_seed_path[lca_index] == dst_seed_path[lca_index])
+        lca_index ++;
+    lca_index --;
+    for (int i = src_seed_path.size() - 1; i >= lca_index; i--)
+        res.push_back(src_seed_path[i]);
+    for (int i = lca_index + 1; i < dst_seed_path.size(); i++)
+        res.push_back(dst_seed_path[i]);
+}
+
+void truss_path_query_alternative(vector<vid_type> &res,
+        qr_set_type &infos,
+        PUNGraph mst,
+        eint_map &triangle_trussness,
+        vid_type src, vid_type dst) {
+    /*
+     * We do not amid at finding the shotest maximin path,
+     * So we only find path between src and dst on MST
+     * in the first k-truss community if exists.
+     */
+    if (infos.empty()) return;
+    vector<vid_type> src_seed_path, dst_seed_path;
+    inode_id_type seed = infos[0].iid;
+    size_t exp_size = infos[0].size;
+    int k = infos[0].k;
+    size_t real_size = 0;
+    unordered_map<vid_type, vid_type> parent;
+    queue<vid_type> fifo;
+    fifo.push(seed);
+    parent.insert(make_pair(seed, -1));
+    while (!fifo.empty() && 
+            (src_seed_path.empty() || dst_seed_path.empty())) {
+        vid_type u = fifo.front();
+        fifo.pop();
+        real_size ++;
+        
+        if (src_seed_path.empty() && 
+                is_vertex_in_mst_vertex(u, src)) {
+            vid_type p = u;
+            while(p != -1) {
+                src_seed_path.push_back(p);
+                p = parent[p];
+            }
+        }
+        if (dst_seed_path.empty() && 
+                is_vertex_in_mst_vertex(u, dst)) {
+            vid_type p = u;
+            while(p != -1) {
+                dst_seed_path.push_back(p);
+                p = parent[p];
+            }
+        }
+
+        for (int j = 0; j < mst->GetNI(u).GetDeg(); j++) {
+            vid_type v = mst->GetNI(u).GetNbrNId(j);
+            if (parent.find(v) == parent.end()) {
+                eid_type e = edge_composer(u, v);
+                if (triangle_trussness[e] >= k) {
+                    fifo.push(v);
+                    parent.insert(make_pair(v, u));
+                }
+            }
+        }
+    }
+    if (real_size > exp_size) {
+        cout << "ERROR: real size and exp size not match: "
+            << real_size << " " << exp_size << endl;
     }
     
     // combine both path at lca, root must be the same 
