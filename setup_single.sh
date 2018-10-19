@@ -23,9 +23,9 @@ ln -s ~/KTruss/induced_graph.hpp ~/Snap/examples/ktruss/induced_graph.hpp
 ln -s ~/KTruss/main.cpp ~/Snap/examples/ktruss/main.cpp
 ln -s ~/KTruss/query.hpp ~/Snap/examples/ktruss/query.hpp
 ln -s ~/KTruss/tcp_index.hpp ~/Snap/examples/ktruss/tcp_index.hpp
+ln -s ~/KTruss/equi_index.hpp ~/Snap/examples/ktruss/equi_index.hpp
 ln -s ~/KTruss/testcase.hpp ~/Snap/examples/ktruss/testcase.hpp
 ln -s ~/KTruss/tree_index.hpp ~/Snap/examples/ktruss/tree_index.hpp
-ln -s ~/KTruss/update.hpp ~/Snap/examples/ktruss/update.hpp
 ln -s ~/KTruss/archiver.hpp ~/Snap/examples/ktruss/archiver.hpp
 ln -s ~/KTruss/unittest.cpp ~/Snap/examples/ktruss/unittest.cpp
 ln -s ~/KTruss/Makefile ~/Snap/examples/ktruss/Makefile
