@@ -262,4 +262,120 @@ void load_tcp_index(tcp_index_table_type &tcp_index,
     tin.close();
 }
 
+void save_equi_index(equi_hash_type &equi_hash,
+        equi_index_type &equi_index, 
+        string graph_filename,
+        string checkpoint_dir) {
+    string equi_graph_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_equi_graph");
+    TFOut gout(equi_graph_filename.c_str());
+    equi_index.super_graph->Save(gout);
+    string equi_hash_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_equi_hash");
+    ofstream ehout(equi_hash_filename.c_str());
+    for (auto iter = equi_hash.begin();
+            iter != equi_hash.end();
+            ++ iter) {
+        ehout << iter->first << " ";
+        for (auto snID: iter->second) 
+            ehout << snID << " ";
+        ehout << endl;
+    }
+    ehout.close();
+    string equi_bags_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_equi_bags");
+    ofstream eout(equi_bags_filename.c_str());
+    for (auto iter = equi_index.super_nodes.begin();
+            iter != equi_index.super_nodes.end();
+            ++ iter) {
+        eout << iter->first << " " << iter->second.k << " ";
+        for (auto e: iter->second.edge_list) {
+            pair<vid_type, vid_type> vpair = vertex_extractor(e);
+            eout << vpair.first << " " << vpair.second << " ";
+        }
+        eout << endl;
+    }
+    eout.close();
+}
+
+void load_equi_index(equi_hash_type &equi_hash,
+        equi_index_type &equi_index, 
+        string graph_filename,
+        string checkpoint_dir) {
+    string equi_graph_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_equi_graph");
+    TFIn gin(equi_graph_filename.c_str());
+    equi_index.super_graph = TUNGraph::Load(gin);
+    string equi_hash_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_equi_hash");
+    ifstream ehin(equi_hash_filename.c_str());
+    while(ehin.good()) {
+        string line;
+        getline(ehin, line);
+        if (line.empty())
+            continue;
+        stringstream ss(line);
+        vid_type v, snID;
+        ss >> v;
+        equi_hash[v] = unordered_set<vid_type>();
+        while(ss >> snID) {
+            equi_hash[v].insert(snID);
+        }
+    }
+    ehin.close();
+    string equi_bags_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_equi_bags");
+    ifstream ein(equi_bags_filename.c_str());
+    while(ein.good()) {
+        string line;
+        getline(ein, line);
+        if (line.empty())
+            continue;
+        stringstream ss(line);
+        vid_type snID;
+        int k;
+        ss >> snID >> k;
+        equi_index.super_nodes[snID] = EquiIndexNode(snID, k);
+        vid_type u, v;
+        while (ss >> u >> v){
+            eid_type e = edge_composer(u, v);
+            equi_index.super_nodes[snID].edge_list.push_back(e);
+        }
+    }
+    ein.close();
+}
+
+void compress(iidinode_map &index_tree,
+              eiid_map &index_hash,
+              string graph_filename,
+              string checkpoint_dir) {
+    string compressed_index_filename = generate_filename(
+            checkpoint_dir, graph_filename, "_compressed");
+    ofstream cpout(compressed_index_filename.c_str());
+    for (auto item: index_hash) {
+        if (item.second == -1)
+            continue;
+        pair<vid_type, vid_type> vpair = vertex_extractor(item.first);
+        cpout << vpair.first << " " << vpair.second << " " 
+            << item.second << endl;
+    }
+
+    cpout << "----" << endl;
+
+    for (auto iter = index_tree.begin();
+            iter != index_tree.end();
+            ++ iter) {
+        cpout << iter->first << " " 
+            << iter->second.parent << " " 
+            << iter->second.size << " " 
+            << iter->second.k << " "; 
+        for (auto c: iter->second.children) {
+            cpout << c << " ";
+        }
+        cpout << endl;
+    }
+
+    cpout.close();
+}
+
 #endif

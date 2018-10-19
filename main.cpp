@@ -11,8 +11,11 @@
 #include "testcase.hpp"
 #include "archiver.hpp"
 #include "tcp_index.hpp"
+#include "equi_index.hpp"
 
-//#define VERIFY_RESULT
+#define VERIFY_RESULT
+//#define TCP
+#define EQUI
 
 void print_support_index_info(eint_map &edge_support, 
                               slow_sorted_type &sorted_edge_support) {
@@ -28,8 +31,10 @@ void print_index_info(eint_map &edge_trussness,
                       iidinode_map &index_tree,
                       eiid_map &index_hash,
                       tcp_index_table_type &tcp_index,
+                      equi_hash_type &equi_hash,
+                      equi_index_type &equi_index,
                       int max_net_k = -1) {
-    cout << "Index information: " << endl;
+    cout << "\nIndex information: " << endl;
     cout << "\tedge trussness size: " 
          << edge_trussness.size() << endl;
     cout << "\tencode table size: " 
@@ -53,6 +58,22 @@ void print_index_info(eint_map &edge_trussness,
         tcp_size += iter->second.ego_triangle_trussness.size();
     }
     cout << "\ttcp index size: " << tcp_size << endl;
+    size_t equi_hash_size = 0;
+    for (auto entry: equi_hash) {
+        equi_hash_size += entry.second.size();
+    }
+    cout << "\tequitruss hash size: " << equi_hash.size() 
+        << " " << equi_hash_size << endl;
+    cout << "\tequitruss super graph has "
+        << equi_index.super_graph->GetNodes() << " nodes "
+        << equi_index.super_graph->GetEdges() << " edges." << endl;
+    size_t equi_size = 0;
+    for (auto iter = equi_index.super_nodes.begin();
+            iter != equi_index.super_nodes.end();
+            ++ iter) {
+        equi_size += iter->second.edge_list.size();
+    }
+    cout << "\tequitruss index size: " << equi_size << endl;
 }
 
 void check_mst(const PUNGraph mst, 
@@ -91,6 +112,7 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     eint_map edge_support;
     eint_map edge_trussness;
 
+    // SNAP uses smart-pointers, no need to explicitly free graph objects.
     PUNGraph mst = TUNGraph::New();
     eint_map triangle_trussness;
 
@@ -98,6 +120,8 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     eiid_map index_hash;
 
     tcp_index_table_type tcp_index;
+    equi_hash_type equi_hash;
+    equi_index_type equi_index;
 
     Timer t;
     create_checkpoint_dir(checkpoint_dir);
@@ -160,10 +184,31 @@ void generate_indices(string graph_filename, string checkpoint_dir) {
     save_tcp_index(tcp_index, graph_filename, checkpoint_dir);
     t.update_timer();
 
+    cout << "\n7. Construct equitruss index" << endl;
+    // NOTE: net is destroyed after equi index construction
+    construct_equi_index(net, edge_trussness, equi_hash, equi_index);
+    t.print_n_update_timer();
+    save_equi_index(equi_hash, equi_index, graph_filename, checkpoint_dir);
+    t.update_timer();
+
     print_index_info(edge_trussness, 
                      encode_table, decode_table,
                      index_tree, index_hash,
-                     tcp_index, max_net_k); 
+                     tcp_index, 
+                     equi_hash, equi_index, max_net_k); 
+}
+
+void compressor(string graph_filename, string checkpoint_dir) {
+    cout << "\n1. Loading indices" << endl;
+    iidinode_map index_tree;
+    eiid_map index_hash;
+    load_coding_table(encode_table, decode_table, 
+            graph_filename, checkpoint_dir);
+    load_index_tree(index_tree, index_hash, 
+            graph_filename, checkpoint_dir);
+
+    cout << "\n2. Compressing indices" << endl;
+    compress(index_tree, index_hash, graph_filename, checkpoint_dir);
 }
 
 void verify_raw_info(vector<vector<vid_type>> &testcases,
@@ -304,6 +349,8 @@ void do_queries(string graph_filename,
     iidinode_map index_tree;
     eiid_map index_hash;
     tcp_index_table_type tcp_index;
+    equi_hash_type equi_hash;
+    equi_index_type equi_index;
     load_edge_trussness(edge_trussness, sorted_edge_trussness,
         graph_filename, checkpoint_dir, false);
     // load mst for path finding purpose at the moment
@@ -312,10 +359,12 @@ void do_queries(string graph_filename,
     load_index_tree(index_tree, index_hash, 
             graph_filename, checkpoint_dir);
     load_tcp_index(tcp_index, graph_filename, checkpoint_dir);
+    load_equi_index(equi_hash, equi_index, graph_filename, checkpoint_dir);
     print_index_info(edge_trussness, 
                      encode_table, decode_table,
                      index_tree, index_hash,
-                     tcp_index); 
+                     tcp_index, 
+                     equi_hash, equi_index); 
     t.print_n_update_timer();
 
     cout << "\n3. K-Truss Query Processing" << endl;
@@ -380,8 +429,8 @@ void do_queries(string graph_filename,
         }
         t.update_timer();
 
-        /*
         if (!testcases.empty() && testcases[0].size() == 1) {
+#ifdef TCP
             // single query vertex case
             cout << "3.4 Starting tcp query" << endl;
             for (size_t i = 0; i < testcases.size(); i ++) {
@@ -396,6 +445,24 @@ void do_queries(string graph_filename,
 #endif
             }
             t.update_timer();
+#endif
+
+#ifdef EQUI
+            // single query vertex case
+            cout << "3.4 Starting equi query" << endl;
+            for (size_t i = 0; i < testcases.size(); i ++) {
+                if (i % bucket_size == bucket_size - 1)
+                    t.print_n_update_timer();
+                exact_qr_set_type truss_community;
+                truss_equi_query(truss_community, 
+                        testcases[i][0], query_k,
+                        edge_trussness, equi_hash, equi_index);
+#ifdef VERIFY_RESULT
+                truss_communities3.push_back(truss_community);
+#endif
+            }
+            t.update_timer();
+#endif
 
 #ifdef VERIFY_RESULT
             cout << "3.5 Verifying results..." << endl;
@@ -405,7 +472,6 @@ void do_queries(string graph_filename,
                     truss_communities2);
 #endif
         }
-        */
     }
     else if (query_k == 0) {
         cout << "Any-K-truss query" << endl;
@@ -573,6 +639,13 @@ int main(int argc, char** argv){
         size_t n_queries = atoi(argv[5]); 
         do_queries(graph_filename, checkpoint_dir, 
                 testcase_filename, query_k, n_queries);
+    }
+    else if (mode == "compress") {
+        /* calculate minimum space required to store the index */
+        compressor(graph_filename, checkpoint_dir);
+    }
+    else if (mode == "equi") {
+        generate_equi_index_from_existing_index(graph_filename, checkpoint_dir);
     }
     else {
         print_usage();

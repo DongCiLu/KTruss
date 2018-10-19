@@ -413,4 +413,47 @@ void truss_tcp_query(exact_qr_set_type &truss_communities,
     }
 }
 
+void truss_equi_query(exact_qr_set_type &truss_communities,
+        vid_type query_vid, 
+        int query_k, 
+        eint_map &edge_trussness,
+        equi_hash_type &equi_hash,
+        equi_index_type &equi_index) {
+    unordered_set<vid_type> unvisited_sn;
+    for (auto iter = equi_index.super_nodes.begin();
+            iter != equi_index.super_nodes.end();
+            ++ iter) {
+        unvisited_sn.insert(iter->first);
+    }
+    int l = 0;
+    for (auto snID: equi_hash[query_vid]) {
+        if (equi_index.super_nodes[snID].k >= query_k &&
+                unvisited_sn.find(snID) != unvisited_sn.end()) {
+            unvisited_sn.erase(snID);
+            l ++;
+            community_type truss_community;
+            queue<vid_type> fifo;
+            fifo.push(snID);
+            while(!fifo.empty()) {
+                vid_type cur_snID = fifo.front();
+                fifo.pop();
+                for (auto e: equi_index.super_nodes[cur_snID].edge_list) {
+                    truss_community.push_back(vertex_extractor(e));
+                }
+                int deg = equi_index.super_graph->GetNI(cur_snID).GetDeg();
+                for (int i = 0; i < deg; i++) {
+                    vid_type nbr_snID = 
+                        equi_index.super_graph->GetNI(cur_snID).GetNbrNId(i);
+                    if (equi_index.super_nodes[nbr_snID].k >= query_k &&
+                            unvisited_sn.find(nbr_snID) != unvisited_sn.end()) {
+                        unvisited_sn.erase(nbr_snID);
+                        fifo.push(nbr_snID);
+                    }
+                }
+            }
+            truss_communities.push_back(truss_community);
+        }
+    }
+}
+
 #endif

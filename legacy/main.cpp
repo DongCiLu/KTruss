@@ -628,7 +628,6 @@ int main(int argc, char** argv){
         compressor(graph_filename, checkpoint_dir);
     }
     else if (mode == "update") {
-        /* calculate minimum space required to store the index */
         update_indices(graph_filename, checkpoint_dir);
     }
     else {

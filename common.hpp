@@ -118,6 +118,28 @@ struct TCPIndex {
 typedef TCPIndex tcp_index_type;
 typedef unordered_map<vid_type, tcp_index_type> tcp_index_table_type;
 
+// definitions for equitruss index
+struct EquiIndexNode {
+    vid_type snID;
+    int k;
+    vector<eid_type> edge_list;
+    
+    EquiIndexNode(vid_type snID = -1, int k = -1): snID(snID), k(k) {} 
+};
+
+struct EquiIndex {
+    PUNGraph super_graph;
+    unordered_map<vid_type, EquiIndexNode> super_nodes;
+
+    EquiIndex() {
+        super_graph = TUNGraph::New();
+    }
+    // SNAP uses smart-pointers, no need to explicitly free graph objects.
+};
+
+typedef EquiIndex equi_index_type;
+typedef unordered_map<vid_type, unordered_set<vid_type>> equi_hash_type;
+
 // definitions for queries
 struct QR {
     inode_id_type iid;
