@@ -358,8 +358,12 @@ void do_queries(string graph_filename,
             graph_filename, checkpoint_dir);
     load_index_tree(index_tree, index_hash, 
             graph_filename, checkpoint_dir);
+#ifdef TCP
     load_tcp_index(tcp_index, graph_filename, checkpoint_dir);
+#endif
+#ifdef EQUI
     load_equi_index(equi_hash, equi_index, graph_filename, checkpoint_dir);
+#endif
     print_index_info(edge_trussness, 
                      encode_table, decode_table,
                      index_tree, index_hash,
