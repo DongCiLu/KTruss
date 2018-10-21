@@ -13,7 +13,7 @@
 #include "tcp_index.hpp"
 #include "equi_index.hpp"
 
-#define VERIFY_RESULT
+//#define VERIFY_RESULT
 //#define TCP
 #define EQUI
 
