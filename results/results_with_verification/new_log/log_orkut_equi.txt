@@ -1,0 +1,12 @@
+
+1. Loading graph and testcases
+	elapsed time: 82284ms.
+
+2. Loading indices
+	elapsed time: 118893ms.
+
+2. Construct equitruss index
+	elapsed time: 2.51449e+07ms.
+
+Done.
+
