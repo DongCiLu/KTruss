@@ -1,8 +1,9 @@
 import os
 import argparse
 
-OUTDIR = 'results/reformed'
-RESULTS_DIR = 'results/results_runtime_only'
+OUTDIR = 'results/reformed/batch2'
+RESULTS_DIR = 'results/results_runtime_new'
+# RESULTS_DIR = 'results/results_runtime_only'
 # RESULTS_DIR = 'results/results_maximin_path'
 PREFIX_LEN = 4
 
