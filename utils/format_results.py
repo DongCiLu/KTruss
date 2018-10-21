@@ -13,6 +13,7 @@ def collect_results(query_type):
     exact = {}
     tcp = {}
     path = {}
+    equi = {}
     for subdir, dirs, files in os.walk(RESULTS_DIR):
         for f in files:
             if f.find(query_type) == -1:
@@ -48,6 +49,12 @@ def collect_results(query_type):
                         prefix = "elapsed time: "
                         posfix = "ms."
                         continue
+                    if line.find("Starting equi") != -1:
+                        equi[graph_name] = []
+                        flag = "equi"
+                        prefix = "elapsed time: "
+                        posfix = "ms."
+                        continue
                     if flag == "" or line.find(prefix) == -1:
                         continue
                     remain = line.split(prefix)[1]
@@ -61,6 +68,8 @@ def collect_results(query_type):
                         tcp[graph_name].append(remain)
                     elif flag == "path":
                         path[graph_name].append(remain)
+                    elif flag == "equi":
+                        equi[graph_name].append(remain)
 
     graph_seq = ["facebook", "wiki", "skitter", "baidu", "Livejournal",
             "orkut", "sinaweibo", "hollywood", "bio"]
@@ -90,6 +99,13 @@ def collect_results(query_type):
         if graph_name not in path:
             continue
         for item in path[graph_name]:
+            out.write("{}, ".format(item))
+        out.write("\n")
+    out.write("\n")
+    for graph_name in graph_seq:
+        if graph_name not in equi:
+            continue
+        for item in equi[graph_name]:
             out.write("{}, ".format(item))
         out.write("\n")
 
