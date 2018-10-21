@@ -1,7 +1,7 @@
 
 1. Loading graph and testcases
 Teset case size: 1000
-	elapsed time: 122186ms.
+	elapsed time: 122495ms.
 
 2. Loading indices
 
@@ -16,35 +16,53 @@ Index information:
 	equitruss hash size: 1069126 14003198
 	equitruss super graph has 1850704 nodes 60223825 edges.
 	equitruss index size: 56285962
-	elapsed time: 365349ms.
+	elapsed time: 362700ms.
 
 3. K-Truss Query Processing
 10-Truss query
 3.2 Starting truss info query
-	elapsed time: 3.934ms.
-	elapsed time: 6.54ms.
-	elapsed time: 8.729ms.
-	elapsed time: 11.829ms.
-	elapsed time: 18.518ms.
-	elapsed time: 28.775ms.
-	elapsed time: 41.064ms.
-	elapsed time: 74.479ms.
-	elapsed time: 155.467ms.
-	elapsed time: 1963.57ms.
+	elapsed time: 3.968ms.
+	elapsed time: 6.554ms.
+	elapsed time: 8.727ms.
+	elapsed time: 11.812ms.
+	elapsed time: 18.528ms.
+	elapsed time: 28.777ms.
+	elapsed time: 41.226ms.
+	elapsed time: 74.771ms.
+	elapsed time: 155.437ms.
+	elapsed time: 1961.48ms.
 3.3 Starting truss exact query
-	elapsed time: 989091ms.
-	elapsed time without cache 976059
-	elapsed time: 1.04041e+06ms.
-	elapsed time without cache 1.02619e+06
-	elapsed time: 985341ms.
-	elapsed time without cache 969430
-	elapsed time: 1.03131e+06ms.
-	elapsed time without cache 1.00881e+06
-	elapsed time: 1.12449e+06ms.
-	elapsed time without cache 1.1008e+06
-	elapsed time: 1.16013e+06ms.
-	elapsed time without cache 1.13645e+06
-	elapsed time: 1.14215e+06ms.
-	elapsed time without cache 1.12227e+06
-	elapsed time: 1.28035e+06ms.
-	elapsed time without cache 1.22139e+06
+	elapsed time: 968619ms.
+	elapsed time without cache 968528
+	elapsed time: 1.0209e+06ms.
+	elapsed time without cache 1.0208e+06
+	elapsed time: 956982ms.
+	elapsed time without cache 956882
+	elapsed time: 920629ms.
+	elapsed time without cache 920530
+	elapsed time: 966027ms.
+	elapsed time without cache 965922
+	elapsed time: 963551ms.
+	elapsed time without cache 963446
+	elapsed time: 942144ms.
+	elapsed time without cache 942041
+	elapsed time: 961087ms.
+	elapsed time without cache 960982
+	elapsed time: 961074ms.
+	elapsed time without cache 960969
+	elapsed time: 961085ms.
+	elapsed time without cache 960980
+3.4 Starting equi query
+	elapsed time: 1.2176e+06ms.
+	elapsed time: 1.32822e+06ms.
+	elapsed time: 1.32678e+06ms.
+	elapsed time: 1.31335e+06ms.
+	elapsed time: 1.38032e+06ms.
+	elapsed time: 1.37971e+06ms.
+	elapsed time: 1.31835e+06ms.
+	elapsed time: 1.29833e+06ms.
+	elapsed time: 1.29681e+06ms.
+	elapsed time: 1.29322e+06ms.
+
+Done.
+
