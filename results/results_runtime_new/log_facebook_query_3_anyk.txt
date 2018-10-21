@@ -1,0 +1,53 @@
+
+1. Loading graph and testcases
+Teset case size: 1000
+	elapsed time: 22.419ms.
+
+2. Loading indices
+Index information: 
+	edge trussness size: 88234
+	encode table size: 88234
+	decode table size: 88234
+	index tree size: 394
+	index hash size: 88234
+	tcp index has 4039 nodes.
+	tcp index size: 172330
+	elapsed time: 429.843ms.
+
+3. K-Truss Query Processing
+Any-K-truss query
+3.2 Starting truss info query
+	elapsed time: 5.136ms.
+	elapsed time: 7.093ms.
+	elapsed time: 10.19ms.
+	elapsed time: 13.809ms.
+	elapsed time: 19.741ms.
+	elapsed time: 28.945ms.
+	elapsed time: 42.794ms.
+	elapsed time: 72.382ms.
+	elapsed time: 145.872ms.
+	elapsed time: 349.693ms.
+3.3 Starting truss exact query
+	elapsed time: 31.663ms.
+	elapsed time without cache 799.178
+	elapsed time: 3.323ms.
+	elapsed time without cache 919.417
+	elapsed time: 6.373ms.
+	elapsed time without cache 1190.31
+	elapsed time: 0.259ms.
+	elapsed time without cache 1356.77
+	elapsed time: 0.259ms.
+	elapsed time without cache 1364.11
+	elapsed time: 1.412ms.
+	elapsed time without cache 1827.2
+	elapsed time: 1.898ms.
+	elapsed time without cache 2231.99
+	elapsed time: 73.512ms.
+	elapsed time without cache 2512.04
+	elapsed time: 35.426ms.
+	elapsed time without cache 3052.05
+	elapsed time: 14.608ms.
+	elapsed time without cache 5297.88
+
+Done.
+
