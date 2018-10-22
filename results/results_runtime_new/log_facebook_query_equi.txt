@@ -1,7 +1,7 @@
 
 1. Loading graph and testcases
 Teset case size: 1000
-	elapsed time: 21.659ms.
+	elapsed time: 21.955ms.
 
 2. Loading indices
 
@@ -9,63 +9,28 @@ Index information:
 	edge trussness size: 88234
 	encode table size: 88234
 	decode table size: 88234
-	index tree size: 394
-	index hash size: 88234
-	tcp index has 4039 nodes.
-	tcp index size: 172330
+	index tree size: 0
+	index hash size: 0
+	tcp index has 0 nodes.
+	tcp index size: 0
 	equitruss hash size: 4039 49080
 	equitruss super graph has 5967 nodes 33391 edges.
 	equitruss index size: 88156
-	elapsed time: 459.436ms.
+	elapsed time: 174.828ms.
 
 3. K-Truss Query Processing
 10-Truss query
-3.2 Starting truss info query
-	elapsed time: 1.936ms.
-	elapsed time: 2.469ms.
-	elapsed time: 3.329ms.
-	elapsed time: 4.661ms.
-	elapsed time: 6.168ms.
-	elapsed time: 9.813ms.
-	elapsed time: 15.125ms.
-	elapsed time: 24.541ms.
-	elapsed time: 52.855ms.
-	elapsed time: 111.772ms.
-3.3 Starting truss exact query
-	elapsed time: 71.292ms.
-	elapsed time without cache 70.495
-	elapsed time: 71.599ms.
-	elapsed time without cache 70.675
-	elapsed time: 61.231ms.
-	elapsed time without cache 60.416
-	elapsed time: 94.217ms.
-	elapsed time without cache 93.047
-	elapsed time: 95.582ms.
-	elapsed time without cache 94.392
-	elapsed time: 104.528ms.
-	elapsed time without cache 103.188
-	elapsed time: 110.155ms.
-	elapsed time without cache 108.743
-	elapsed time: 116.921ms.
-	elapsed time without cache 115.439
-	elapsed time: 148.145ms.
-	elapsed time without cache 146.257
-	elapsed time: 157.424ms.
-	elapsed time without cache 155.625
 3.4 Starting equi query
-	elapsed time: 87.973ms.
-	elapsed time: 92.065ms.
-	elapsed time: 87.221ms.
-	elapsed time: 107.106ms.
-	elapsed time: 110.529ms.
-	elapsed time: 120.253ms.
-	elapsed time: 126.81ms.
-	elapsed time: 123.773ms.
-	elapsed time: 142.995ms.
-	elapsed time: 136.252ms.
-3.5 Verifying results...
-Success!
-Success!
+	elapsed time: 51.172ms.
+	elapsed time: 55.127ms.
+	elapsed time: 50.306ms.
+	elapsed time: 70.058ms.
+	elapsed time: 73.119ms.
+	elapsed time: 82.782ms.
+	elapsed time: 89.964ms.
+	elapsed time: 85.832ms.
+	elapsed time: 104.135ms.
+	elapsed time: 95.63ms.
 
 Done.
 

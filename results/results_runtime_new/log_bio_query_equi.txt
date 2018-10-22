@@ -1,7 +1,7 @@
 
 1. Loading graph and testcases
 Teset case size: 1000
-	elapsed time: 36260ms.
+	elapsed time: 36293.7ms.
 
 2. Loading indices
 
@@ -9,63 +9,28 @@ Index information:
 	edge trussness size: 14460977
 	encode table size: 14460977
 	decode table size: 14460977
-	index tree size: 1375
-	index hash size: 14460977
-	tcp index has 42923 nodes.
-	tcp index size: 28869114
+	index tree size: 0
+	index hash size: 0
+	tcp index has 0 nodes.
+	tcp index size: 0
 	equitruss hash size: 42923 9773293
 	equitruss super graph has 949523 nodes 74773730 edges.
 	equitruss index size: 14455517
-	elapsed time: 105055ms.
+	elapsed time: 39036.4ms.
 
 3. K-Truss Query Processing
 10-Truss query
-3.2 Starting truss info query
-	elapsed time: 5.116ms.
-	elapsed time: 18.742ms.
-	elapsed time: 74.371ms.
-	elapsed time: 240.84ms.
-	elapsed time: 663.831ms.
-	elapsed time: 1598.31ms.
-	elapsed time: 4097.47ms.
-	elapsed time: 7376.37ms.
-	elapsed time: 11055.4ms.
-	elapsed time: 19858.2ms.
-3.3 Starting truss exact query
-	elapsed time: 257166ms.
-	elapsed time without cache 253775
-	elapsed time: 284730ms.
-	elapsed time without cache 280825
-	elapsed time: 275042ms.
-	elapsed time without cache 271099
-	elapsed time: 272924ms.
-	elapsed time without cache 268983
-	elapsed time: 272762ms.
-	elapsed time without cache 268821
-	elapsed time: 272526ms.
-	elapsed time without cache 268584
-	elapsed time: 272431ms.
-	elapsed time without cache 268488
-	elapsed time: 272437ms.
-	elapsed time without cache 268496
-	elapsed time: 310061ms.
-	elapsed time without cache 306190
-	elapsed time: 267603ms.
-	elapsed time without cache 263747
 3.4 Starting equi query
-	elapsed time: 984297ms.
-	elapsed time: 1.12799e+06ms.
-	elapsed time: 1.06208e+06ms.
-	elapsed time: 1.04105e+06ms.
-	elapsed time: 1.03886e+06ms.
-	elapsed time: 1.03664e+06ms.
-	elapsed time: 1.03988e+06ms.
-	elapsed time: 1.04672e+06ms.
-	elapsed time: 1.04658e+06ms.
-	elapsed time: 1.04611e+06ms.
-3.5 Verifying results...
-Success!
-Success!
+	elapsed time: 1.26509e+06ms.
+	elapsed time: 1.38883e+06ms.
+	elapsed time: 1.38219e+06ms.
+	elapsed time: 1.37875e+06ms.
+	elapsed time: 1.37896e+06ms.
+	elapsed time: 1.3783e+06ms.
+	elapsed time: 1.38762e+06ms.
+	elapsed time: 1.38387e+06ms.
+	elapsed time: 1.38782e+06ms.
+	elapsed time: 1.37088e+06ms.
 
 Done.
 
