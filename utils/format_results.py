@@ -13,6 +13,7 @@ def collect_results(query_type):
     exact = {}
     tcp = {}
     path = {}
+    boundary = {}
     equi = {}
     for subdir, dirs, files in os.walk(RESULTS_DIR):
         for f in files:
@@ -49,6 +50,12 @@ def collect_results(query_type):
                         prefix = "elapsed time: "
                         posfix = "ms."
                         continue
+                    if line.find("Starting truss boundary") != -1:
+                        boundary[graph_name] = []
+                        flag = "boundary"
+                        prefix = "elapsed time without cache "
+                        posfix = "\n"
+                        continue
                     if line.find("Starting equi") != -1:
                         equi[graph_name] = []
                         flag = "equi"
@@ -68,6 +75,8 @@ def collect_results(query_type):
                         tcp[graph_name].append(remain)
                     elif flag == "path":
                         path[graph_name].append(remain)
+                    elif flag == "boundary":
+                        boundary[graph_name].append(remain)
                     elif flag == "equi":
                         equi[graph_name].append(remain)
 
@@ -99,6 +108,13 @@ def collect_results(query_type):
         if graph_name not in path:
             continue
         for item in path[graph_name]:
+            out.write("{}, ".format(item))
+        out.write("\n")
+    out.write("\n")
+    for graph_name in graph_seq:
+        if graph_name not in boundary:
+            continue
+        for item in boundary[graph_name]:
             out.write("{}, ".format(item))
         out.write("\n")
     out.write("\n")
