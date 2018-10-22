@@ -1,0 +1,17 @@
+
+2. Loading indices
+
+Index information: 
+	edge trussness size: 0
+	encode table size: 0
+	decode table size: 0
+	index tree has 96446 nodes, 3222 edges.
+	index hash size: 261321018
+	tcp index has 0 nodes.
+	tcp index size: 0
+	equitruss hash size: 0 0
+	equitruss super graph has 0 nodes 0 edges.
+	equitruss index size: 0
+
+Done.
+
