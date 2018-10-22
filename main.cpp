@@ -15,7 +15,7 @@
 
 //#define VERIFY_RESULT
 //#define TCP
-#define EQUI
+//#define EQUI
 
 void print_support_index_info(eint_map &edge_support, 
                               slow_sorted_type &sorted_edge_support) {
@@ -41,8 +41,15 @@ void print_index_info(eint_map &edge_trussness,
          << encode_table.size() << endl;
     cout << "\tdecode table size: " 
          << decode_table.size() << endl;
-    cout << "\tindex tree size: " 
-         << index_tree.size() << endl;
+    size_t it_edges = 0;
+    for (auto iter = index_tree.begin();
+            iter != index_tree.end();
+            ++ iter) {
+        if (iter->second.parent != -1) it_edges ++;
+    }
+    cout << "\tindex tree has " 
+         << index_tree.size() << " nodes, "
+         << it_edges << " edges." << endl;
     cout << "\tindex hash size: " 
          << index_hash.size() << endl;
     if (max_net_k != -1)
