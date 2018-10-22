@@ -264,7 +264,7 @@ double truss_exact_query(exact_qr_set_type &res,
 }
 
 void truss_path_query(vector<vid_type> &res,
-        qr_set_type &infos,
+        qr_set_type  &infos,
         iidinode_map &index_tree,
         eiid_map &index_hash,
         vid_type src, vid_type dst) {
@@ -326,6 +326,49 @@ void truss_path_query(vector<vid_type> &res,
         res.push_back(src_seed_path[i]);
     for (int i = lca_index + 1; i < dst_seed_path.size(); i++)
         res.push_back(dst_seed_path[i]);
+}
+
+double truss_boundary_query(vector<vid_type> &res,
+        qr_set_type &infos,
+        iidinode_map &index_tree,
+        eiid_map &index_hash,
+        unordered_map<inode_id_type, double> &exact_query_cache,
+        bool cache_flag) {
+    if (infos.empty()) return 0;
+    Timer t;
+    double total_time = 0;
+    inode_id_type target_community = infos[0].iid;
+    if (cache_flag && exact_query_cache.find(target_community) != 
+            exact_query_cache.end()) {
+        total_time += exact_query_cache[target_community];
+        total_time += t.update_timer();
+        return total_time;
+    }
+    for (auto iter = index_tree[target_community].adj_list.begin();
+            iter != index_tree[target_community].adj_list.end();
+            ++ iter) {
+        vid_type u = iter->first;
+        for (auto nbr: iter->second) {
+            inode_id_type nbr_community = index_hash[edge_extractor(nbr)];
+            // if target community is not on the same branch as nbr community
+            // then u is a boundary vertex.
+            bool is_ancestor = false;
+            while(nbr_community != -1) {
+                if (nbr_community == target_community) {
+                    is_ancestor = true;
+                    break;
+                }
+                nbr_community = index_tree[nbr_community].parent;
+            }
+            if (is_ancestor) {
+                res.push_back(u);
+                break;
+            }
+        }
+    }
+    if (cache_flag) {
+        exact_query_cache[target_community] = t.update_timer();
+    }
 }
 
 inline eid_type unordered_edge_composer(vid_type u, vid_type v) {

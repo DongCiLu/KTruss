@@ -558,8 +558,8 @@ void do_queries(string graph_filename,
         }
         t.update_timer();
     }
-    else if (query_k == -2 && 
-            !testcases.empty() && testcases[0].size() == 2) {
+    else if (query_k == -2 && !testcases.empty() && 
+            testcases[0].size() == 2) {
         cout << "Truss path query" << endl;
         vector<qr_set_type> truss_community_infos;
 
@@ -578,6 +578,8 @@ void do_queries(string graph_filename,
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1) 
                 t.print_n_update_timer();
+            // record vid of mst graph, 
+            // can be converted to eid in original graph later
             vector<vid_type> maximin_truss_path;
             /*
             truss_path_query(maximin_truss_path, 
@@ -589,6 +591,47 @@ void do_queries(string graph_filename,
                     truss_community_infos[i], 
                     index_tree, index_hash,
                     testcases[i][0], testcases[i][1]);
+        }
+        t.update_timer();
+    }
+    else if (query_k == -3 && !testcases.empty() &&
+            testcases[0].size() == 1) {
+        cout << "Truss boundary query" << endl;
+        vector<qr_set_type> truss_community_infos;
+
+        cout << "3.2 Starting truss info query" << endl;
+        for (size_t i = 0; i < testcases.size(); i ++) {
+            if (i % bucket_size == bucket_size - 1)
+                t.print_n_update_timer();
+            qr_set_type truss_community_info;
+            truss_maxk_query(truss_community_info, testcases[i], 
+                    net, index_tree, index_hash);
+            truss_community_infos.push_back(truss_community_info);
+        }
+        t.update_timer();
+
+        cout << "3.3 Starting truss boundary query" << endl;
+        double total_time = 0;
+        for (size_t i = 0; i < testcases.size(); i ++) {
+            if (i % bucket_size == bucket_size - 1) {
+                t.print_n_update_timer();
+                cout << "\telapsed time without cache " 
+                     << total_time << endl;
+                total_time = 0;
+            }
+            // record vid of mst graph, 
+            // can be converted to eid in original graph later
+            vector<vid_type> truss_boundary;
+            /*
+            truss_path_query(maximin_truss_path, 
+                    truss_community_infos[i], 
+                    mst, triangle_trussness,
+                    testcases[i][0], testcases[i][1]);
+            */
+            total_time += truss_boundary_query(truss_boundary, 
+                    truss_community_infos[i], 
+                    index_tree, index_hash, 
+                    exact_query_cache, cache_flag);
         }
         t.update_timer();
     }
