@@ -13,6 +13,7 @@
 #include "tcp_index.hpp"
 #include "equi_index.hpp"
 
+#define EXAMPLE
 //#define VERIFY_RESULT
 //#define TCP
 //#define EQUI
@@ -23,6 +24,15 @@ void print_support_index_info(eint_map &edge_support,
          << edge_support.size() << endl;
     cout << "sorted edge support size: " 
          << sorted_edge_support.size() << endl;
+#ifdef EXAMPLE
+    for (auto iter = edge_support.begin();
+            iter != edge_support.end();
+            ++ iter) {
+        auto vpair = vertex_extractor(iter->first);
+        cout << vpair.first << " " << vpair.second 
+            << ": " << iter->second << endl;
+    }
+#endif
 }
 
 void print_index_info(eint_map &edge_trussness,
@@ -37,6 +47,15 @@ void print_index_info(eint_map &edge_trussness,
     cout << "\nIndex information: " << endl;
     cout << "\tedge trussness size: " 
          << edge_trussness.size() << endl;
+#ifdef EXAMPLE
+    for (auto iter = edge_trussness.begin();
+            iter != edge_trussness.end();
+            ++ iter) {
+        auto vpair = vertex_extractor(iter->first);
+        cout << vpair.first << " " << vpair.second 
+            << ": " << iter->second << endl;
+    }
+#endif
     cout << "\tencode table size: " 
          << encode_table.size() << endl;
     cout << "\tdecode table size: " 
