@@ -370,6 +370,8 @@ double truss_boundary_query(vector<vid_type> &res,
         // exact_query_cache[target_community] = t.update_timer();
         exact_query_cache[target_community] = res.size();
     }
+    // we dont record time for this experiment.
+    return 0;
 }
 
 inline eid_type unordered_edge_composer(vid_type u, vid_type v) {
