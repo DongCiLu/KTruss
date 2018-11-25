@@ -65,12 +65,28 @@ void print_index_info(eint_map &edge_trussness,
             iter != index_tree.end();
             ++ iter) {
         if (iter->second.parent != -1) it_edges ++;
+#ifdef EXAMPLE
+        cout << iter->first << ": " 
+            << iter->second.parent << " [" 
+            << iter->second.k << "]" << endl;
+#endif
     }
     cout << "\tindex tree has " 
          << index_tree.size() << " nodes, "
          << it_edges << " edges." << endl;
     cout << "\tindex hash size: " 
          << index_hash.size() << endl;
+#ifdef EXAMPLE
+    for (auto iter = index_hash.begin();
+            iter != index_hash.end();
+            ++ iter) {
+        auto vpair1 = vertex_extractor(iter->first);
+        //auto vpair2 = vertex_extractor(iter->second);
+        cout << vpair1.first << " " << vpair1.second << ": " 
+             << iter->second << endl;
+             //<< vpair2.first << " " << vpair2.second << endl;
+    }
+#endif
     if (max_net_k != -1)
         cout << "\tthe maximum k of the graph is: " 
              << max_net_k << endl;
