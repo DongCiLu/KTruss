@@ -3,7 +3,7 @@
 #ifndef EQUI_INDEX_HPP
 #define EQUI_INDEX_HPP
 
-void process_edge(eid_type e, int k,
+inline void process_edge(eid_type e, int k,
         vid_type snID,
         queue<eid_type> &fifo,
         eint_map &edge_trussness,
@@ -30,9 +30,14 @@ void construct_equi_index(const PUNGraph &net,
     unordered_map<eid_type, unordered_set<vid_type>> elist;
     unordered_map<int, unordered_set<eid_type>> tao;
     int max_k = 0;
+    Timer t;
+    Timer t1, t2, t3;
+
     for (TUNGraph::TNodeI NI = net->BegNI(); NI < net->EndNI(); NI ++) {
         equi_hash[NI.GetId()] = unordered_set<vid_type>();
     }
+    t.print_n_update_timer();
+
     for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI ++) {
         eid_type e = edge_composer(EI.GetSrcNId(), EI.GetDstNId());
         unvisited_edges.insert(e);
@@ -43,7 +48,11 @@ void construct_equi_index(const PUNGraph &net,
             tao[k] = unordered_set<eid_type>();
         tao[k].insert(e);
     }
+    t.print_n_update_timer();
     
+    int edge_cnt = 0;
+    int triangle_cnt = 0;
+    double t1_total = 0, t2_total = 0, t3_total = 0;
     vid_type snID = 0;
     for (int k = 3; k <= max_k; k ++) {
         while(!tao[k].empty()) {
@@ -52,10 +61,13 @@ void construct_equi_index(const PUNGraph &net,
             equi_index.super_graph->AddNode(equi.snID);
             equi_index.super_nodes.insert(make_pair(equi.snID, equi));
             queue<eid_type> fifo;
+            unvisited_edges.erase(e);
             fifo.push(e);
             while(!fifo.empty()) {
                 eid_type e = fifo.front();
+                edge_cnt ++;
                 fifo.pop();
+                t1.update_timer();
                 pair<vid_type, vid_type> vpair = vertex_extractor(e);
                 equi_index.super_nodes[equi.snID].edge_list.push_back(e);
                 equi_hash[vpair.first].insert(equi.snID);
@@ -64,27 +76,65 @@ void construct_equi_index(const PUNGraph &net,
                 for (auto e_snID: elist[e]) {
                     equi_index.super_graph->AddEdge(e_snID, equi.snID);
                 }
+                t1_total += t1.update_timer();
+                t2.update_timer();
                 vid_type low, high;
                 get_low_high_deg_vertices(
                         net, vpair.first, vpair.second, low, high);
                 for (int i = 0; i < net->GetNI(low).GetDeg(); i++) {
                     vid_type w = net->GetNI(low).GetNbrNId(i);
                     if (net->IsEdge(w, high)) {
+                        triangle_cnt ++;
                         eid_type e1 = edge_composer(low, w);
                         eid_type e2 = edge_composer(high, w);
                         if (edge_trussness[e1] >= k && edge_trussness[e2] >=k) {
-                            process_edge(e1, k, equi.snID, fifo, 
-                                    edge_trussness, unvisited_edges, elist);
-                            process_edge(e2, k, equi.snID, fifo,
-                                    edge_trussness, unvisited_edges, elist);
+                            if (edge_trussness[e1] == k) {
+                                if (unvisited_edges.find(e1) != 
+                                        unvisited_edges.end()) {
+                                    unvisited_edges.erase(e1);
+                                    fifo.push(e1);
+                                }
+                            }
+                            else {
+                                if (elist[e1].find(equi.snID) == 
+                                        elist[e1].end()) {
+                                    elist[e1].insert(equi.snID);
+                                }
+                            }
+                            if (edge_trussness[e2] == k) {
+                                if (unvisited_edges.find(e2) != 
+                                        unvisited_edges.end()) {
+                                    unvisited_edges.erase(e2);
+                                    fifo.push(e2);
+                                }
+                            }
+                            else {
+                                if (elist[e2].find(equi.snID) == 
+                                        elist[e2].end()) {
+                                    elist[e2].insert(equi.snID);
+                                }
+                            }
+                            //process_edge(e1, k, equi.snID, fifo, 
+                                    //edge_trussness, unvisited_edges, elist);
+                            //process_edge(e2, k, equi.snID, fifo,
+                                    //edge_trussness, unvisited_edges, elist);
                         }
                     }
                 }
+                t2_total += t2.update_timer();
+                t3.update_timer();
                 tao[k].erase(e);
                 net->DelEdge(vpair.first, vpair.second);
+                t3_total += t3.update_timer();
             }
         }
     }
+    t.print_n_update_timer();
+    cout << "Accessed " << edge_cnt << " edges and "
+         << triangle_cnt << " triangles." << endl;
+    cout << "t1: " << t1_total 
+         << " t2: " << t2_total 
+         << " t3: " << t3_total << endl;
 }
 
 void generate_equi_index_from_existing_index(
