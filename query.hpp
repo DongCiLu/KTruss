@@ -350,8 +350,7 @@ double truss_boundary_query(vector<vid_type> &res,
         vid_type u = iter->first;
         for (auto nbr: iter->second) {
             inode_id_type nbr_community = index_hash[edge_extractor(nbr)];
-            // if target community is not on the same branch as nbr community
-            // then u is a boundary vertex.
+            // boundary means the nbr is not in it's children community
             bool is_ancestor = false;
             while(nbr_community != -1) {
                 if (nbr_community == target_community) {
@@ -360,7 +359,7 @@ double truss_boundary_query(vector<vid_type> &res,
                 }
                 nbr_community = index_tree[nbr_community].parent;
             }
-            if (is_ancestor) {
+            if (!is_ancestor) {
                 res.push_back(u);
                 break;
             }
