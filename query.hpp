@@ -367,7 +367,8 @@ double truss_boundary_query(vector<vid_type> &res,
         }
     }
     if (cache_flag) {
-        exact_query_cache[target_community] = t.update_timer();
+        // exact_query_cache[target_community] = t.update_timer();
+        exact_query_cache[target_community] = res.size();
     }
 }
 

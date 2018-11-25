@@ -13,7 +13,7 @@
 #include "tcp_index.hpp"
 #include "equi_index.hpp"
 
-#define EXAMPLE
+//#define EXAMPLE
 //#define VERIFY_RESULT
 //#define TCP
 //#define EQUI
@@ -647,6 +647,9 @@ void do_queries(string graph_filename,
 
         cout << "3.3 Starting truss boundary query" << endl;
         double total_time = 0;
+        double total_k = 0;
+        double total_len = 0;
+        int total_cnt = 0;
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1) {
                 t.print_n_update_timer();
@@ -657,17 +660,30 @@ void do_queries(string graph_filename,
             // record vid of mst graph, 
             // can be converted to eid in original graph later
             vector<vid_type> truss_boundary;
-            /*
-            truss_path_query(maximin_truss_path, 
-                    truss_community_infos[i], 
-                    mst, triangle_trussness,
-                    testcases[i][0], testcases[i][1]);
-            */
+            if (truss_community_infos[i].empty() || 
+                    truss_community_infos[i][0].k <= 3) { 
+                // we only measure boundary between different k-truss communities.
+                continue;
+            }
             total_time += truss_boundary_query(truss_boundary, 
                     truss_community_infos[i], 
                     index_tree, index_hash, 
                     exact_query_cache, cache_flag);
+            int boundary_length = cache_flag ? 
+                exact_query_cache[truss_community_infos[i][0].iid] : truss_boundary.size();
+            total_cnt ++;
+            total_len += boundary_length;
+            total_k += truss_community_infos[i][0].k;
+            // the cache will be used to store boundary length instead of time
+            cout << "TESTCASE " << i 
+                 << " boundary length " << boundary_length
+                 << " trussness " << truss_community_infos[i][0].k << endl;
         }
+        cout << "Final results for boundary search: "  
+             << total_cnt << " valid queries with " 
+             << total_len << " total boundary length and " 
+             << total_k << " total trussness." << endl;
+
         t.update_timer();
     }
     else {
