@@ -634,7 +634,7 @@ void do_queries(string graph_filename,
         cout << "Truss boundary query" << endl;
         vector<qr_set_type> truss_community_infos;
 
-        cout << "3.2 Starting truss info query" << endl;
+        cout << "3.1 Starting truss info query" << endl;
         for (size_t i = 0; i < testcases.size(); i ++) {
             if (i % bucket_size == bucket_size - 1)
                 t.print_n_update_timer();
@@ -644,6 +644,26 @@ void do_queries(string graph_filename,
             truss_community_infos.push_back(truss_community_info);
         }
         t.update_timer();
+
+        /*
+        // this definition is not suitable for community boundary.
+        cout << "3.2 Prepare boundary edge table" << endl;
+        // find edges that is neighbor of edges that does not belong to any community.
+        unordered_set<eid_type> boundary_table;
+        for (TUNGraph::TEdgeI EI = net->BegEI(); EI < net->EndEI(); EI++) {
+            vid_type low, high;
+            get_low_high_deg_vertices(
+                    net, EI.GetSrcNId(), EI.GetDstNId(), low, high);
+            for (int i = 0; i < net->GetNI(low).GetDeg(); i++) {
+                vid_type w = net->GetNI(low).GetNbrNId(i);
+                if (net->IsEdge(w, high)) {
+                    eid_type e1 = edge_composer(low, w);
+                    eid_type e2 = edge_composer(high, w);
+                }
+            }
+        }
+        t.update_timer();
+        */
 
         cout << "3.3 Starting truss boundary query" << endl;
         double total_time = 0;
@@ -660,11 +680,6 @@ void do_queries(string graph_filename,
             // record vid of mst graph, 
             // can be converted to eid in original graph later
             vector<vid_type> truss_boundary;
-            if (truss_community_infos[i].empty() || 
-                    truss_community_infos[i][0].k <= 3) { 
-                // we only measure boundary between different k-truss communities.
-                continue;
-            }
             total_time += truss_boundary_query(truss_boundary, 
                     truss_community_infos[i], 
                     index_tree, index_hash, 
