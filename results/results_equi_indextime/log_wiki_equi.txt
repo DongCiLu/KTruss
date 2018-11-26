@@ -1,0 +1,17 @@
+
+1. Loading graph and testcases
+	elapsed time: 3699.53ms.
+
+2. Loading indices
+	elapsed time: 4984.51ms.
+
+2. Construct equitruss index
+	elapsed time: 1063.88ms.
+	elapsed time: 10604.7ms.
+	elapsed time: 48042.3ms.
+Accessed 1681303 edges and 9203514 triangles.
+t1: 4002.09 t2: 34805.1 t3: 3284.71
+	elapsed time: 62790.8ms.
+
+Done.
+
