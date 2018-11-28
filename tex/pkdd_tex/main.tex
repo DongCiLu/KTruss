@@ -43,6 +43,8 @@
 \usepackage[flushleft]{threeparttable}
 \usepackage{mfirstuc}
 \usepackage{cite}
+\usepackage{tabularx}
+\usepackage{natbib}
 
 % please place your own definitions here and don't use \def but
 % \newcommand{}{}
@@ -65,15 +67,28 @@
 \newcommand{\eg}{e.g., }
 \newcommand{\usernote}[1]{\textbf{\color{blue}[***** #1 *****]\\}}
 
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
 % Paper specific macros
-\newcommand{\probdef}{k-truss community search}
-\newcommand{\Probdef}{K-truss community search}
+\newcommand{\probdef}{query-dependent k-truss community}
+\newcommand{\Probdef}{Query-dependent k-truss community}
 \newcommand{\ProbDef}{\expandafter\capitalisewords\expandafter{\probdef}}
-\newcommand{\inducedgraph}{induced MST graph}
-\newcommand{\Inducedgraph}{Induced MST graph}
+\newcommand{\toplevelprob}{community-level}
+\newcommand{\Toplevelprob}{Community-level}
+\newcommand{\TopLevelProb}{\expandafter\capitalisewords\expandafter{\toplevelprob}}
+\newcommand{\bottomlevelprob}{edge-level}
+\newcommand{\Bottomlevelprob}{Edge-level}
+\newcommand{\BottomLevelProb}{\expandafter\capitalisewords\expandafter{\bottomlevelprob}}
+
+\newcommand{\twolevelindex}{2-level index}
+\newcommand{\Twolevelindex}{2-level index}
+\newcommand{\TwoLevelIndex}{\expandafter\capitalisewords\expandafter{\twolevelindex}}
+
+\newcommand{\inducedgraph}{triangle derived graph}
+\newcommand{\Inducedgraph}{triangle derived graph}
 \newcommand{\InducedGraph}{\expandafter\capitalisewords\expandafter{\inducedgraph}}
-\newcommand{\treeindex}{tree-structured community graph}
-\newcommand{\Treeindex}{Tree-structured community graph}
+\newcommand{\treeindex}{community graph}
+\newcommand{\Treeindex}{community graph}
 \newcommand{\TreeIndex}{\expandafter\capitalisewords\expandafter{\treeindex}}
 
 % Insert the name of "your journal" with
@@ -81,7 +96,7 @@
 %
 \begin{document}
 
-\title{Fast Truss Community Query in Large-scale Graphs%\thanks{Grants or other notes
+\title{2-level Index for Truss Community Query in Large-Scale Graphs%\thanks{Grants or other notes
 %about the article that should go on the front page should be
 %placed here. General acknowledgments should be placed at the end of the article.}
 }
@@ -106,6 +121,7 @@
 					 Yunhe Feng \at
 							Electrical Engineering \& Computer Science, University of Tennessee \\
 							\email{yfeng14@vols.utk.edu} 
+					 \and
            Qing Cao \at
 							Electrical Engineering \& Computer Science, University of Tennessee \\
 							\email{cao@utk.edu} 
@@ -118,10 +134,9 @@
 \maketitle
 
 \begin{abstract}
-Recently, there has been significant interest in the study of the community search problem in social and information networks: given one or more query nodes, find densely connected communities containing the query nodes. However, most existing algorithms require linear computational time to the size of the found community for each specific K value. Therefore, state-of-the-art algorithms have limited scalability in large scale graphs, where communities grow to millions of edges.
-
-In this paper, given an undirected graph G and a set of query nodes $Q$, we formulate a new problem call truss community identity search, which can help answer various query types with multiple query vertices such as max-k truss query, any-k truss query as well as k-truss query. This new proposed problem can be used in many applications as building blocks for community related queries. To solve this problem and k-truss community search efficiently, we propose a 2-level index structure for fast query process. Not only our index structure can support various query types with multiple query vertices. We ourperform state-of-the-art truss index for single vertex k-truss community search. We also develop an efficient algorithm to construct such an index. Extensive experiments on real-world networks show the effectiveness and efficiency of our algorithms. 
-\keywords{K-truss \and large-scale graph \and query process}
+Recently, there are significant interests in the study of the community search problem in large-scale graphs. K-truss as a community model has drawn increasing attention in the literature. In this work, we extend our scope from the community search problem to more generalized local community query problems based on triangle connected k-truss community model. We classify local community query into two categories, the \toplevelprob{} query and the \bottomlevelprob{} query based on the information required to process a community query. We design a 2-level index structure that stores k-truss community relations in the top level index and preserves triangle connectivity between edges in the bottom level index. 
+The proposed index structure not only can process both \toplevelprob{} queries and \bottomlevelprob{} queries in optimal time but also can handle both single-vertex queries and multiple-vertex queries. We conduct extensive experiments using real-world large-scale graphs and compare with state-of-the-art methods for k-truss community search. Results show our method can process \toplevelprob{} queries in the range of hundreds of microseconds to less than a second and \bottomlevelprob{} queries from a few seconds to hundreds of seconds for highest degree vertices within large communities.
+\keywords{Query-dependent community detection \and K-truss \and Large-scale graphs}
 % \PACS{PACS code1 \and PACS code2 \and more}
 % \subclass{MSC code1 \and MSC code2 \and more}
 \end{abstract}
@@ -159,21 +174,6 @@ In this paper, given an undirected graph G and a set of query nodes $Q$, we form
 %\label{fig:2}       % Give a unique label
 %\end{figure*}
 %%
-%% For tables use
-%\begin{table}
-%% table caption is above the table
-%\caption{Please write your table caption here}
-%\label{tab:1}       % Give a unique label
-%% For LaTeX tables use
-%\begin{tabular}{lll}
-%\hline\noalign{\smallskip}
-%first & second & third  \\
-%\noalign{\smallskip}\hline\noalign{\smallskip}
-%number & number & number \\
-%number & number & number \\
-%\noalign{\smallskip}\hline
-%\end{tabular}
-%\end{table}
 
 
 %\begin{acknowledgements}

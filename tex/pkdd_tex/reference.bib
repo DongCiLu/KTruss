@@ -8,6 +8,17 @@
   organization={ACM}
 }
 
+@article{akbas2017truss,
+  title={Truss-based community search: a truss-equivalence based indexing approach},
+  author={Akbas, Esra and Zhao, Peixiang},
+  journal={Proceedings of the VLDB Endowment},
+  volume={10},
+  number={11},
+  pages={1298--1309},
+  year={2017},
+  publisher={VLDB Endowment}
+}
+
 @article{cohen2008trusses,
   title={Trusses: Cohesive subgraphs for social network analysis},
   author={Cohen, Jonathan},
@@ -28,18 +39,8 @@
   publisher={VLDB Endowment}
 }
 
-% nucleus related
-@article{sariyuce2016fast,
-  title={Fast hierarchy construction for dense subgraphs},
-  author={Sariy{\"u}ce, Ahmet Erdem and Pinar, Ali},
-  journal={Proceedings of the VLDB Endowment},
-  volume={10},
-  number={3},
-  pages={97--108},
-  year={2016},
-  publisher={VLDB Endowment}
-}
 
+% nucleus related
 @article{sariyuce2017nucleus,
   title={Nucleus decompositions for identifying hierarchy of dense subgraphs},
   author={Sariy{\"u}ce, Ahmet Erdem and Seshadhri, C and Pinar, Ali and {\c{C}}ataly{\"u}rek, {\"U}mit V},
@@ -51,14 +52,38 @@
   publisher={ACM}
 }
 
-% overview
-@inproceedings{huang2017community,
-  title={Community Search over Big Graphs: Models, Algorithms, and Opportunities},
-  author={Huang, Xin and Lakshmanan, Laks VS and Xu, Jianliang},
-  booktitle={Data Engineering (ICDE), 2017 IEEE 33rd International Conference on},
-  pages={1451--1454},
-  year={2017},
-  organization={IEEE}
+@article{sariyuce2016fast,
+  title={Fast hierarchy construction for dense subgraphs},
+  author={Sariy{\"u}ce, Ahmet Erdem and Pinar, Ali},
+  journal={Proceedings of the VLDB Endowment},
+  volume={10},
+  number={3},
+  pages={97--108},
+  year={2016},
+  publisher={VLDB Endowment}
+}
+
+% community detection
+@article{newman2004finding,
+  title={Finding and evaluating community structure in networks},
+  author={Newman, Mark EJ and Girvan, Michelle},
+  journal={Physical review E},
+  volume={69},
+  number={2},
+  pages={026113},
+  year={2004},
+  publisher={APS}
+}
+
+@article{xie2013overlapping,
+  title={Overlapping community detection in networks: The state-of-the-art and comparative study},
+  author={Xie, Jierui and Kelley, Stephen and Szymanski, Boleslaw K},
+  journal={Acm computing surveys (csur)},
+  volume={45},
+  number={4},
+  pages={43},
+  year={2013},
+  publisher={ACM}
 }
 
 % used techniques
@@ -71,42 +96,16 @@
   organization={Springer}
 }
 
-@incollection{bender2000lca,
-  title={The LCA problem revisited},
-  author={Bender, Michael A and Farach-Colton, Martin},
-  booktitle={LATIN 2000: Theoretical Informatics},
-  year={2000},
-  publisher={Springer}
-}
-
-% experiment settings
-@article{RicciEide:login14,
-    author  = "Robert Ricci and Eric Eide and {The CloudLab Team}",
-    title   = "Introducing {CloudLab}: Scientific Infrastructure for Advancing Cloud Architectures and Applications",
-    journal = "{USENIX} {;login:}",
-    year    = 2014,
-    month   = dec,
-    volume  = 39,
-    number  = 6,
-    url = "https://www.usenix.org/publications/login/dec14/ricci"
-}
-
-@misc{snapnets,
-  author       = {Jure Leskovec and Andrej Krevl},
-  title        = {{SNAP Datasets}: {Stanford} Large Network Dataset Collection},
-  howpublished = {{http://snap.stanford.edu/data}},
-  month        = jun,
-  year         = 2014
-}
-
-@inproceedings{nr-aaai15,
-   title = {The Network Data Repository with Interactive Graph Analytics
-      and Visualization},
-   author={Ryan A. Rossi and Nesreen K. Ahmed},
-   booktitle = {Proceedings of the Twenty-Ninth AAAI Conference on
-      Artificial Intelligence},
-   url={http://networkrepository.com},
-   year={2015}
+% related work: relevant -- free rider
+@article{wu2015robust,
+  title={Robust local community detection: on free rider effect and its elimination},
+  author={Wu, Yubao and Jin, Ruoming and Li, Jing and Zhang, Xiang},
+  journal={Proceedings of the VLDB Endowment},
+  volume={8},
+  number={7},
+  pages={798--809},
+  year={2015},
+  publisher={VLDB Endowment}
 }
 
 % related work: relevant -- clique
@@ -128,16 +127,6 @@
   pages={365--366},
   year={2014},
   organization={ACM}
-}
-
-% related work: relevant -- k-core
-@inproceedings{cheng2011efficient,
-  title={Efficient core decomposition in massive networks},
-  author={Cheng, James and Ke, Yiping and Chu, Shumo and {\"O}zsu, M Tamer},
-  booktitle={Data Engineering (ICDE), 2011 IEEE 27th International Conference on},
-  pages={51--62},
-  year={2011},
-  organization={IEEE}
 }
 
 @inproceedings{shin2016corescope,
@@ -210,19 +199,19 @@
   organization={SIAM}
 }
 
-% related work: relevant -- free rider
-@article{wu2015robust,
-  title={Robust local community detection: on free rider effect and its elimination},
-  author={Wu, Yubao and Jin, Ruoming and Li, Jing and Zhang, Xiang},
-  journal={Proceedings of the VLDB Endowment},
-  volume={8},
-  number={7},
-  pages={798--809},
-  year={2015},
-  publisher={VLDB Endowment}
-}
 
 % related work: others
+@article{interdonato2017local,
+  title={Local community detection in multilayer networks},
+  author={Interdonato, Roberto and Tagarelli, Andrea and Ienco, Dino and Sallaberry, Arnaud and Poncelet, Pascal},
+  journal={Data Mining and Knowledge Discovery},
+  volume={31},
+  number={5},
+  pages={1444--1479},
+  year={2017},
+  publisher={Springer}
+}
+
 @article{koujaku2016dense,
   title={Dense core model for cohesive subgraph discovery},
   author={Koujaku, Sadamori and Takigawa, Ichigaku and Kudo, Mineichi and Imai, Hideyuki},
@@ -271,15 +260,6 @@
   publisher={VLDB Endowment}
 }
 
-@inproceedings{cui2013online,
-  title={Online search of overlapping communities},
-  author={Cui, Wanyun and Xiao, Yanghua and Wang, Haixun and Lu, Yiqi and Wang, Wei},
-  booktitle={Proceedings of the 2013 ACM SIGMOD International Conference on Management of Data},
-  pages={277--288},
-  year={2013},
-  organization={ACM}
-}
-
 @article{barbieri2015efficient,
   title={Efficient and effective community search},
   author={Barbieri, Nicola and Bonchi, Francesco and Galimberti, Edoardo and Gullo, Francesco},
@@ -291,38 +271,11 @@
   publisher={Springer}
 }
 
-@article{fang2016effective,
-  title={Effective community search for large attributed graphs},
-  author={Fang, Yixiang and Cheng, Reynold and Luo, Siqiang and Hu, Jiafeng},
-  journal={Proceedings of the VLDB Endowment},
-  volume={9},
-  number={12},
-  pages={1233--1244},
-  year={2016},
-  publisher={VLDB Endowment}
-}
-
-@article{huang2016attribute,
-  title={Attribute Truss Community Search},
-  author={Huang, Xin and Lakshmanan, Laks VS},
-  journal={arXiv preprint arXiv:1609.00090},
-  year={2016}
-}
-
 @inproceedings{chen2016efficient,
   title={Efficient Computation of Importance Based Communities in Web-Scale Networks Using a Single Machine},
   author={Chen, Shu and Wei, Ran and Popova, Diana and Thomo, Alex},
   booktitle={Proceedings of the 25th ACM International on Conference on Information and Knowledge Management},
   pages={1553--1562},
-  year={2016},
-  organization={ACM}
-}
-
-@inproceedings{shang2016agar,
-  title={AGAR: an attribute-based graph refining method for community search},
-  author={Shang, Jingwen and Wang, Chaokun and Wang, Changping and Guo, Gaoyang and Qian, Jun},
-  booktitle={Proceedings of the Sixth International Conference on Emerging Databases: Technologies, Applications, and Theory},
-  pages={65--66},
   year={2016},
   organization={ACM}
 }
@@ -336,19 +289,11 @@
   publisher={Springer}
 }
 
-@article{shang2017attribute,
-  title={An attribute-based community search method with graph refining},
-  author={Shang, Jingwen and Wang, Chaokun and Wang, Changping and Guo, Gaoyang and Qian, Jun},
-  journal={The Journal of Supercomputing},
-  pages={1--28},
-  year={2017},
-  publisher={Springer}
-}
-
 @article{wangquery,
   title={Query Optimal k-Plex Based Community in Graphs},
   author={Wang, Yue and Xun, Jian and Yang, Zhenhua and Li, Jia},
   journal={Data Science and Engineering},
+	year={2017},
   pages={1--17},
   publisher={Springer}
 }
@@ -376,26 +321,6 @@
   author={Bi, Fei and Chang, Lijun and Lin, Xuemin and Zhang, Wenjie},
   journal={arXiv preprint arXiv:1711.05857},
   year={2017}
-}
-
-@article{fang2017effective,
-  title={Effective and efficient attributed community search},
-  author={Fang, Yixiang and Cheng, Reynold and Chen, Yankai and Luo, Siqiang and Hu, Jiafeng},
-  journal={The VLDB Journal},
-  pages={1--26},
-  year={2017},
-  publisher={Springer}
-}
-
-@article{huang2017attribute,
-  title={Attribute-driven community search},
-  author={Huang, Xin and Lakshmanan, Laks VS},
-  journal={Proceedings of the VLDB Endowment},
-  volume={10},
-  number={9},
-  pages={949--960},
-  year={2017},
-  publisher={VLDB Endowment}
 }
 
 @inproceedings{li2017most,
@@ -431,4 +356,47 @@
   author={Yin, Zhaoming and Shi, Xuan},
   journal={arXiv preprint arXiv:1705.07746},
   year={2017}
+}
+
+@inproceedings{shang2016agar,
+  title={AGAR: an attribute-based graph refining method for community search},
+  author={Shang, Jingwen and Wang, Chaokun and Wang, Changping and Guo, Gaoyang and Qian, Jun},
+  booktitle={Proceedings of the Sixth International Conference on Emerging Databases: Technologies, Applications, and Theory},
+  pages={65--66},
+  year={2016},
+  organization={ACM}
+}
+
+@article{fang2016effective,
+  title={Effective community search for large attributed graphs},
+  author={Fang, Yixiang and Cheng, Reynold and Luo, Siqiang and Hu, Jiafeng},
+  journal={Proceedings of the VLDB Endowment},
+  volume={9},
+  number={12},
+  pages={1233--1244},
+  year={2016},
+  publisher={VLDB Endowment}
+}
+
+
+@article{shang2017attribute,
+  title={An attribute-based community search method with graph refining},
+  author={Shang, Jingwen and Wang, Chaokun and Wang, Changping and Guo, Gaoyang and Qian, Jun},
+  journal={The Journal of Supercomputing},
+  pages={1--28},
+  year={2017},
+  publisher={Springer}
+}
+
+
+
+@article{huang2017attribute,
+  title={Attribute-driven community search},
+  author={Huang, Xin and Lakshmanan, Laks VS},
+  journal={Proceedings of the VLDB Endowment},
+  volume={10},
+  number={9},
+  pages={949--960},
+  year={2017},
+  publisher={VLDB Endowment}
 }
