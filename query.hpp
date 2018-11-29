@@ -4,7 +4,6 @@
 #ifndef QUERY_HPP
 #define QUERY_HPP
 
-
 // this is not optimized
 void truss_raw_edge_query(community_type &truss_community,
         eid_type query_e,

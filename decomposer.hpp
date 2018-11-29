@@ -3,13 +3,6 @@
 #ifndef DECOMPOSER_HPP
 #define DECOMPOSER_HPP
 
-/*
-bool support_sort(const pair<eid_type, int> &a, 
-        const pair<eid_type, int> &b) {
-    return a.second < b.second;
-}
-*/
-
 // TODO: return max support value 
 void compute_support(const PUNGraph &net, 
         unordered_set<eid_type> &elist,
