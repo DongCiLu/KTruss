@@ -1,0 +1,108 @@
+Reference that only use links:
+@article{RicciEide:login14,
+    author  = "Robert Ricci and Eric Eide and {The CloudLab Team}",
+    title   = "Introducing {CloudLab}: Scientific Infrastructure for Advancing Cloud Architectures and Applications",
+    journal = "{USENIX} {;login:}",
+    year    = 2014,
+    month   = dec,
+    volume  = 39,
+    number  = 6,
+    url = "https://www.usenix.org/publications/login/dec14/ricci"
+}
+
+@misc{snapnets,
+  author       = {Jure Leskovec and Andrej Krevl},
+  title        = {{SNAP Datasets}: {Stanford} Large Network Dataset Collection},
+  howpublished = {{http://snap.stanford.edu/data}},
+  month        = jun,
+  year         = 2014
+}
+
+@inproceedings{nr-aaai15,
+   title = {The Network Data Repository with Interactive Graph Analytics
+      and Visualization},
+   author={Ryan A. Rossi and Nesreen K. Ahmed},
+   booktitle = {Proceedings of the Twenty-Ninth AAAI Conference on
+      Artificial Intelligence},
+   url={http://networkrepository.com},
+   year={2015}
+}
+
+Removed reference:
+@article{sariyuce2016fast,
+  title={Fast hierarchy construction for dense subgraphs},
+  author={Sariy{\"u}ce, Ahmet Erdem and Pinar, Ali},
+  journal={Proceedings of the VLDB Endowment},
+  volume={10},
+  number={3},
+  pages={97--108},
+  year={2016},
+  publisher={VLDB Endowment}
+}
+
+% overview
+@inproceedings{huang2017community,
+  title={Community Search over Big Graphs: Models, Algorithms, and Opportunities},
+  author={Huang, Xin and Lakshmanan, Laks VS and Xu, Jianliang},
+  booktitle={Data Engineering (ICDE), 2017 IEEE 33rd International Conference on},
+  pages={1451--1454},
+  year={2017},
+  organization={IEEE}
+}
+
+
+
+
+@incollection{bender2000lca,
+  title={The LCA problem revisited},
+  author={Bender, Michael A and Farach-Colton, Martin},
+  booktitle={LATIN 2000: Theoretical Informatics},
+  year={2000},
+  publisher={Springer}
+}
+
+
+@article{fang2017effective,
+  title={Effective and efficient attributed community search},
+  author={Fang, Yixiang and Cheng, Reynold and Chen, Yankai and Luo, Siqiang and Hu, Jiafeng},
+  journal={The VLDB Journal},
+  pages={1--26},
+  year={2017},
+  publisher={Springer}
+}
+
+@article{huang2016attribute,
+  title={Attribute Truss Community Search},
+  author={Huang, Xin and Lakshmanan, Laks VS},
+  journal={arXiv preprint arXiv:1609.00090},
+  year={2016}
+}
+
+@article{Chang2017mathsf,
+  title={pSCAN : Fast and Exact Structural Graph Clustering},
+  author={Lijun Chang and Wei Li and Lu Qin and Wenjie Zhang and Shiyu Yang},
+  journal={IEEE Transactions on Knowledge and Data Engineering},
+  year={2017},
+  volume={29},
+  pages={387-401}
+}
+
+
+@inproceedings{cui2013online,
+  title={Online search of overlapping communities},
+  author={Cui, Wanyun and Xiao, Yanghua and Wang, Haixun and Lu, Yiqi and Wang, Wei},
+  booktitle={Proceedings of the 2013 ACM SIGMOD International Conference on Management of Data},
+  pages={277--288},
+  year={2013},
+  organization={ACM}
+}
+	
+	% related work: relevant -- k-core
+@inproceedings{cheng2011efficient,
+  title={Efficient core decomposition in massive networks},
+  author={Cheng, James and Ke, Yiping and Chu, Shumo and {\"O}zsu, M Tamer},
+  booktitle={Data Engineering (ICDE), 2011 IEEE 27th International Conference on},
+  pages={51--62},
+  year={2011},
+  organization={IEEE}
+}
