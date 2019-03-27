@@ -495,4 +495,72 @@ void truss_equi_query(exact_qr_set_type &truss_communities,
     }
 }
 
+void truss_equi_info_query(unordered_set<vid_type> &truss_communities,
+        vid_type query_vid, 
+        int query_k, 
+        eint_map &edge_trussness,
+        equi_hash_type &equi_hash,
+        equi_index_type &equi_index) {
+    unordered_set<vid_type> visited_sn;
+    int l = 0;
+    for (auto snID: equi_hash[query_vid]) {
+        if (equi_index.super_nodes[snID].k >= query_k &&
+                visited_sn.find(snID) == visited_sn.end()) {
+            visited_sn.insert(snID);
+            l ++;
+            unordered_set<vid_type> truss_community;
+            queue<vid_type> fifo;
+            fifo.push(snID);
+            while(!fifo.empty()) {
+                vid_type cur_snID = fifo.front();
+                fifo.pop();
+                truss_community.insert(cur_snID);
+                int deg = equi_index.super_graph->GetNI(cur_snID).GetDeg();
+                for (int i = 0; i < deg; i++) {
+                    vid_type nbr_snID = 
+                        equi_index.super_graph->GetNI(cur_snID).GetNbrNId(i);
+                    if (equi_index.super_nodes[nbr_snID].k >= query_k &&
+                            visited_sn.find(nbr_snID) == visited_sn.end()) {
+                        visited_sn.insert(nbr_snID);
+                        fifo.push(nbr_snID);
+                    }
+                }
+            }
+            truss_communities.insert(
+                    truss_community.begin(), truss_community.end());
+        }
+    }
+}
+
+void truss_equi_multi_info_query(unordered_set<vid_type> &truss_communities,
+        vector<vid_type>& query_vids, 
+        int query_k, 
+        eint_map &edge_trussness,
+        equi_hash_type &equi_hash,
+        equi_index_type &equi_index) {
+    bool init = false;
+    for (auto query_vid: query_vids){
+        unordered_set<vid_type> singlev_truss_communities;
+        truss_equi_info_query(singlev_truss_communities, query_vid,
+                query_k, edge_trussness, equi_hash, equi_index);
+        if (init) {
+            unordered_set<vid_type> new_intersection_communities;
+            if (truss_communities.size() < singlev_truss_communities.size())
+                truss_communities.swap(singlev_truss_communities);
+            for (unordered_set<vid_type>::iterator 
+                    iter = singlev_truss_communities.begin();
+                    iter != singlev_truss_communities.end();
+                    ++ iter) {
+                if (truss_communities.find(*iter) != truss_communities.end())
+                    new_intersection_communities.insert(*iter);
+            }
+            truss_communities.swap(new_intersection_communities);
+        }
+        else {
+            truss_communities.swap(singlev_truss_communities);
+            init = true;
+        }
+    }
+}
+
 #endif

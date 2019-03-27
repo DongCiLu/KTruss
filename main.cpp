@@ -16,7 +16,8 @@
 //#define EXAMPLE
 //#define VERIFY_RESULT
 //#define TCP
-//#define EQUI
+#define EQUI
+#define TEMP_CHANGE
 
 void print_support_index_info(eint_map &edge_support, 
                               slow_sorted_type &sorted_edge_support) {
@@ -450,6 +451,7 @@ void do_queries(string graph_filename,
         }
         t.update_timer();
 
+#ifndef TEMP_CHANGE
         cout << "3.3 Starting truss exact query" << endl;
         double total_time = 0;
         for (size_t i = 0; i < testcases.size(); i ++) {
@@ -474,8 +476,13 @@ void do_queries(string graph_filename,
 #endif
         }
         t.update_timer();
+#endif
 
+#ifdef TEMP_CHANGE
+        if (!testcases.empty()) {
+#else
         if (!testcases.empty() && testcases[0].size() == 1) {
+#endif
 #ifdef TCP
             // single query vertex case
             cout << "3.4 Starting tcp query" << endl;
@@ -494,14 +501,21 @@ void do_queries(string graph_filename,
 #endif
 
 #ifdef EQUI
-            // single query vertex case
             cout << "3.4 Starting equi query" << endl;
             for (size_t i = 0; i < testcases.size(); i ++) {
                 if (i % bucket_size == bucket_size - 1)
                     t.print_n_update_timer();
                 exact_qr_set_type truss_community;
+                /*
+                // single query vertex case
                 truss_equi_query(truss_community, 
                         testcases[i][0], query_k,
+                        edge_trussness, equi_hash, equi_index);
+                */
+                // multiple query vertex case
+                unordered_set<vid_type> truss_info_communities;
+                truss_equi_multi_info_query(truss_info_communities, 
+                        testcases[i], query_k,
                         edge_trussness, equi_hash, equi_index);
 #ifdef VERIFY_RESULT
                 truss_communities3.push_back(truss_community);
