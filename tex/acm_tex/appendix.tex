@@ -1,0 +1,15 @@
+% 
+% If your work has an appendix, this is the place to put it.
+\appendix
+
+\section{Proof of Theorem 1}
+\begin{proof}
+First, if there is a cycle $v^{c}_{1} ... v^{c}_{i} ... v^{c}_{n}$ in the \treeindex{} $G^c$ and their corresponding k-truss community in the original graph $G^o$ is $C^{o}_{1} ... C^{o}_{i} ... C^{o}_{n}$, respectively. According to \autoref{def:k-truss_community} and \autoref{def:\treeindex{}}, $C^{o}_{1} ... C^{o}_{i} ... C^{o}_{n}$ are triangle connected, and it is impossible for an arbitrary pair of communit\usernote{ies} to have same trussness, as it contradicts with the maximal property of k-truss communities. Assume without loss of generality that vertex $v^{c}_{i}$ has the largest weight in this cycle, \ie its corresponding k-truss community $C^{o}_{i}$ has the smallest trussness. We denote the two adjacent vertices of it as $v^{c}_{j}$ and $v^{c}_{k}$. The corresponding k-truss communities are $C^{o}_{j}$ and $C^{o}_{k}$, respectively. By \autoref{def:\treeindex{}}, $C^{o}_{j}$ and $C^{o}_{k}$ are triangle connected. Assume without loss of generality that $C^{o}_{k}$ has smaller trussness than $C^{o}_{j}$, we have $C^{o}_{i}$ is a subgraph of $C^{o}_{j}$ and $C^{o}_{j}$ is a subgraph of $C^{o}_{k}$. So the edge between $v^{c}_{i}$ and $v^{c}_{k}$ contradict with the definition of the \treeindex{}.
+
+Second, $G^c$ may have multiple connected components as not all k-truss communities in $G^o$ are triangle connected. 
+\end{proof}
+
+\section{Proof of Theorem 2}
+\begin{proof}
+Since $G^m$ is the maximum spanning forest, it has the cycle property, \ie for any cycle in the \inducedgraph{} $G^t$, if the weight of an edge in the cycle is smaller than the individual weights of all the other edges in the cycle, then this edge cannot belong to a maximum spanning forest. So there is no path in $G^t$ between $u^m$ and $v^m$ that has all edges with weight higher than $\tau_{(u^m,v^m)}$. Let $e^{o}_{u}$ and $e^{o}_{v}$ be their corresponding edges in original graph $G_o$, then $e^{o}_{u}$ is not triangle connected to $e^{o}_{v}$ in $G^o$ with edges that have trussness greater than $\tau_{(u^m,v^m)}$. Therefore, it is not possible for $e^{o}_{u}$ and $e^{o}_{v}$ to exist in the same k-truss community with trussness greater than $\tau_{(u^m,v^m)}$.
+\end{proof}
