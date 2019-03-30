@@ -5,6 +5,8 @@ OUTDIR = 'results/reformed/batch3'
 RESULTS_DIR = 'results/results_equi_multi'
 # RESULTS_DIR = 'results/results_maximin_path'
 PREFIX_LEN = 4
+graph_seq = ["facebook", "wiki", "skitter", "baidu", "Livejournal",
+    "orkut", "sinaweibo", "hollywood", "bio"]
 
 def collect_results(query_type):
     out = open("{}/{}.txt".format(OUTDIR, query_type), 'w')
@@ -78,9 +80,6 @@ def collect_results(query_type):
                         boundary[graph_name].append(remain)
                     elif flag == "equi":
                         equi[graph_name].append(remain)
-
-    graph_seq = ["facebook", "wiki", "skitter", "baidu", "Livejournal",
-            "orkut", "sinaweibo", "hollywood", "bio"]
 
     for graph_name in graph_seq:
         if graph_name not in info:
