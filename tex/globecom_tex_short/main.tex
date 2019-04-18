@@ -1,0 +1,108 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+%%\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs} % For formal tables
+%%\usepackage{amsmath}
+%\usepackage[noend]{algpseudocode}
+\usepackage[flushleft]{threeparttable}
+\usepackage{subfigure}
+\usepackage{comment}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{multirow}
+\usepackage[lined,linesnumbered,ruled,noend]{algorithm2e}
+\usepackage[flushleft]{threeparttable}
+\usepackage{mfirstuc}
+\usepackage{tabularx}
+%\usepackage{natbib}
+
+\newtheorem{Def}{Definition}%[section]
+\newcommand{\Defautorefname}{Definition}
+\newtheorem{Thm}{Theorem}%[section]
+\newcommand{\Thmautorefname}{Theorem}
+\newtheorem{Obs}{Observation}%[section]
+\newcommand{\Obsautorefname}{Observation}
+\newcommand{\ie}{i.e., }
+\newcommand{\eg}{e.g., }
+%\newcommand{\usernote}[1]{{\color{blue}#1}}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+% Paper specific macros
+\newcommand{\probdef}{local k-truss community query}
+\newcommand{\Probdef}{Local k-truss community query}
+\newcommand{\ProbDef}{\expandafter\capitalisewords\expandafter{\probdef}}
+\newcommand{\toplevelprob}{community-level}
+\newcommand{\Toplevelprob}{Community-level}
+\newcommand{\TopLevelProb}{\expandafter\capitalisewords\expandafter{\toplevelprob}}
+\newcommand{\bottomlevelprob}{edge-level}
+\newcommand{\Bottomlevelprob}{Edge-level}
+\newcommand{\BottomLevelProb}{\expandafter\capitalisewords\expandafter{\bottomlevelprob}}
+
+\newcommand{\twolevelindex}{two-level index}
+\newcommand{\Twolevelindex}{Two-level index}
+\newcommand{\TwoLevelIndex}{\expandafter\capitalisewords\expandafter{\twolevelindex}}
+
+\newcommand{\inducedgraph}{triangle-derived graph}
+\newcommand{\Inducedgraph}{Triangle-derived graph}
+\newcommand{\InducedGraph}{\expandafter\capitalisewords\expandafter{\inducedgraph}}
+\newcommand{\treeindex}{community graph}
+\newcommand{\Treeindex}{Community graph}
+\newcommand{\TreeIndex}{\expandafter\capitalisewords\expandafter{\treeindex}}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{\TwoLevelIndex{} for Truss Community Query in Large-Scale Graphs}
+
+\author{\IEEEauthorblockN{Zheng Lu, Yunhe Feng, Qing Cao}
+\IEEEauthorblockA{\textit{Dept. of Electrical Engineering \& Computer Science}, \textit{University of Tennessee}, Knoxville, USA \\
+\{zlu12, yfeng14, cao\}@utk.edu}
+%\and
+%\IEEEauthorblockN{Yunhe Feng}
+%\IEEEauthorblockA{\textit{Dept. of Electrical Engineering \& Computer Science} \\
+%\textit{University of Tennessee}\\
+%Knoxville, USA \\
+%yfeng14@vols.utk.edu}
+%\and
+%\IEEEauthorblockN{Qing Cao}
+%\IEEEauthorblockA{\textit{Dept. of Electrical Engineering \& Computer Science} \\
+%\textit{University of Tennessee}\\
+%Knoxville, USA \\
+%cao@utk.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+Recently, there has been a significant interest in the study of the community search problem in large-scale graphs. K-truss as a community model has drawn increasing attention in the literature. In this work, we extend our scope from the community search problems to a more generalized local community query problem based on a triangle-connected k-truss community model. We classify local community query into two categories, \toplevelprob{} and \bottomlevelprob{} query, based on the information required to process a given query. 
+We design a two-level index structure that supports both types of queries with multiple query vertices and arbitrary cohesiveness criteria. 
+We conduct extensive experiments using real-world large-scale graphs and compare with the state-of-the-art methods of k-truss community search. The results show that our method outperforms the state-of-the-art works in various types of local k-truss community queries. 
+\end{abstract}
+
+\begin{IEEEkeywords}
+Query-dependent community detection, K-truss, Large-scale graphs
+\end{IEEEkeywords}
+
+\input{introduction}
+\input{preliminary}
+\input{index}
+\input{query}
+\input{evaluation}
+\input{relatedwork}
+\input{conclusion}
+
+\bibliographystyle{abbrv}
+\bibliography{reference}
+%\input{appendix}
+
+\end{document}

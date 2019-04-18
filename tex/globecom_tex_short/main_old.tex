@@ -1,0 +1,247 @@
+%
+% The first command in your LaTeX source must be the \documentclass command.
+%\documentclass[sigconf]{acmart}
+\documentclass[sigconf, anonymous]{acmart}
+%
+% defining the \BibTeX command - from Oren Patashnik's original BibTeX documentation.
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08emT\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+    
+% Rights management information. 
+% This information is sent to you when you complete the rights form.
+% These commands have SAMPLE values in them; it is your responsibility as an author to replace
+% the commands and values with those provided to you when you complete the rights form.
+%
+% These commands are for a PROCEEDINGS abstract or paper.
+%\copyrightyear{2018}
+%\acmYear{2018}
+%\setcopyright{acmlicensed}
+%\acmConference[Woodstock '18]{Woodstock '18: ACM Symposium on Neural Gaze Detection}{June 03--05, 2018}{Woodstock, NY}
+%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection, June 03--05, 2018, Woodstock, NY}
+%\acmPrice{15.00}
+%\acmDOI{10.1145/1122445.1122456}
+%\acmISBN{978-1-4503-9999-9/18/06}
+
+%
+% These commands are for a JOURNAL article.
+%\setcopyright{acmcopyright}
+%\acmJournal{TOG}
+%\acmYear{2018}\acmVolume{37}\acmNumber{4}\acmArticle{111}\acmMonth{8}
+%\acmDOI{10.1145/1122445.1122456}
+
+%
+% Submission ID. 
+% Use this when submitting an article to a sponsored event. You'll receive a unique submission ID from the organizers
+% of the event, and this ID should be used as the parameter to this command.
+%\acmSubmissionID{123-A56-BU3}
+
+%
+% The majority of ACM publications use numbered citations and references. If you are preparing content for an event
+% sponsored by ACM SIGGRAPH, you must use the "author year" style of citations and references. Uncommenting
+% the next command will enable that style.
+%\citestyle{acmauthoryear}
+
+
+\usepackage{graphicx}
+%
+% \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+%
+% insert here the call for the packages your document requires
+%\usepackage{latexsym}
+% etc.
+\usepackage{booktabs} % For formal tables
+\usepackage{amsmath}
+\usepackage[noend]{algpseudocode}
+\usepackage[flushleft]{threeparttable}
+\usepackage{subfigure}
+\usepackage{comment}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{multirow}
+\usepackage[lined,linesnumbered,ruled]{algorithm2e}
+\usepackage[flushleft]{threeparttable}
+\usepackage{mfirstuc}
+%\usepackage{cite}
+\usepackage{tabularx}
+\usepackage{natbib}
+
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+\makeatletter
+\def\th@plain{%
+  \thm@notefont{}% same as heading font
+  \itshape % body font
+}
+\def\th@definition{%
+  \thm@notefont{}% same as heading font
+	\itshape
+}
+\makeatother
+
+\newtheorem{Def}{Definition}%[section]
+\newcommand{\Defautorefname}{Definition}
+\newtheorem{Thm}{Theorem}%[section]
+\newcommand{\Thmautorefname}{Theorem}
+\newtheorem{Obs}{Observation}%[section]
+\newcommand{\Obsautorefname}{Observation}
+\newcommand{\ie}{i.e., }
+\newcommand{\eg}{e.g., }
+\newcommand{\usernote}[1]{\textbf{\color{blue}[#1]}}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+% Paper specific macros
+\newcommand{\probdef}{local k-truss community query}
+\newcommand{\Probdef}{Local k-truss community query}
+\newcommand{\ProbDef}{\expandafter\capitalisewords\expandafter{\probdef}}
+\newcommand{\toplevelprob}{community-level}
+\newcommand{\Toplevelprob}{Community-level}
+\newcommand{\TopLevelProb}{\expandafter\capitalisewords\expandafter{\toplevelprob}}
+\newcommand{\bottomlevelprob}{edge-level}
+\newcommand{\Bottomlevelprob}{Edge-level}
+\newcommand{\BottomLevelProb}{\expandafter\capitalisewords\expandafter{\bottomlevelprob}}
+
+\newcommand{\twolevelindex}{2-level index}
+\newcommand{\Twolevelindex}{2-level index}
+\newcommand{\TwoLevelIndex}{\expandafter\capitalisewords\expandafter{\twolevelindex}}
+
+\newcommand{\inducedgraph}{triangle derived graph}
+\newcommand{\Inducedgraph}{triangle derived graph}
+\newcommand{\InducedGraph}{\expandafter\capitalisewords\expandafter{\inducedgraph}}
+\newcommand{\treeindex}{community graph}
+\newcommand{\Treeindex}{community graph}
+\newcommand{\TreeIndex}{\expandafter\capitalisewords\expandafter{\treeindex}}
+
+
+
+%
+% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%
+% The "title" command has an optional parameter, allowing the author to define a "short title" to be used in page headers.
+\title{2-level Index for Truss Community Query in Large-Scale Graphs}
+
+%
+% The "author" command and its associated commands are used to define the authors and their affiliations.
+% Of note is the shared affiliation of the first two authors, and the "authornote" and "authornotemark" commands
+% used to denote shared contribution to the research.
+\author{Zheng Lu}
+%\authornote{Both authors contributed equally to this research.}
+\email{zlu12@vols.utk.edu}
+\orcid{0000-0002-7203-220X}
+\affiliation{%
+  \institution{University of Tennessee}
+  \city{Knoxville}
+  \state{Tennessee}
+}
+
+\author{Yunhe Feng}
+\email{yfeng14@vols.utk.edu}
+\affiliation{%
+  \institution{University of Tennessee}
+  \city{Knoxville}
+  \state{Tennessee}
+}
+
+\author{Qing Cao}
+\email{cao@utk.edu}
+\affiliation{%
+  \institution{University of Tennessee}
+  \city{Knoxville}
+  \state{Tennessee}
+}
+
+%
+% By default, the full list of authors will be used in the page headers. Often, this list is too long, and will overlap
+% other information printed in the page headers. This command allows the author to define a more concise list
+% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Lu, et al.}
+
+%
+% The abstract is a short summary of the work to be presented in the article.
+\begin{abstract}
+Recently, there are significant interests in the study of the community search problem in large-scale graphs. K-truss as a community model has drawn increasing attention in the literature. In this work, we extend our scope from the community search problem to more generalized local community query problems based on triangle connected k-truss community model. We classify local community query into two categories, the \toplevelprob{} query and the \bottomlevelprob{} query based on the information required to process a community query. We design a 2-level index structure that stores k-truss community relations in the top level index and preserves triangle connectivity between edges in the bottom level index. 
+The proposed index structure not only can process both \toplevelprob{} queries and \bottomlevelprob{} queries in optimal time but also can handle both single-vertex queries and multiple-vertex queries. We conduct extensive experiments using real-world large-scale graphs and compare with state-of-the-art methods for k-truss community search. Results show our method can process \toplevelprob{} queries in the range of hundreds of microseconds to less than a second and \bottomlevelprob{} queries from a few seconds to hundreds of seconds for highest degree vertices within large communities.
+\end{abstract}
+
+%
+% The code below is generated by the tool at http://dl.acm.org/ccs.cfm.
+% Please copy and paste the code instead of the example below.
+%
+%\begin{CCSXML}
+%<ccs2012>
+ %<concept>
+  %<concept_id>10010520.10010553.10010562</concept_id>
+  %<concept_desc>Computer systems organization~Embedded systems</concept_desc>
+  %<concept_significance>500</concept_significance>
+ %</concept>
+ %<concept>
+  %<concept_id>10010520.10010575.10010755</concept_id>
+  %<concept_desc>Computer systems organization~Redundancy</concept_desc>
+  %<concept_significance>300</concept_significance>
+ %</concept>
+ %<concept>
+  %<concept_id>10010520.10010553.10010554</concept_id>
+  %<concept_desc>Computer systems organization~Robotics</concept_desc>
+  %<concept_significance>100</concept_significance>
+ %</concept>
+ %<concept>
+  %<concept_id>10003033.10003083.10003095</concept_id>
+  %<concept_desc>Networks~Network reliability</concept_desc>
+  %<concept_significance>100</concept_significance>
+ %</concept>
+%</ccs2012>
+%\end{CCSXML}
+%
+%\ccsdesc[500]{Computer systems organization~Embedded systems}
+%\ccsdesc[300]{Computer systems organization~Redundancy}
+%\ccsdesc{Computer systems organization~Robotics}
+%\ccsdesc[100]{Networks~Network reliability}
+
+%
+% Keywords. The author(s) should pick words that accurately describe the work being
+% presented. Separate the keywords with commas.
+\keywords{Query-dependent community detection \and K-truss \and Large-scale graphs}
+
+%
+% A "teaser" image appears between the author and affiliation information and the body 
+% of the document, and typically spans the page. 
+%\begin{teaserfigure}
+  %\includegraphics[width=\linewidth]{./figures/illustration_main.png}
+  %\caption{Two layer index structure for k-truss community queries.}
+  %\label{fig:illustration_main}
+%\end{teaserfigure}
+
+%
+% This command processes the author and affiliation and title information and builds
+% the first part of the formatted document.
+\maketitle
+
+\input{introduction}
+\input{preliminary}
+\input{index}
+\input{query}
+\input{implementation}
+\input{evaluation}
+\input{relatedwork}
+\input{conclusion}
+
+
+%
+% The acknowledgments section is defined using the "acks" environment (and NOT an unnumbered section). This ensures
+% the proper identification of the section in the article metadata, and the consistent spelling of the heading.
+%\begin{acks}
+%To Robert, for the bagels and explaining CMYK and color spaces.
+%\end{acks}
+
+%
+% The next two lines define the bibliography style to be used, and the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{reference}
+
+\input{appendix}
+
+
+\end{document}

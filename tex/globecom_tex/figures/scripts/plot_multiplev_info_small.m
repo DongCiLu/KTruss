@@ -59,12 +59,12 @@ end
 
 legend_hand = legend(legend_string,...
     'Orientation', 'horizontal',...
-    'Position', [0.1 -0.08 0.8 0.1]);
+    'Position', [0.1 0 0.8 0.1]);
 set(legend_hand,'Fontname', 'Times New Roman', ...
     'Fontsize', 20, 'NumColumns', 3, 'box', 'off');
 
 fig = gcf;
 fig.PaperUnits = 'inches';
-fig.PaperSize = [16 4.6];
-fig.PaperPosition = [-1.5 0.6 19 4];
+fig.PaperSize = [16 4];
+fig.PaperPosition = [-1.5 0.5 19 3.5];
 print('multiplev_3_info_query_small.pdf', '-dpdf')

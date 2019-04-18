@@ -1,5 +1,9 @@
 \section{Conclusion}
 \label{conclusion}
 
-In this work, we use information required to process a community query to divide local k-truss community queries into two categories, the \toplevelprob{} query and the \bottomlevelprob{} query. We designed \twolevelindex{} that stores the \treeindex{} in the top level index for locating relevant communities and the \inducedgraph{} in the bottom level index to preserve the triangle connectivity at the edge level inside each k-truss community. 
-We showed experimentally that our index structure outperformed state-of-the-art methods for processing both \toplevelprob{} queries and \bottomlevelprob{} queries with a single query vertex or multiple query vertices.
+\usernote{In this work, we designed an two level index structure to solve local community query problem, which is a generalized version of the community search problem. We showed that various types of local community queries can be efficiently processed on our index with a two step procedure, and our procedure is theoretically optimal. We conducted extensive experiments of both the \toplevelprob{} and the \bottomlevelprob{} local k-truss community queries on real-world graphs. Results show that our index structure outperforms the state-of-the-art method, Equitruss and TCP-Index.}
+
+%local k-truss community queries into the \toplevelprob{} query and the \bottomlevelprob{} query. 
+
+%We designed \twolevelindex{} that stores the \treeindex{} in the top level index for locating relevant communities and the \inducedgraph{} in the bottom level index to preserve the triangle connectivity at the edge level inside each k-truss community. 
+%We showed experimentally that our index structure outperformed state-of-the-art methods.

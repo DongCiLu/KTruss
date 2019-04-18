@@ -22,10 +22,36 @@
 			\bottomrule
 			\end{tabularx}
 			\begin{tablenotes}
-				\item Datasets with the number of vertices, edges, triangles and the maximum trussness ($k_{max}$) in the largest weakly connected components without self edges. Sorted by the number of triangles.
+				\item Number of vertices, edges, triangles and the maximum trussness ($k_{max}$) in the largest WCC. 
 			\end{tablenotes}
 		\end{threeparttable}
+		\vspace{-0.5cm}
 \end{table}
+
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=0.9\linewidth, trim={0cm 0cm, 0cm, 0.3cm}, clip]{./figures/singlev_k_compare_small.pdf}
+    \caption{Comparison of single vertex k-truss community search of the \twolevelindex{}, the TCP index and the Equitruss index.}
+    \label{fig:singlev_k_compare}
+		\vspace{-0.3cm}
+\end{figure*}
+
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=0.9\linewidth, trim={0cm 0cm, 0cm, 0.3cm}, clip]{./figures/multiplev_k_compare_small.pdf}
+    \caption{Comparison of multiple vertex k-truss community-level query of the \twolevelindex{} and the Equitruss index.}
+    \label{fig:multiplev_k_compare}
+		\vspace{-0.3cm}
+\end{figure*}
+
+In this section, we evaluate our proposed index structure for various types of local k-truss community queries on real-world networks. We compare the \twolevelindex{} with the state-of-the-art solutions: the TCP index \cite{huang2014querying} and the Equitruss index \cite{akbas2017truss} for index construction (Section~\ref{eval_const}), single vertex k-truss community search (Section~\ref{eval_singlev_k_compare}) and multiple-vertex \probdef{} (Section~\ref{eval_multiplev}), respectively. All experiments are implemented in C++ and run on a Linux server with 2.2GHz CPUs and 256GB memory. 
+
+We use five real-world graphs of different types shown in Table~\ref{table:datasets}. To simplify our experiments, we treat them as undirected, un-weighted graphs and only use the largest weakly connected component of each graph. %We also removed all the self edges in each graph. 
+%We sort the graph according to their number of triangles as ktruss community highly relies on triangles in the graph. 
+All datasets are publicly available from the Stanford Network Analysis Project (snap.stanford.edu) and the Network Repository (networkrepository.com).
+
+\subsection{Index construction}
+\label{eval_const}
 
 \begin{table}
 		\caption{Comparison of Index Construction}
@@ -63,46 +89,33 @@
 			%Friendster & 32364 &   &  &  & \\
 			\bottomrule
 		\end{tabularx}
+		\vspace{-0.5cm}
 \end{table}
 
-\begin{figure*}[h]
-    \centering
-    \includegraphics[width=1.0\textwidth]{./figures/singlev_k_compare_small.pdf}
-    \caption{Comparison of single vertex k-truss community search of the \twolevelindex{}, the TCP index and the Equitruss index.}
-    \label{fig:singlev_k_compare}
-\end{figure*}
-
-\begin{figure*}[h]
-    \centering
-    \includegraphics[width=1.0\linewidth]{./figures/multiplev_3_info_query_small.pdf}
-    \caption{Three types (k-truss, max-k-truss, any-k-truss) multiple-vertex ($3$) \toplevelprob{} k-truss community query $vs.$ community search.}
-    \label{fig:multiplev_3_info_query}
-\end{figure*}
-
-In this section, we evaluate our proposed index structure for various types of local k-truss community queries on real-world networks. We compare the \twolevelindex{} with state-of-the-art solutions, the TCP index \cite{huang2014querying} and the Equitruss index \cite{akbas2017truss} for index construction (Section~\ref{eval_const}), single vertex k-truss community search (Section~\ref{eval_singlev_k_compare}) and multiple vertex k-truss community search. All experiments are implemented in C++ and are run on a Linux server with 2.2GHz CPUs and 256GB memory. 
-
-We use $5$ real-world graphs of different types as shown in the Table~\ref{table:datasets}. To simplify our experiments, we treat them as undirected, un-weighted graphs and only use the largest weakly connected component of each graph. We also removed all the self edges in each graph. 
-%We sort the graph according to their number of triangles as ktruss community highly relies on triangles in the graph. 
-All datasets are publicly available from Stanford Network Analysis Project\footnote{snap.stanford.edu} and Network Repository\footnote{networkrepository.com}.
-
-\subsection{Index construction}
-\label{eval_const}
-
-We show in this section the index size and index construction time of the \twolevelindex{} compared to the TCP index and the Equitruss index in Table \ref{table:index_construction}. 
+In this section, we show the index size and index construction time of the \twolevelindex{} compared to the TCP index and the Equitruss index in Table \ref{table:index_construction}. 
 %Both indices are generated in memory and we show the size of the data structures that hold the index. 
-We separate the truss decomposition time for all three methods so that the index construction time only shows how long it takes to generate a certain index with edge trussness provided. 
-We can see in Table \ref{table:index_construction} that the \twolevelindex{} has comparable construction time to the Equitruss index and both are faster than the TCP index. The index size of the \twolevelindex{} is smaller than the TCP index as there are no repeating edges stored in the index. However, the Equitruss has the smallest index size since it only stores edge list of the original graph while the \twolevelindex{} also preserves the triangle connectivity inside k-truss communities. Note that if only \toplevelprob{} k-truss community queries are processed, the algorithm only needs to retrieve the top level index which has a much smaller size. 
+%We separate the truss decomposition time for all three methods. %so that the index construction time only shows how long it takes to generate a certain index with edge trussness provided. 
+We can see in Table \ref{table:index_construction} that the \twolevelindex{} has a construction time that is comparable with the Equitruss index and that both are faster than the TCP index. The index size of the \twolevelindex{} is smaller than the TCP index. %as there are no repeating edges stored in the index. 
+However, the Equitruss has the smallest index size since it only stores edge list of the original graph while the \twolevelindex{} also preserves the triangle connectivity inside k-truss communities. 
+%Note that if only \toplevelprob{} k-truss community queries are processed, the algorithm only needs to retrieve the top level index which has a much smaller size. 
 
 \subsection{Query performance}
 \label{eval_query_time}
 
-In this section, we evaluate the query time of various query types to show the effectiveness of the \twolevelindex{}. As k-truss community query time heavily relies on the degree of query vertices, we use a similar procedure as used by \cite{huang2014querying} to partition vertices to be used in the experiments. Because only vertices with a degree of $k + 1$ can appear in a k-truss community with trussness of $k$. If we partition vertices uniformly by their degree and the graph has highly screwed degree distribution, then vertices in most of the partitions would have a too low degree to appear in a k-truss community. To show the performance of different algorithms on mining community structures in this kind of graphs, we fix the trussness of k-truss community search queries at $10$ and discard vertices with degree less than $20$. Then we uniformly partition the rest of vertices according to their degrees into 10 categories and at each category, we randomly select 100 sets of query vertices.
+In this section, we evaluate the query time of k-truss community queries to show the effectiveness of the \twolevelindex{}. 
+%As query time heavily relies on the degree of query vertices, we partition vertices for the experiments. 
+%We discareds vertices Because only vertices with a degree of $k + 1$ can appear in a k-truss community with trussness of $k$. If we partition vertices uniformly by their degree and the graph has highly screwed degree distribution, then vertices in most of the partitions would have a too low degree to appear in a k-truss community. To show the performance of different algorithms on mining community structures in this kind of graphs, 
+We perform $10$-truss community queries and discard vertices with degrees less than $20$ as they normally do not belong to any $10$-truss community. 
+%Because the query time heavily replies on the degree of query vertices, 
+We uniformly partition the rest of vertices according to their degrees into 10 buckets and randomly select 100 sets of query vertices for each bucket.
 
 %\vskip 0.1in \noindent \textbf{Single vertex k-truss community search.}
-\subsubsection{Single vertex k-truss community search.}
+\subsubsection{Single-vertex k-truss community search.}
 \label{eval_singlev_k_compare}
 
-We first evaluate the single vertex k-truss community search performance and compare the query time with the TCP index and the Equitruss index. The results are shown in \autoref{fig:singlev_k_compare}. The \twolevelindex{} achieves best average query time for all graphs. It has an order of magnitude speedup compared to the TCP index for all graphs and $5\%$ to $400\%$ speedup compared to the Equitruss index for all graphs. However, the speed up is linear as all three indices have the same time complexity to handle single vertex k-truss community search queries. Note that very low average query time (around $10^{-5}$ second) means there is no vertex belonging to any k-truss community in that degree rank. The main reason that the \twolevelindex{} is faster than the TCP index is the avoidance of the expensive BFS search during query time. The reason for performance differences of the \twolevelindex{} and the Equitruss index on various graphs lies in that the super-graph size of \twolevelindex{} is much smaller thus easier to locate target communities.
+We first evaluate the single-vertex k-truss community search performance and compare the query time with the TCP index and the Equitruss index. The results are shown in \autoref{fig:singlev_k_compare}. The \twolevelindex{} achieves the best average query time for all graphs. It has an order of magnitude speedup compared to the TCP index for all graphs, along with $5\%$ to $400\%$ speedup compared to the Equitruss index for all graphs. The speed up is linear as all three indices have the same time complexity to handle single vertex k-truss community search queries. 
+%Note that very low average query time (around $10^{-5}$ second) means that there is no vertex belonging to any k-truss community in that degree rank. 
+The main reason why the \twolevelindex{} is faster than the TCP index is the avoidance of the expensive BFS search during query time. The reason behind the performance differences of the \twolevelindex{} and the Equitruss index on various graphs lies in the fact that the super-graph size of the \twolevelindex{} is much smaller, making it easier to locate target communities.
 
 %\begin{figure}[h]
 %\centering
@@ -116,8 +129,16 @@ We first evaluate the single vertex k-truss community search performance and com
 %
 %We show the super-graph sizes of the \twolevelindex{} and the Equitruss index in \autoref{fig:graphsize}. We can see that the size of the super-graph of the Equitruss index is an order of magnitude larger than the super-graph of the \twolevelindex{}. The Equitruss index is slow while finding target communities due to the larger super-graph size. However, edge lists of a k-truss community can be more effectively retrieved as it is already stored in each super vertex. For the \twolevelindex{}, target communities are easier to identify, however, one need to iterate through the adjacent lists stored in super vertices to retrieve edges in the community. % and then convert vertices of the \inducedgraph{} back to their corresponding edges in the original graph. %Now it's not hard to understand the performance different on different real-world graphs, 
 
-\subsubsection{The \toplevelprob{} query $vs.$ the \bottomlevelprob{} query (community search).}
-\label{eval_top_bottom_compare}
+\subsubsection{Multiple-vertex k-truss community query.}
+\label{eval_multiplev}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.9\linewidth, trim={0cm 0cm, 0cm, 0.2cm}, clip]{./figures/multiplev_3_info_query_small.jpg}
+    \caption{Three types (k-truss, max-k-truss, any-k-truss) multiple-vertex ($3$) \toplevelprob{} k-truss community queries $vs.$ community search.}
+    \label{fig:multiplev_3_info_query}
+		\vspace{-0.5cm}
+\end{figure*}
 
 %\begin{figure*}[t]
     %\centering
@@ -133,10 +154,9 @@ We first evaluate the single vertex k-truss community search performance and com
     %\label{fig:multiplev_2_info_query}
 %\end{figure}
 
-We perform all three basic types, \ie k-truss, max-k-truss and any-k-truss, of \toplevelprob{} k-truss community queries and perform community search queries on the targeting communities found by \toplevelprob{} queries. We show both single-query-vertex cases and multiple-query-vertex ($3$ vertices) cases in \autoref{fig:singlev_info_query} and \autoref{fig:multiplev_3_info_query}, respectively. 
+We first perform \toplevelprob{} multiple-vertex k-truss queries with both the \twolevelindex{} and the Equitruss index. We are not able to perform the same experiment on the TCP index as there is no easy modification that would enable it to support multiple-vertex queries. We can see in \autoref{fig:multiplev_k_compare} that the \twolevelindex{} outperforms the Equitruss index by several orders of magnitude. This clearly shows the difference between the two indices; the Equitruss index has a larger super-graph and is slower for \toplevelprob{} queries, where only the super-graph is required. %The performance difference shows that our \twolevelindex{} is quite suitable for \toplevelprob{} queries.
 
-%\vskip 0.1in \noindent \textbf{\toplevelprob{} query $vs.$ \bottomlevelprob{} query (community search).} 
-We can see in both figures that our index is very effective for both \toplevelprob{} queries and community search queries. The average time for \toplevelprob{} queries spans from $1.22 x 10^{-5}$ second to $0.62$ second. The average time for community search queries is typically much higher than \toplevelprob{} queries since it needs to access edge level information, ranging from $2.20 x 10^{-5}$ to $979.81$ seconds depending on the size of target communities. The multi-hundred average run time comes from searching all truss communities that contain a query vertex (any-k-truss query) with a very high degree in the densest graph (bio). The fast query time of \toplevelprob{} queries makes it an excellent candidate for applications that require community-relation information such as whether a set of vertices belong to the same k-truss communities without digging into the details of any k-truss community. 
+We then perform both the \toplevelprob{} and the \bottomlevelprob{} multiple-vertex queries with all three basic types of cohesiveness criteria, \ie k-truss, max-k-truss and any-k-truss. We show the results in \autoref{fig:multiplev_3_info_query}. The average time for \toplevelprob{} queries spans from $3.4$ x $10^{-5}$ second to $0.06$ seconds. Typically, the average time for community search queries is much higher than \toplevelprob{} queries (since one needs to access edge-level information), ranging from $0.03$ to $91.9$ seconds depending on the size of the target communities. Among all the three types of cohesiveness criteria, any-k-truss \bottomlevelprob{} queries usually take the longest query time. %as it needs to process the most k-truss communities. %The multi-hundred average run time comes from searching all truss communities that contain a query vertex (any-k-truss query) with a very high degree in the densest graph (bio). %The fast query time of \toplevelprob{} queries makes it an excellent candidate for applications that require community-relation information such as whether a set of vertices belong to the same k-truss communities without digging into the details of any k-truss community. 
 
 %\subsubsection{K-truss query $vs.$ max-k-truss query $vs.$ any-k-truss query.}
 %\label{eval_k_type_compare}

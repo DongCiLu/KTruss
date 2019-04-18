@@ -1,0 +1,112 @@
+\subsection{Query on \TwoLevelIndex{}}
+\label{query}
+We classify k-truss local community queries into two categories according to the level of information required. We use a two-step procedure to solve queries. The first step is an $union-intersection$ procedure on the top-level index to locate the target communities. The results of this step can answer \toplevelprob{} queries directly. If edge-level information is required for a query, \eg the community search query, we use bottom-level index to discover all the edges contained in the target communities. Besides the two query categories, we also incorporate the ability to add various cohesiveness criteria for the queries with our \twolevelindex{}. We prove our \twolevelindex{} is theoretical optimal for both \toplevelprob{} and \bottomlevelprob{} queries.
+%
+%The \toplevelprob{} query (Section~\ref{\toplevelprob{}}) only requires the information on the relations between k-truss communities and to which k-truss communities the query vertices belong. 
+%%For example, "Do query vertices belongs to same k-truss communities?". 
+%These queries can be answered solely by the top-level index. Another type of queries, which requires edge-level information to process, is called the \bottomlevelprob{} query (Section~\ref{\bottomlevelprob{}}). The widely studied community search query is the simplest form of such queries. We process this type of queries by first locating the target k-truss communities with the top-level index and then diving into the edge-level details with the bottom-level index. 
+%
+%\subsubsection{The \TopLevelProb{} Query}
+%\label{\toplevelprob{}}
+%K-truss community info queries have the coarsest granularity, \ie it only ask for information on the community level and don't require any details inside a k-truss community.  Queries like these can be directly answered by only looking up in the top level \treeindex{} of the \twolevelindex{}. Since each vertex contains meta-data that stores properties of the corresponding k-truss community, this type of query can also answer queries about the trussness of communities, the size of communities, etc.
+
+We show the $union-intersection$ procedure in Algorithm \ref{alg:union_intersection}. Given the \twolevelindex{} and a lookup table $H$ that maps edges in the original graph $G^o$ (represented by vertices in $G^m$) to vertices in the \treeindex{} $G^c$ as input, the algorithm first iterates through the adjacent edges of each query vertex. For each edge maps to a vertex in $G^c$, the the algorithm takes the $union$ of itself and its ancestors in $G^c$ (line 8-14). This represents all the communities to which a query vertex belongs. Then, we take the $intersection$ of the results of all query vertices which represents the communities to which all query vertices belong (line 3-7). 
+
+The \twolevelindex{} supports any range of trussness value as a cohesiveness criterion for a query. There are three most common cohesiveness criteria: a specific $k$ value (k-truss query), the maximum $k$ value (max-k-truss query) and any $k$ values (any-k-truss query). With the results of the $union-intersection$ procedure, we can easily retrieve target communities that meet any of these criteria.
+
+\begin{algorithm}
+	\KwData{Original graph $G^{o}(V^{o},E^{o})$, Top-level index $G^{c}(V^{c},E^{c})$, Mapping table $H$, Query set $Q$}
+	\KwResult{Subgraph $S$ of $G^c$ which represents k-truss communities containing all query vertices}
+	\SetKwProg{Fn}{function}{}{end}
+	\BlankLine
+	$S \gets \emptyset$\;
+	$initialized \gets false$\;
+	\For{$u^o \in Q$}{
+		$SS \gets$ singlev\_subgraph($u^o$)\;
+		\lIf{$!init$} {
+			$S \gets SS$, $init \gets true$
+		}
+		\lElse {
+			$S \gets S \cap SS$
+		}
+	}
+	\Return{$S$}
+	\BlankLine
+	%\Fn{branch\_search ($u^s$)}{
+		%$B \gets \emptyset$\;
+		%\While{$u^c \neq null$} {
+			%$B \gets B \bigcup u^s$\;
+			%$u^c \gets u^{c}.parent$\;
+		%}
+		%\Return{$B$}
+	%}
+	%\BlankLine
+	\Fn{singlev\_subgraph ($u^o$)}{
+		$SS \gets \emptyset$\;
+		\For{$v^o \in N_u$} {
+			$u^c \gets H[(u^o, v^o)]$\;
+			$B \gets$ ancestors of $u^c$ in $G^c$\;
+			$SS \gets SS \bigcup B$\;
+		}
+		\Return{$SS$}
+	}
+	\caption{$union-intersection$ Algorithm.}\label{alg:union_intersection}
+\end{algorithm}
+
+
+%\begin{Thm}
+%The union of all communities $\bigcup C_i$ found by \autoref{alg:\inducedgraph{}_query} is the union of all the k-truss communities containing query vertex $q$.
+%\label{thm:\inducedgraph{}_query}
+%\end{Thm}
+%
+%\begin{proof}
+%According to \autoref{def:\inducedgraph{}}, a vertex $x$ in \inducedgraph{} $G_m$ with weight $w_{x} \le k$ means the represented edge $e$ in $G_o$ has trussness $\tau_{e} \le k$ and thus can be included in a k-truss community. An edge $(x,y)$ in \inducedgraph{} $G_m$ with weight $w_{(x,y)} \le k$ means the represented triangle $\triangle$ in $G_o$ has all three edges with trussness higher or equal to $k$ and thus the triangle is included in a k-truss community containing all three edges of it. Adjacent edges in $G_m$ means adjacent triangles in $G_o$ and connected components in $G_m$ means triangle connected components in $G_o$. So, BFS/DFS search starts with a seed vertex $x$ with weight constraint will find the maximal connected component including $x$ which representing the k-truss community that $e$ belongs to in $G_o$ ($x$ represents $e$ in $G_m$). Therefore, performing such BFS/DFS searches on each edge of the query vertex will find all the k-truss communities that the query vertex belongs to.
+%\end{proof}
+
+The time and space complexity for collecting the ancestors of a given super-vertex is $\tau_e$ because $G^c$ is a forest. To iterate all the adjacent edges of a query vertex takes $\sum_{v \in N_u}{\tau_{(u,v)}}$ time and space. Finally, the algorithm needs to find the set of super-vertices for each query vertex to get a set of common super-vertices, so the total time and space complexity for the $union-intersection$ procedure is $\sum_{u \in Q}{\sum_{v \in N_u}{\tau_{(u,v)}}}$. 
+%It is the time and space complexity for all three types of k-truss community info queries and they all can be answered by checking the results one pass.
+%
+%\subsubsection{The \BottomLevelProb{} Query}
+%\label{\bottomlevelprob{}}
+
+The \bottomlevelprob{} \probdef{} requires information regarding the finest granularity as it needs to explore the inner edge-level structure of a k-truss community. We use the k-truss community search as a concrete example. First, the $union-intersection$ algorithm is performed to obtain the target communities of the query. Then, we collect the edges contained by each target community by gathering the edge list of subgraphs of the original graphs stored alongside the $G^c$ vertices. %Finally, the edges of the original graph $G^o$ can be retrieved by converting their corresponding vertices in $G^m$.
+
+Each edge in the target communities will only be accessed exactly once, so the time and space complexity for the search are $|\bigcup{C_i}|$, where $\bigcup{C_i}$ is the union of target communities, as the time to locate the target communities are negligible.
+
+%Our bottom-level index contains the detailed triangle connectivity information that makes such queries possible. %To process a k-truss community query, we first locate the target k-truss communities using the top-level index and then compute the query results using edge-level details provided by the bottom-level index. 
+%We show three concrete examples of this type of queries in this section: the k-truss community search (Section~\ref{k-truss community search}), the k-truss community boundary search (Section~\ref{boundary search}) and the triangle connected maximin path search (Section~\ref{path search}).
+
+ 
+
+%Note that the \twolevelindex{} is capable of processing more complex \bottomlevelprob{} queries besides community search. Due to limited space, we cannot undertake further discussion on this issue here.
+%As we mentioned in section \ref{structure}, the partial $G^m$ is stored as adjacent list. We only need to collect all the vertices of the partial $G^m$, which represent edges in the orignal graph $G^o$. 
+
+%\begin{algorithm}
+	%\KwData{$G^{o}(V^{o},E^{o})$, $G^{m}(V^{m},E^{m})$, $G^{c}(V^{c},E^{c})$, $H$, $Q$}
+	%\KwResult{all k-truss communities $C$ containing $Q$}
+	%\BlankLine
+	%$S \gets union-intersect$($G^o$, $G^c$, $H$, $Q$)\;
+	%\For{$v^c \in S$} {
+		%$C_i \gets \emptyset$\;
+		%\For{$v^m \in v^{c}.adj\_list.keys$}{
+			%find corresponding $e^o$ of $v^m$;
+			%$C_i \gets C_i \bigcup e^o$\;
+		%}
+	%}
+	%\Return{$\bigcup{C_i}$}
+	%\caption{K-truss Community Search Query}\label{alg:search_query}
+%\end{algorithm}
+
+
+%The intra-community query requires information of finest granularity as it needs to explore the inner structure of a k-truss community. Our bottom level index, \inducedgraph{}, contains the detailed triangle connectivity information that make such queries possible. For some queries, the top level \treeindex{} may also help. We show two concrete examples of such queries in this section: finding boundaries among k-truss communities and finding a triangle connected maximin trussness path between two query vertices, etc. % For the sake of space, we omitted the detailed algorithm here.
+
+%\vskip 0.1in \noindent \textbf{k-truss community boundary search}
+%%\label{boundary search}
+%
+%The boundary of a k-truss community $C_i$ contains edges in the community that have triangle adjacent neighbor edges belong to other k-truss communities $C_j, C_j \notin C_i$. To find the boundary of a k-truss community, as vertices in the \treeindex{} $G^c$ have subgraphs of the \inducedgraph{} $G^m$ stored in it, we can first gather the subgraph $S$ of $G^o$ that contains children vertices of the corresponding vertex $v^c$ of the queried k-truss community $C$ using the top level index. Then we iterate through all the vertices of the subgraph of $G^m$ that stored in $S$ and select vertices that have neighbors stored in other $G^c$ vertices $u^c$ that $u^c \notin S$. Finally, the collected vertices of $G^m$ can be mapped back to edges of the original graph $G^o$. Since the search exams all the edges in the queried community, the algorithm's time complexity is $O(|C|)$, and the space complexity is $O(|B|)$ , where $B$ denotes the returned boundary. For the sake of space, we omitted the detailed algorithm here.
+%
+%\vskip 0.1in \noindent \textbf{Triangle connected maximin path search}
+%%\label{path search}
+%
+%Given two query vertices, a triangle connected maximin path is a path connecting two queries vertices that has all the edges are triangle connected and maximizes the minimum edge trussness. To find such a path, the algorithm first perform a max-k-truss \toplevelprob{} query to find communities containing both query vertices that have the highest trussness, denoted by $C_{max\tau}$. Then in one of the target communities, the algorithm starts a breadth first search that amid to find a path connecting any pair of edges of the source and target vertices. Due to the property of a maximum spanning tree, the found path is a maximin path of edge trussness. Such a path is guaranteed to exist as long as a max-k-truss community containing both the source and target vertices can be found because edges belonged to the same k-truss community is triangle connected. The algorithm performs a BFS after a max-k-truss info query, so the time complexity is $\sum_{v \in N_{src}}{\tau_{(src,v)}} + \sum_{v \in N_{dst}}{\tau_{(dst,v)}} + \min_{C \in C_{max\tau}}{|C|}$ and space complexity is $O(|P|)$ , where $P$ denotes the returned path. For the sake of space, we omitted the detailed algorithm here.
+%%starts a breadth first search at a vertex in the stored partial $G^m$ that has the highest degree. The search ends when it reach both a vertex in $G^m$ representing an adjacent edge $e_{src}$ of the source vertex in $G^o$ and a vertex in $G^m$ representing an adjacent edge $e_{dst}$ of the target vertex $v_{dst}$. The algorithms performs a BFS after a max-k-truss info query, so the time complexity is $\sum_{v \in N_{src}}{\tau_{(src,v)}} + \sum_{v \in N_{dst}}{\tau_{(dst,v)}} + \min_{C \in C_{max\tau}}{|C|}$.

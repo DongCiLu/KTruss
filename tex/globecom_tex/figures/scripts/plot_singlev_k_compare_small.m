@@ -41,6 +41,14 @@ for idx = 1:numel(sequence)
     y_min = min(data);
     %y_min = max(y_min, 0.002);
     ylim([y_min/3, y_max*3]);
+    
+    Fontsize = 15;
+    yl = get(gca,'YLabel');
+    ylFontSize = get(yl,'FontSize');
+    yAX = get(gca,'YAxis');
+    set(yAX,'FontSize', Fontsize)
+    set(yl, 'FontSize', ylFontSize);
+    
     xlabel_hand=xlabel({'Degree rank (%)';' '});
     set(xlabel_hand,'Fontname', 'Times New Roman', 'Fontsize', 20);
     ylabel_hand=ylabel('Average time (s)');
@@ -50,12 +58,12 @@ end
 
 legend_hand = legend(legend_string,...
     'Orientation', 'horizontal',...
-    'Position', [0.1 0 0.8 0.06]);
+    'Position', [0.1 0 0.8 0.07]);
 set(legend_hand,'Fontname', 'Times New Roman', ...
     'Fontsize', 20, 'box', 'off');
 
 fig = gcf;
 fig.PaperUnits = 'inches';
-fig.PaperSize = [16 4];
-fig.PaperPosition = [-1.5 0 19 4];
+fig.PaperSize = [16 3.5];
+fig.PaperPosition = [-1.5 0 19 3.5];
 print('singlev_k_compare_small.pdf', '-dpdf')
