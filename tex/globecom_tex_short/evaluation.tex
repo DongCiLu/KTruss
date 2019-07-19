@@ -17,7 +17,7 @@
 		\vspace{-0.3cm}
 \end{figure*}
 
-In this section, we evaluate our proposed index structure for various types of local k-truss community queries on real-world networks. We compare the \twolevelindex{} with the state-of-the-art solutions: the TCP index \cite{huang2014querying} and the Equitruss index \cite{akbas2017truss} for single-vertex k-truss community search (Section~\ref{eval_singlev_k_compare}) and multiple-vertex \probdef{} (Section~\ref{eval_multiplev}), respectively. All experiments are implemented in C++ and run on a Linux server with 2.2GHz CPUs and 256GB memory. 
+In this section, we evaluate our proposed index structure for various types of local k-truss community queries on real-world networks. We compare the \twolevelindex{} with the state-of-the-art solutions: the TCP index \cite{huang2014querying} and the Equitruss index \cite{akbas2017truss}. %for single-vertex k-truss community search (Section~\ref{eval_singlev_k_compare}) and multiple-vertex \probdef{} (Section~\ref{eval_multiplev}), respectively. All experiments are implemented in C++ and run on a Linux server with 2.2GHz CPUs and 256GB memory. 
 
 \begin{table}
 \caption{Datasets}
@@ -136,7 +136,7 @@ The main reason why the \twolevelindex{} is faster than the TCP index is the avo
 
 \begin{figure*}
     \centering
-    \includegraphics[width=0.9\linewidth, trim={0cm 0cm, 0cm, 0.2cm}, clip]{./figures/multiplev_3_info_query_small.jpg}
+    \includegraphics[width=0.9\linewidth, trim={0cm 0cm, 0cm, 0cm}, clip]{./figures/multiplev_3_info_query_small.jpg}
 		\vspace{-0.2cm}
     \caption{Three types (k-truss, max-k-truss, any-k-truss) multiple-vertex ($3$) \toplevelprob{} k-truss community queries $vs.$ community search.}
     \label{fig:multiplev_3_info_query}
